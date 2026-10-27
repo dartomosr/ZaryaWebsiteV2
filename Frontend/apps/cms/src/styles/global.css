@@ -1,0 +1,10 @@
+* { box-sizing: border-box; }
+:root { font-family: system-ui, sans-serif; color: #f5f2ed; background: #121118; color-scheme: dark; line-height: 1.6; }
+body { margin: 0; min-width: 320px; }
+main { max-width: 960px; margin: 0 auto; padding: clamp(24px, 6vw, 80px) 24px; }
+h1 { font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.15; }
+p { max-width: 65ch; }
+.eyebrow { color: #ffc267; letter-spacing: .12em; }
+.notice { border-left: 3px solid #a98adf; background: #201c2a; padding: 20px; }
+a { color: #ffc267; }
+:focus-visible { outline: 2px solid #ffc267; outline-offset: 4px; }
