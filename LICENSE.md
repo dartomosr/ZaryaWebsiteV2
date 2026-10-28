@@ -1,65 +1,57 @@
-# ZARYA Source-Available Non-Commercial License
+# ZARYA Community Use License
 
 Version 1.0 — 2026
 
 Copyright (c) 2026 the respective copyright holders of the ZARYA project.
-All rights reserved, except as expressly granted below.
 
-## 1. Scope
+The ZARYA project is made available for learning, experimentation, and non-commercial reuse. The following permissions and restrictions apply.
 
-This License is intended to cover the ZARYA project's original materials in this repository, including its frontend, backend, database schemas and SQL scripts, documentation, and project-created assets (collectively, the "Software").
+## 1. Covered materials
 
-This License applies to each part of the Software **only to the extent that the copyright holder of that part has authorized its release under this License**. Placing this file in a repository does not license materials owned by others without their permission.
+This License covers the original frontend, backend, database code and SQL scripts, documentation, and project-created assets in this repository (the **Software**), but only where their respective copyright holders have authorized this License.
 
-Third-party libraries, dependencies, fonts, images, and other separately licensed materials remain subject to their own licenses and are not relicensed by this document.
+Third-party dependencies, images, fonts, and other materials retain their own licenses. Including someone else's work in this repository does not change its license or establish permission from its owner.
 
-## 2. Permission for Non-Commercial Use
+## 2. What you may do
 
-Subject to the conditions of this License, each authorizing copyright holder grants you a worldwide, non-exclusive, royalty-free permission to:
+Subject to Sections 3 and 4, you may, free of charge:
 
-- View, inspect, study, and analyze the Software and its source code.
-- Download, clone, and retain copies of the Software for your own non-commercial use.
-- Compile, build, and run the Software in local or private testing environments.
-- Modify the Software and create derivative works solely for private, non-commercial learning, research, experimentation, and testing.
-- Create repository forks to the extent allowed by the applicable code-hosting platform's terms, provided you do not otherwise distribute or deploy the Software in violation of this License.
+- View, download, clone, and fork the Software.
+- Build, run, study, test, and modify it locally or in private environments.
+- Share copies, forks, modifications, and compiled builds for non-commercial purposes.
+- Reuse or adapt parts of the Software in your own non-commercial projects, including publicly accessible projects that are **not Public Clones** as defined below.
+- Submit contributions and publish non-commercial educational examples.
 
-You must retain all copyright, attribution, and license notices in any copies you make.
+These permissions are non-exclusive, worldwide, and do not transfer ownership.
 
-## 3. Restrictions
+## 3. Two restrictions
 
-Without prior written permission from **all copyright holders whose rights are implicated**, you may not:
+**A. No commercial use without permission.** You may not use, sell, license, monetize, or incorporate the Software or substantial adapted portions of it into a commercial product, service, or business operation without prior written permission from the relevant copyright holders. Commercial use includes revenue-generating websites, paid products or services, advertising-supported deployments, and business use for commercial advantage. A free service can still be commercial.
 
-1. Use the Software, any substantial part of it, or any derivative work for a Commercial Purpose.
-2. Sell, rent, license, sublicense, monetize, or offer the Software or derivative works as part of a product or service.
-3. Deploy or operate a public-facing copy of the website or a substantially similar service, whether free or paid. Local and private testing under Section 2 is permitted.
-4. Redistribute the Software, modified versions, or compiled builds to third parties, except for repository-hosting actions expressly permitted in Section 2 or by applicable law.
-5. Remove or misrepresent copyright, attribution, or license notices.
-6. Use the project's names, logos, or trademarks in a way that implies endorsement or official affiliation without permission.
+**B. No publicly deployed clones without permission.** You may not make a **Public Clone** of ZARYA available as a website or online service without prior written permission from the relevant copyright holders, even if the clone is free and non-commercial.
 
-For this License, **"Commercial Purpose"** includes use primarily intended to obtain commercial advantage, generate revenue, support a revenue-generating product or service, deliver paid services, display advertising for profit, or operate the Software for the benefit of a business. A service does not become non-commercial merely because its users are not charged.
+A **Public Clone** is a publicly accessible deployment that reproduces the ZARYA website itself, or a substantially adapted replica retaining substantial original protected code, content, or distinctive visual expression. A distinct non-commercial project that reuses individual components without reproducing the ZARYA website is not a Public Clone. Similar ideas or functionality developed independently, without copying protected materials, are not restricted by this License.
 
-## 4. Commercial Rights and Separate Permissions
+Publishing source-code forks on code-hosting platforms is **not**, by itself, operating a Public Clone.
 
-No commercial rights are granted to the public by this License.
+## 4. Conditions for sharing
 
-Each copyright holder retains the right to use and commercially license material they own. Commercial use of the complete project, including material owned by other contributors, requires separate authorization from the relevant copyright holders.
+When sharing the Software or adapted portions of it, you must:
 
-Written permission may grant additional rights or exceptions to specified persons or organizations without changing this License for everyone else.
+- Keep existing copyright and attribution notices.
+- Include this License and make clear which parts remain subject to it.
+- State that you made changes, if you distribute modified versions.
 
-## 5. Ownership and Other Rights
+You may license your own original additions separately, but you cannot remove the above restrictions from the Software or materials derived from it that remain covered by this License.
 
-Ownership of the Software is not transferred under this License. All rights not expressly granted are reserved by their respective owners. No patent rights or trademark rights are granted by this License.
+## 5. Rights retained
 
-## 6. Termination
+All rights not expressly granted are reserved. Each copyright holder remains free to use and license their own contributions commercially. Commercial use of components owned by other parties requires their permission. No trademark rights are granted, except as necessary for accurate identification and attribution; you must not suggest official endorsement.
 
-Your permissions under this License terminate automatically if you violate its terms. Termination does not limit any other remedies available to a copyright holder. A copyright holder may reinstate your permissions in writing.
+## 6. No warranty
 
-## 7. Disclaimer of Warranty and Liability
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
-
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE COPYRIGHT HOLDERS ARE NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM OR RELATED TO THE SOFTWARE OR ITS USE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTIES OF ANY KIND. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDERS SHALL NOT BE LIABLE FOR DAMAGES ARISING FROM ITS USE.
 
 ---
 
-**This is a source-available license, not an Open Source Initiative-approved open-source license.**
+This is a **source-available** license, not an Open Source Initiative-approved open-source license, because it restricts commercial use and certain public deployments.
