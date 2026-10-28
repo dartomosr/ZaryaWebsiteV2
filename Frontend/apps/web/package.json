@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node ../../scripts/verify-web-build.js",
     "preview": "vite preview",
     "typecheck": "tsc -p jsconfig.json",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "dev:mock": "vite --mode mock"
   },
   "dependencies": {
     "react": "19.3.1",

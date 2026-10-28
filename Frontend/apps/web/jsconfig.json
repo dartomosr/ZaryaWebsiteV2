@@ -18,12 +18,14 @@
       "vite/client",
       "vitest/globals",
       "@testing-library/jest-dom",
-      "node"
+      "node",
+      "msw/vite/client"
     ],
     "maxNodeModuleJsDepth": 0
   },
   "include": [
     "src",
-    "vite.config.js"
+    "vite.config.js",
+    "../../mocks"
   ]
 }
