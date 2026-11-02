@@ -8,9 +8,9 @@ namespace ZaryaWebSite.WebApi.Controllers;
 public class NewsController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetNews(int page, int pageSize)
+    public async Task<IActionResult> GetNews()
     {
-        var query = new GetNewsQuery(page, pageSize);
+        var query = new GetNewsQuery();
 
         var news = await sender.Send(query);
 

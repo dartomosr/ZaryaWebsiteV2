@@ -7,6 +7,6 @@ public class GetNewsHandler(IStorageProvider storageProvider) : IRequestHandler<
 {
     public async Task<IReadOnlyCollection<Domain.News>> Handle(GetNewsQuery request, CancellationToken cancellationToken)
     {
-        return await storageProvider.GetNewsPageAsync(request.pageNumber, request.pageSize);
+        return await storageProvider.GetNewsAsync();
     }
 }

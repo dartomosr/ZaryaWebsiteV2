@@ -9,11 +9,8 @@ public class JsonPlateProvider : IStorageProvider
     private const string StorageDirectory = "Storage";
     private const string NewsFileName = "news.json";
 
-    public async Task<IReadOnlyCollection<News>> GetNewsPageAsync(int pageNumber, int pageSize)
+    public async Task<IReadOnlyCollection<News>> GetNewsAsync()
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(pageNumber, 1);
-        ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
-
         var path = Path.Combine(AppContext.BaseDirectory, StorageDirectory, NewsFileName);
         var options = new FileStreamOptions
         {
@@ -27,7 +24,6 @@ public class JsonPlateProvider : IStorageProvider
         await using var stream = new FileStream(path, options);
         var news = await JsonSerializer.DeserializeAsync<List<News>>(stream) ?? [];
 
-        var skip = ((long)pageNumber - 1) * pageSize;
-        return skip >= news.Count ? [] : news.Skip((int)skip).Take(pageSize).ToArray();
+        return news;
     }
 }
