@@ -1,3 +1,12 @@
 <Solution>
-  <Project Path="ZaryaWebSiteBackend/ZaryaWebSiteBackend.csproj" />
+  <Folder Name="/Core/">
+    <Project Path="ZaryaWebSite.Application/ZaryaWebSite.Application.csproj" Id="802b138d-8ba3-412d-9625-1158ec211a1f" />
+    <Project Path="ZaryaWebSite.Domain/ZaryaWebSite.Domain.csproj" Id="3735608e-372c-4d1d-a0d0-81360129b107" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="ZaryaWebSite.StorageProvider/ZaryaWebSite.StorageProvider.csproj" Id="e47d7167-8d7c-4b3d-aeb0-6dcf352962bf" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="ZaryaWebSiteBackend/ZaryaWebSite.WebApi.csproj" />
+  </Folder>
 </Solution>
