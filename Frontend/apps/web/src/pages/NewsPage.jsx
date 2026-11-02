@@ -6,7 +6,21 @@ export default function NewsPage() {
   const [nextPage, setNextPage] = useState(/** @type {number|null} */ (1));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [coverUrls, setCoverUrls] = useState(/** @type {Map<string, string>} */ (new Map()));
   const active = useRef(/** @type {AbortController|null} */ (null));
+
+  useEffect(() => {
+    const urls = new Map();
+    if (typeof URL.createObjectURL === 'function') {
+      for (const item of items) {
+        if (item.coverImage) urls.set(item.id, URL.createObjectURL(item.coverImage));
+      }
+    }
+    // URLs are allocated and revoked as one batch when the page items change.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCoverUrls(urls);
+    return () => urls.forEach(url => URL.revokeObjectURL(url));
+  }, [items]);
 
   async function load(page = 1) {
     active.current?.abort();
@@ -36,7 +50,7 @@ export default function NewsPage() {
     <h1>Новости</h1>
     <section aria-label="Опубликованные новости" aria-busy={loading}>
       <div className="news-grid">{items.map(item => <article key={item.id} className="news-card">
-        {item.coverUrl && <img src={item.coverUrl} alt="" loading="lazy" />}
+        {coverUrls.has(item.id) && <img src={coverUrls.get(item.id)} alt="" loading="lazy" />}
         <h2>{item.title}</h2><p>{item.summary}</p>
         <time dateTime={item.publishedAt}>{new Date(item.publishedAt).toLocaleDateString('ru-RU', { timeZone: 'UTC' })}</time>
       </article>)}</div>

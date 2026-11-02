@@ -1,14 +1,16 @@
 import { http, HttpResponse } from 'msw/http';
 import { delay } from 'msw/utils/delay';
 
+const testPixel = new Blob([Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/7xoAAAAASUVORK5CYII='), value => value.charCodeAt(0))], { type: 'image/png' });
+
 /** Только вымышленные данные, не описание игры и не утверждённый лор.
- * @type {import('../apps/web/src/api/news.contract.js').NewsSummaryDto[]}
+ * @type {{id: string, title: string, summary: string, coverImage: Blob|null, publishedAt: string}[]}
  */
 export const news = Array.from({ length: 26 }, (_, index) => ({
   id: `mock-news-${String(index + 1).padStart(3, '0')}`,
   title: `Тестовая новость ${String(index + 1).padStart(3, '0')}`,
   summary: 'Вымышленный материал для разработки интерфейса.',
-  coverUrl: null,
+  coverImage: index % 3 === 0 ? testPixel : null,
   publishedAt: new Date(Date.UTC(2026, 9, 26 - index, 12)).toISOString(),
 }));
 
@@ -31,7 +33,22 @@ export function newsHandlers(baseUrl, scenario = 'default') {
     }
     const source = scenario === 'empty' ? [] : news;
     const offset = (page - 1) * pageSize;
-    return HttpResponse.json({ items: source.slice(offset, offset + pageSize), page, pageSize,
-      nextPage: offset + pageSize < source.length ? page + 1 : null });
+    const pageItems = source.slice(offset, offset + pageSize);
+    const metadata = { items: pageItems.map(({ coverImage, ...item }) => ({
+      ...item,
+      coverPartId: coverImage ? `<news-${item.id}@zarya>` : null,
+    })), page, pageSize, nextPage: offset + pageSize < source.length ? page + 1 : null };
+    const boundary = 'zarya-news-boundary-7f4a9c2d';
+    /** @type {(string|Blob)[]} */
+    const body = [
+      `--${boundary}\r\nContent-Type: application/json; charset=utf-8\r\nContent-ID: <metadata>\r\n\r\n${JSON.stringify(metadata)}\r\n`,
+    ];
+    for (const item of pageItems) {
+      if (!item.coverImage) continue;
+      body.push(`--${boundary}\r\nContent-Type: ${item.coverImage.type}\r\nContent-ID: <news-${item.id}@zarya>\r\n\r\n`);
+      body.push(item.coverImage, '\r\n');
+    }
+    body.push(`--${boundary}--\r\n`);
+    return new HttpResponse(await new Blob(body).arrayBuffer(), { headers: { 'Content-Type': `multipart/mixed; boundary="${boundary}"` } });
   })];
 }

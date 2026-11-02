@@ -1,9 +1,9 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
-  title: ZaryaWebsite API — общий черновик трёх зон
+  title: ZaryaWebsite API - общий черновик трёх зон
   version: 0.1.0
-  description: Объединённая локальная спецификация. Статусы в x-contract-zone; никакие методы не подтверждены
-    backend-разработчиком.
+  description:
+    ZaryaWebsite API - общий черновик трёх зон.
 servers:
 - url: /
   description: Предпочтительно единый HTTPS origin через reverse proxy; фактические origins согласовать
@@ -1207,20 +1207,25 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список опубликованных новостей (сохранённый предварительный контракт)
-      description: 'Существующий frontend/MSW ожидает page/pageSize, nextPage и строки дат в UTC с суффиксом
-        Z. Статус: предварительный, backend не подтверждал.'
+      summary: Список опубликованных новостей с бинарными обложками
+      description: 'Ответ multipart/mixed: первая часть содержит JSON-метаданные, следующие части содержат бинарные
+        изображения. Content-ID обложки связывает бинарную часть с карточкой. Контракт предварительный, backend не подтверждал.'
       security: []
       parameters:
       - $ref: '#/components/parameters/Page'
       - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
-          description: Успешно
+          description: >-
+            Успешно. Сырой multipart-поток: первая часть Content-ID <metadata>, application/json с моделью NewsPage;
+            каждая следующая часть содержит байты изображения и Content-ID, совпадающий с coverPartId.
+            Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если обложек нет, передаётся
+            только часть metadata.
           content:
-            application/json:
+            multipart/mixed:
               schema:
-                $ref: '#/components/schemas/NewsPage'
+                type: string
+                format: binary
         '400':
           $ref: '#/components/responses/Error400'
         '429':
@@ -1261,7 +1266,9 @@ components:
       additionalProperties: false
       properties:
         status:
-          const: accepted
+          type: string
+          enum:
+          - accepted
         message:
           type: string
       required:
@@ -1329,14 +1336,12 @@ components:
         twoFactorEnabled:
           type: boolean
         avatarUrl:
-          type:
-          - string
-          - 'null'
+          type: string
+          nullable: true
           format: uri
         pendingEmail:
-          type:
-          - string
-          - 'null'
+          type: string
+          nullable: true
           format: email
         createdAt:
           type: string
@@ -1359,18 +1364,19 @@ components:
         user:
           oneOf:
           - $ref: '#/components/schemas/UserProfile'
-          - type: 'null'
+          - type: string
+            nullable: true
+            enum:
+            - null
         capabilities:
           $ref: '#/components/schemas/Capabilities'
         expiresAt:
-          type:
-          - string
-          - 'null'
+          type: string
+          nullable: true
           format: date-time
         nextStep:
-          type:
-          - string
-          - 'null'
+          type: string
+          nullable: true
           enum:
           - verify_email
           - enter_2fa
@@ -1413,7 +1419,9 @@ components:
       additionalProperties: false
       properties:
         status:
-          const: registered
+          type: string
+          enum:
+          - registered
         message:
           type: string
       required:
@@ -1498,7 +1506,9 @@ components:
       additionalProperties: false
       properties:
         status:
-          const: enabled
+          type: string
+          enum:
+          - enabled
         recoveryCodes:
           type: array
           minItems: 1
@@ -1550,7 +1560,9 @@ components:
       additionalProperties: false
       properties:
         userEmailOwnershipVerified:
-          const: true
+          type: boolean
+          enum:
+          - true
           description: Администратор подтверждает завершение проверки доступа к email; сервер пишет audit event.
       required:
       - userEmailOwnershipVerified
@@ -1684,9 +1696,8 @@ components:
           - temporary
           - permanent
         commentingBanEndsAt:
-          type:
-          - string
-          - 'null'
+          type: string
+          nullable: true
           format: date-time
       required:
       - id
@@ -1713,9 +1724,8 @@ components:
           minimum: 1
           maximum: 50
         nextPage:
-          type:
-          - integer
-          - 'null'
+          type: integer
+          nullable: true
           minimum: 1
       required:
       - items
@@ -1790,7 +1800,9 @@ components:
       additionalProperties: false
       properties:
         state:
-          const: two_factor_setup_required
+          type: string
+          enum:
+          - two_factor_setup_required
       required:
       - state
       description: Требуется заново настроить TOTP; старые сессии и аварийный ключ аннулируются.
@@ -1828,20 +1840,19 @@ components:
           type: string
         summary:
           type: string
-        coverUrl:
-          type:
-          - string
-          - 'null'
-          format: uri
+        coverPartId:
+          type: string
+          nullable: true
+          description: Content-ID соответствующей бинарной части multipart/mixed; null означает отсутствие обложки.
         publishedAt:
           type: string
           format: date-time
-          description: UTC ISO 8601, суффикс Z. Существующий фронтенд его требует.
+          description: UTC ISO 8601, суффикс Z.
       required:
       - id
       - title
       - summary
-      - coverUrl
+      - coverPartId
       - publishedAt
     NewsPage:
       type: object
@@ -1859,9 +1870,8 @@ components:
           minimum: 1
           maximum: 50
         nextPage:
-          type:
-          - integer
-          - 'null'
+          type: integer
+          nullable: true
           minimum: 1
       required:
       - items
@@ -1977,9 +1987,8 @@ components:
       name: zarya_session
       description: Предлагаемое имя HttpOnly Secure cookie; фактические Domain/Path/SameSite и срок жизни зависят
         от развёртывания. Сервер не доверяет роли из клиента.
-x-contract-zone: foundation
 x-stability: proposed
 x-zone-status:
   foundation: proposal
-  core: existing-frontend-msw-proposal
+  core: frontend-msw-proposal
   extended: reserved

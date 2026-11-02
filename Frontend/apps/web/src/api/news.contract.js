@@ -4,7 +4,7 @@
  * @property {string} id Непрозрачный идентификатор, не тип ключа БД.
  * @property {string} title
  * @property {string} summary
- * @property {string|null} coverUrl
+ * @property {Blob|null} coverImage Binary image bytes resolved from the multipart response.
  * @property {string} publishedAt ISO 8601, UTC.
  */
 /**

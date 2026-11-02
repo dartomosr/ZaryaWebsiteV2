@@ -22,6 +22,12 @@ test('mock возвращает 400 и ошибки параметров', async
 test('страница за концом списка пуста', async () => {
   expect(await getNews({ page: 100 })).toMatchObject({ items: [], nextPage: null });
 });
+test('разбирает multipart/mixed и связывает бинарную обложку с карточкой', async () => {
+  const result = await getNews();
+  expect(result.items[0].coverImage).toBeInstanceOf(Blob);
+  expect(result.items[0].coverImage).toMatchObject({ type: 'image/png', size: expect.any(Number) });
+  expect(result.items[1].coverImage).toBeNull();
+});
 test('неправильный JSON превращается в ошибку загрузки', async () => {
   server.use(http.get(base + 'news', () => HttpResponse.text('not json')));
   await expect(getNews()).rejects.toThrow();

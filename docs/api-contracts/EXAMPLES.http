@@ -43,9 +43,9 @@ X-CSRF-Token: {{csrf}}
   "code": "123456"
 }
 
-### 6. Публичный список новостей, сохранённый предварительный frontend/MSW формат
+### 6. Публичный список новостей с бинарными обложками
 GET {{baseUrl}}/news?page=1&pageSize=12
-Accept: application/json
+Accept: multipart/mixed
 
 ### 7. Профиль — только активная сессия
 GET {{baseUrl}}/me

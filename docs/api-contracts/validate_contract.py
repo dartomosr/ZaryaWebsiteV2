@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote
 import yaml
-from jsonschema import Draft202012Validator
+from jsonschema import Draft4Validator
 
 ROOT=Path(__file__).resolve().parent
 FILES=['common.yaml','foundation.yaml','core.yaml','extended.yaml','openapi.yaml']
@@ -43,10 +43,21 @@ def inspect_refs(item,fromfile,trail='root'):
  elif isinstance(item,list):
   for i,v in enumerate(item):inspect_refs(v,fromfile,f'{trail}[{i}]')
 
+def inspect_openapi_30(item,fromfile,trail='root'):
+ if isinstance(item,dict):
+  if 'const' in item:err(f'{fromfile} {trail}: const не поддерживается в OpenAPI 3.0.3; используйте одноэлементный enum')
+  if isinstance(item.get('type'),list) or item.get('type')=='null':
+   err(f'{fromfile} {trail}: несовместимое с OpenAPI 3.0.3 объявление type')
+  for k,v in item.items():inspect_openapi_30(v,fromfile,f'{trail}.{k}')
+ elif isinstance(item,list):
+  for i,v in enumerate(item):inspect_openapi_30(v,fromfile,f'{trail}[{i}]')
+
 for filename,data in DOC.items():
- if data.get('openapi')!='3.1.0':err(f'{filename}: ожидаем OpenAPI 3.1.0')
+ expected_version='3.0.3'
+ if data.get('openapi')!=expected_version:err(f'{filename}: ожидаем OpenAPI {expected_version}')
  if not isinstance(data.get('info'),dict) or not isinstance(data.get('paths'),dict):err(f'{filename}: некорректная оболочка')
  inspect_refs(data,filename)
+ inspect_openapi_30(data,filename)
 
 methods={'get','post','put','patch','delete','options','head','trace'}
 ids=[]
@@ -77,11 +88,14 @@ for p in expected:
 
 common=DOC['common.yaml']['components']['schemas']
 for schema_name,schema in common.items():
- try:Draft202012Validator.check_schema(schema)
+ try:Draft4Validator.check_schema(schema)
  except Exception as e:err(f'Некорректная JSON Schema {schema_name}: {e}')
 if common['RegisterRequest']['required'] != ['username','displayName','email','password']:err('Регистрация: требуется username, displayName, email, password')
 if 'owner' in common['RoleChangeRequest']['properties']['role']['enum']:err('Роль owner назначается исключительно через transfer')
-if set(common['NewsCard']['required']) != {'id','title','summary','coverUrl','publishedAt'}:err('NewsCard несовместима с frontend/MSW')
+if set(common['NewsCard']['required']) != {'id','title','summary','coverPartId','publishedAt'}:err('NewsCard несовместима с frontend/MSW')
+news_response=DOC['core.yaml']['paths']['/api/news']['get']['responses']['200']['content']
+if 'multipart/mixed' not in news_response:err('GET /api/news должен возвращать multipart/mixed')
+if 'application/json' in news_response:err('GET /api/news не должен возвращать coverUrl/JSON вместо бинарных изображений')
 if DOC['extended.yaml']['paths']:err('Расширенная зона пока должна быть без фиктивных методов')
 for val in DOC['openapi.yaml']['paths'].values():
  for op in val.values():

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: 'ZaryaWebsite API — Зона 2: основной функционал'
   version: 0.1.0
@@ -15,20 +15,25 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список опубликованных новостей (сохранённый предварительный контракт)
-      description: 'Существующий frontend/MSW ожидает page/pageSize, nextPage и строки дат в UTC с суффиксом
-        Z. Статус: предварительный, backend не подтверждал.'
+      summary: Список опубликованных новостей с бинарными обложками
+      description: 'Ответ multipart/mixed: первая часть содержит JSON-метаданные, следующие части содержат бинарные
+        изображения. Content-ID обложки связывает бинарную часть с карточкой. Контракт предварительный, backend не подтверждал.'
       security: []
       parameters:
       - $ref: ./common.yaml#/components/parameters/Page
       - $ref: ./common.yaml#/components/parameters/PageSize
       responses:
         '200':
-          description: Успешно
+          description: >-
+            Успешно. Сырой multipart-поток: первая часть Content-ID <metadata>, application/json с моделью NewsPage;
+            каждая следующая часть содержит байты изображения и Content-ID, совпадающий с coverPartId.
+            Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если обложек нет, передаётся
+            только часть metadata.
           content:
-            application/json:
+            multipart/mixed:
               schema:
-                $ref: ./common.yaml#/components/schemas/NewsPage
+                type: string
+                format: binary
         '400':
           $ref: ./common.yaml#/components/responses/Error400
         '429':
