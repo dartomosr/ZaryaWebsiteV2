@@ -1,0 +1,505 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: moderation'
+  version: 0.2.0-proposed
+paths:
+  /api/moderation/comments:
+    get:
+      tags:
+      - Moderation
+      operationId: listModerationComments
+      summary: Комментарии для сотрудников, включая скрытые
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - all
+          - visible
+          - hidden
+      description: Комментарии не проходят премодерацию; просмотр для ручного контроля. Скрытый текст
+        автором при стирании аккаунта недоступен даже модератору.
+      x-permitted-roles:
+      - moderator
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationCommentPage'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/moderation/comments/{commentId}/hide:
+    post:
+      tags:
+      - Moderation
+      operationId: hideComment
+      summary: Скрыть комментарий с возможностью восстановления
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Старые ответы не удаляются; публично остаётся заглушка при наличии ответов.
+      x-permitted-roles:
+      - moderator
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationHideRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/moderation/comments/{commentId}/restore:
+    post:
+      tags:
+      - Moderation
+      operationId: restoreModeratedComment
+      summary: Восстановить скрытый модератором комментарий
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Нельзя восстановить текст, окончательно удалённый автором или удалением аккаунта. Проверка
+        author_removed и восстановление атомарны. При гонке со стиранием текста приоритет у стирания;
+        вернуть 409 и не восстановить содержимое из истории или кеша.
+      x-permitted-roles:
+      - moderator
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/moderation/comment-bans:
+    get:
+      tags:
+      - Moderation
+      operationId: listCommentBans
+      summary: Активные запреты комментирования
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      x-permitted-roles:
+      - moderator
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRestrictionPage'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/moderation/users/{userId}/comment-ban:
+    put:
+      tags:
+      - Moderation
+      operationId: setCommentBan
+      summary: Установить временный или бессрочный запрет
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: expiresAt=null бессрочно; иначе дата в будущем. Бан запрещает новые комментарии, ответы
+        и редактирование, но не просмотр и удаление собственного текста.
+      x-permitted-roles:
+      - moderator
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRestrictionRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRestriction'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    delete:
+      tags:
+      - Moderation
+      operationId: removeCommentBan
+      summary: Снять запрет комментирования
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      x-permitted-roles:
+      - moderator
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+components:
+  schemas:
+    ModerationComment:
+      type: object
+      additionalProperties: false
+      properties:
+        comment:
+          $ref: ./comments.yaml#/components/schemas/Comment
+        moderationStatus:
+          type: string
+          enum:
+          - visible
+          - hidden
+          - author_removed
+        hiddenAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        hiddenReason:
+          oneOf:
+          - type: string
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - comment
+      - moderationStatus
+      - hiddenAt
+      - hiddenReason
+      description: Если автор стёр текст через удаление аккаунта, возвращать старое содержимое запрещено.
+    ModerationCommentPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModerationComment'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+    ModerationHideRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          oneOf:
+          - type: string
+            maxLength: 1000
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - reason
+    CommentRestriction:
+      type: object
+      additionalProperties: false
+      properties:
+        userId:
+          type: string
+          minLength: 1
+        restrictedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        reason:
+          oneOf:
+          - type: string
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - userId
+      - restrictedAt
+      - expiresAt
+      - reason
+      description: expiresAt=null означает бессрочно; запрет не блокирует просмотр или удаление собственных
+        текстов.
+    CommentRestrictionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        expiresAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        reason:
+          oneOf:
+          - type: string
+            maxLength: 1000
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - expiresAt
+      - reason
+    CommentRestrictionPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentRestriction'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+x-contract-zone: core
+x-stability: proposed

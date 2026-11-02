@@ -1,0 +1,241 @@
+### GENERATED from EXAMPLES.md by tools/check_docs.py --write-http
+# Примеры контракта, не запросы к работающему серверу.
+# Сохраняйте cookie; обновляйте csrf после login/2FA. CMS требует отдельной staff-сессии.
+# ID/ETag/ключи примера заменяются реальными результатами предыдущих запросов.
+@baseUrl = https://api.example.test
+@csrf = REPLACE_WITH_CURRENT_CSRF
+
+### getCsrfToken
+GET {{baseUrl}}/api/auth/csrf
+
+### register
+POST {{baseUrl}}/api/auth/register
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "username": "example_reader",
+  "displayName": "Читатель",
+  "email": "reader@example.test",
+  "password": "Example-only-9"
+}
+
+### verifyEmail
+POST {{baseUrl}}/api/auth/email/verify
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "token": "example-email-token"
+}
+
+### login
+POST {{baseUrl}}/api/auth/login
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "login": "reader@example.test",
+  "password": "Example-only-9"
+}
+
+### getCsrfToken
+GET {{baseUrl}}/api/auth/csrf
+
+### confirmLoginSecondFactor
+POST {{baseUrl}}/api/auth/2fa/challenge
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "method": "totp",
+  "code": "123456"
+}
+
+### getCsrfToken
+GET {{baseUrl}}/api/auth/csrf
+
+### getSession
+GET {{baseUrl}}/api/auth/session
+
+### createCmsNews
+POST {{baseUrl}}/api/cms/news
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "title": "Пример заголовка",
+  "summary": "Пример краткого описания.",
+  "bodyMarkdown": "Текст для проверки контракта.",
+  "coverMediaId": null
+}
+
+### publishNews
+POST {{baseUrl}}/api/cms/news/example-news-1/publish
+X-CSRF-Token: {{csrf}}
+If-Match: "1"
+Content-Type: application/json
+
+{
+  "mode": "now",
+  "scheduledAt": null
+}
+
+### getCmsNews
+GET {{baseUrl}}/api/cms/news/example-news-1
+
+### saveNewsDraft
+PUT {{baseUrl}}/api/cms/news/example-news-1/draft
+X-CSRF-Token: {{csrf}}
+If-Match: "2"
+Content-Type: application/json
+
+{
+  "title": "Пример заголовка",
+  "summary": "Пример краткого описания.",
+  "bodyMarkdown": "Исправленный пример текста.",
+  "coverMediaId": null
+}
+
+### publishNews
+POST {{baseUrl}}/api/cms/news/example-news-1/publish
+X-CSRF-Token: {{csrf}}
+If-Match: "3"
+Content-Type: application/json
+
+{
+  "mode": "now",
+  "scheduledAt": null
+}
+
+### createNewsComment
+POST {{baseUrl}}/api/news/example-news-1/comments
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "text": "Пример комментария.",
+  "rootId": null,
+  "replyToCommentId": null
+}
+
+### listModerationComments
+GET {{baseUrl}}/api/moderation/comments?page=1&pageSize=12&status=visible
+
+### hideComment
+POST {{baseUrl}}/api/moderation/comments/example-comment-1/hide
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "reason": "Пример причины модерации."
+}
+
+### trashNews
+DELETE {{baseUrl}}/api/cms/news/example-news-1
+X-CSRF-Token: {{csrf}}
+If-Match: "4"
+
+### restoreTrashedNews
+POST {{baseUrl}}/api/cms/news/example-news-1/restore
+X-CSRF-Token: {{csrf}}
+If-Match: "5"
+
+### getWorldMachineTexts
+GET {{baseUrl}}/api/world-machine/texts
+
+### getWorldMachineTexts
+GET {{baseUrl}}/api/world-machine/texts
+If-None-Match: "example-generation-1"
+
+### getCmsWorldMachineText
+GET {{baseUrl}}/api/cms/world-machine/texts/example-key
+
+### saveWorldMachineTextDraft
+PUT {{baseUrl}}/api/cms/world-machine/texts/example-key/draft
+X-CSRF-Token: {{csrf}}
+If-Match: "wm-1"
+Content-Type: application/json
+
+{
+  "title": "Пример",
+  "bodyMarkdown": "Исправленный текст."
+}
+
+### getCmsGameSummary
+GET {{baseUrl}}/api/cms/game-summary
+
+### saveGameSummaryDraft
+PUT {{baseUrl}}/api/cms/game-summary/draft
+X-CSRF-Token: {{csrf}}
+If-Match: "1"
+Content-Type: application/json
+
+{
+  "shortDescription": "Обновлённый пример.",
+  "tagline": null
+}
+
+### validatePublicationBatch
+POST {{baseUrl}}/api/cms/publication-batches/validate
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "type": "worldMachineText",
+      "resourceKey": "example-key",
+      "expectedEditVersion": 2
+    },
+    {
+      "type": "gameSummary",
+      "resourceKey": "game-summary",
+      "expectedEditVersion": 2
+    }
+  ]
+}
+
+### publishPublicationBatch
+POST {{baseUrl}}/api/cms/publication-batches/publish
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: example-batch-key-0001
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "type": "worldMachineText",
+      "resourceKey": "example-key",
+      "expectedEditVersion": 2
+    },
+    {
+      "type": "gameSummary",
+      "resourceKey": "game-summary",
+      "expectedEditVersion": 2
+    }
+  ]
+}
+
+### getPublicPressKit
+GET {{baseUrl}}/api/presskit
+
+### downloadPressKitArchive
+GET {{baseUrl}}/api/presskit/archive/example-snapshot-1
+
+### login
+POST {{baseUrl}}/api/auth/login
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"login":"EXAMPLE_READER","password":"Example-only-9"}
+
+### transferOwnership
+POST {{baseUrl}}/api/owner/transfer
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"targetUserId":"example-next-owner","password":"Example-only-9","totpCode":"123456"}
+
+### getSession
+GET {{baseUrl}}/api/auth/session

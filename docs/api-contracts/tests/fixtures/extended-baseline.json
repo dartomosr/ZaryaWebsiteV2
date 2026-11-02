@@ -1,0 +1,57 @@
+{
+  "description": "PROPOSED zone 3 import; preserves the unchanged legacy snapshot for zones 1/2.",
+  "source_sha256": "75bc4e81f4838db1a4dacb1be8f775b0b5a810b116a13a5f0fc92aebd1a0587a",
+  "document_sha256": "a14e3db61a418235769e3d364289416f7ffc1df34c7d92d62bb01a781856e770",
+  "specification_sha256": "a417753dd9e9c8030d90ae4732c85adaefe7baeecdc409a174edd6c494a26f33",
+  "legacy_info": {
+    "title": "ZaryaWebsite API - FOUNDATION + CORE",
+    "version": "0.2.0-proposed",
+    "description": "PROPOSED: зоны 1 и 2 не утверждены backend-разработчиком. Собрано из локальных common.yaml, foundation.yaml, core.yaml и extended.yaml. Зона 3 зарезервирована."
+  },
+  "tags": [
+    "WorldMachine",
+    "CMSWorldMachine",
+    "CMSBatchPublishing",
+    "PressKitArchive",
+    "CMSPressKitArchive",
+    "CMSRevisionCompare"
+  ],
+  "operations": {
+    "GET /api/world-machine/texts": "9a0f4da747011afb7a4d99c4550813470e09a7efef71f5acb27dc5fbb956905f",
+    "GET /api/cms/world-machine/texts": "53734fd69f1ffa77bcc4503614d3f076d5ba07d5cb1f489f8e361d6851d8a0d3",
+    "GET /api/cms/world-machine/texts/{textKey}": "2e33df9e79038d11889d568d482ac20555764353ca2e745ff2e090adab65dc18",
+    "PUT /api/cms/world-machine/texts/{textKey}/draft": "c2954e714b54e2e9b9ba29f7cb8ddfdc689feaece3bdf6331a20f9eb4f5883d9",
+    "DELETE /api/cms/world-machine/texts/{textKey}/draft": "bbb002477367b14273518b6260464c7902d2f3463b470a6a03a97fe5229b7c6a",
+    "POST /api/cms/world-machine/texts/{textKey}/publish": "d8a6d41f6a5552cffdadb83110be87b8c4c439c02dfff458cae3ef72e6144331",
+    "GET /api/cms/world-machine/preview": "8adaa61efae3fa88004f76d8d0a79a88c0149dbe98fb003ca6c5984c0630458a",
+    "POST /api/cms/publication-batches/validate": "90cf7d72b06051433013a3fdff55378d4115db40f91eeb108521a243e54028b1",
+    "POST /api/cms/publication-batches/publish": "f62ddd2c56ca8982dfbd0be07e3e2a801c78fec61a5ad04d87a4865926101467",
+    "GET /api/presskit/archive/{snapshotId}": "609717a479537b6e750165a5ae470acc4c919f63331ed108f12103da2534fb1c",
+    "GET /api/cms/presskit/archive/preview-manifest": "531e8d6c537ebad98e685433f8f7d24433096b8a5bea45880db3a17aaecb2efb",
+    "GET /api/cms/news/{newsId}/revision-diff": "b7644d4e0118e12a7463b5fb8cf199ddba95411d503afe6a3ab3c17227e6cc07",
+    "GET /api/cms/updates/{updateId}/revision-diff": "a12ac8e74f3226786a3826b38c659391bfd61ccb6b0c99badf71e62f65b94f81"
+  },
+  "schemas": {
+    "WorldMachineTextContent": "95503fd3e7494276a6a7199b6a17319d93d5e395870c862295761377f3a4efcc",
+    "WorldMachineTextDraft": "cd0fc7131062a0e6cccb8837cdc416e5792d9a8f17b6bb8e6945d8034b8fc284",
+    "WorldMachineTextItem": "cde0e4a63c0f5154c9742e857e86f159b8c134f430f719dc6660126dcd436817",
+    "WorldMachineTextBundle": "09e9de13f1c134f9ed58852d1fd0bccf016eac6f04060e92b9d8cfdc91951197",
+    "WorldMachineCmsEntry": "1785727a3a63a6d5afd2d19b0f5cd6a3e01182d73a7665595221efe8efb2d6ab",
+    "WorldMachineCmsList": "0ea7aed508484442484999cdc27a1e4cf08129094ded1e453ee7d88c8bf02adc",
+    "PublicationBatchItem": "c9b92dfa2af3baf72ec5742ae9c231132941ece92b6174c057119a51e5b4e5d6",
+    "PublicationBatchRequest": "f6ac69ea721c42e75d4ed04edc2569852d3b99c041d61896ee38c7f8ba7cd9ac",
+    "PublicationBatchCheck": "4ee562dd979f90efbc01d346b3226be806fdf783ddea0dd9f9c3cd929160a774",
+    "PublicationBatchValidation": "4d1a3cab3291becaa06dedc6da990347122ff10722446f5fe06e4c1e8b0aa0c9",
+    "PublicationBatchPublishedItem": "71f9ecb5f298a8750d6e32a66ddc255b24b5c9edf7dc2a0077c2ea5699ee73d6",
+    "PublicationBatchResult": "8bdd34186c8a381ccc74bc517859c7f20c77de3e72037f4f4b80ddf1e3aeaccb",
+    "PressKitArchiveItem": "c120c421224587aef06c50c6305f2b1ee79bbe9dd5159ebf3630d6b56627ee8a",
+    "PressKitDraftArchiveManifest": "479642620c5e54829feef7b6f9f408c61c1b2caa98295997dd2a7f2c70ca78c0",
+    "FieldChange": "dc33fd26d1b33f8a2637d89e18e6a4d44bc915c661ec45c2a361c0dd53a01713",
+    "ContentRevisionDiff": "d7ead65f51170b26dac6cffb6dea355e14936df32f57d3d0c8af20e76ac73f7c"
+  },
+  "counts": {
+    "operations": 119,
+    "paths": 102,
+    "schemas": 112
+  }
+}

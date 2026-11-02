@@ -1,0 +1,273 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: game-summary'
+  version: 0.2.0-proposed
+paths:
+  /api/game/summary:
+    get:
+      tags:
+      - GameSummary
+      operationId: getPublicGameSummary
+      summary: Краткое описание игры для главной
+      x-contract-zone: core
+      security: []
+      parameters: []
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicGameSummary'
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/game-summary:
+    get:
+      tags:
+      - CMSGameSummary
+      operationId: getCmsGameSummary
+      summary: Опубликованное состояние и черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSummaryEditor'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/game-summary/draft:
+    put:
+      tags:
+      - CMSGameSummary
+      operationId: saveGameSummaryDraft
+      summary: Сохранить черновик содержимого
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Без изменения публичной версии. История опубликованных редакций отсутствует. PUT полностью
+        заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются
+        с прежними. Публичная версия не меняется.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameSummaryDraftContent'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSummaryEditor'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/game-summary/publish:
+    post:
+      tags:
+      - CMSGameSummary
+      operationId: publishGameSummary
+      summary: Опубликовать подготовленные изменения
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: При одиночной публикации заменяет публичное содержимое; групповые публикации в зоне
+        extended.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSummaryEditor'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+components:
+  schemas:
+    GameSummaryContent:
+      type: object
+      additionalProperties: false
+      properties:
+        shortDescription:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        tagline:
+          oneOf:
+          - type: string
+            maxLength: 300
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - shortDescription
+      - tagline
+      description: Обычное короткое описание для hero; детали мира остаются внутри Мировой Машины.
+    PublicGameSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        content:
+          $ref: '#/components/schemas/GameSummaryContent'
+      required:
+      - content
+    GameSummaryEditor:
+      type: object
+      additionalProperties: false
+      properties:
+        published:
+          oneOf:
+          - $ref: '#/components/schemas/GameSummaryContent'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        draft:
+          oneOf:
+          - $ref: '#/components/schemas/GameSummaryDraftContent'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        editVersion:
+          type: integer
+          minimum: 1
+      required:
+      - published
+      - draft
+      - editVersion
+    GameSummaryDraftContent:
+      type: object
+      additionalProperties: false
+      properties:
+        shortDescription:
+          type: string
+          maxLength: 2000
+        tagline:
+          oneOf:
+          - type: string
+            maxLength: 300
+          - type: object
+            nullable: true
+            enum:
+            - null
+      description: Неполный рабочий черновик разрешён; при публикации сервер проверяет обязательные поля
+        опубликованной версии.
+x-contract-zone: core
+x-stability: proposed

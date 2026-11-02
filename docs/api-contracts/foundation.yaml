@@ -3,7 +3,8 @@ info:
   title: 'ZaryaWebsite API — Зона 1: фундамент'
   version: 0.1.0
   description: Предложение frontend-команды для согласования с backend ASP.NET Core. Функциональные требования
-    утверждены пользователем; HTTP-маршруты, DTO и механизмы безопасности пока черновые. Нельзя считать реализацией.
+    утверждены пользователем; HTTP-маршруты, DTO и механизмы безопасности пока черновые. Нельзя считать
+    реализацией.
 servers:
 - url: /
   description: Предпочтительно единый HTTPS origin через reverse proxy; фактические origins согласовать
@@ -32,9 +33,11 @@ paths:
           description: CSRF-токен
           headers:
             Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
               schema:
                 type: string
-              description: no-store
+                enum:
+                - no-store
           content:
             application/json:
               schema:
@@ -47,19 +50,21 @@ paths:
                 required:
                 - token
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/session:
     get:
       tags:
       - Auth
       summary: Получить текущее состояние сессии
       operationId: getSession
-      description: Всегда 200, в том числе для гостя. `state` определяет, разрешён ли доступ к основным/служебным
-        операциям.
+      description: Для гостя и действующей сессии возвращает 200; инфраструктурные ошибки и rate limit
+        имеют отдельные статусы. state определяет доступ к операциям. Для anonymous user=null и все capabilities=false;
+        для ограниченных состояний все capabilities=false. Состояние и роль пересчитываются сервером.
       x-contract-zone: foundation
       security: []
       responses:
@@ -68,50 +73,70 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/SessionSnapshot
+                $ref: ./shared/common.yaml#/components/schemas/SessionSnapshot
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/register:
     post:
       tags:
       - Auth
       summary: Зарегистрировать обычный аккаунт
       operationId: register
-      description: Не выполняет вход автоматически. При регистрации высылается служебное письмо; после входа
-        возможен ограниченный режим до подтверждения email. Пользователь не может сам назначить роль.
+      description: Не выполняет вход автоматически. При регистрации высылается служебное письмо; после
+        входа возможен ограниченный режим до подтверждения email. Пользователь не может сам назначить
+        роль.
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/RegisterRequest
+              $ref: ./shared/common.yaml#/components/schemas/RegisterRequest
       responses:
         '201':
-          description: Создан аккаунт, письмо отправлено
+          description: Аккаунт создан, служебное письмо надёжно поставлено в очередь; доставка может завершиться
+            позже.
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/RegisterResult
+                $ref: ./shared/common.yaml#/components/schemas/RegisterResult
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+      x-stability: proposed
   /api/auth/login:
     post:
       tags:
@@ -119,35 +144,47 @@ paths:
       summary: Вход по email/уникальному username и паролю
       operationId: login
       description: 'Успешный ответ отражает итоговый этап: active / email_verification_required / two_factor_required
-        / two_factor_setup_required. Пароль не означает прохождение 2FA. При смене идентификатора сессии клиент
-        запрашивает новый CSRF-токен.'
+        / two_factor_setup_required. Пароль не означает прохождение 2FA. При смене идентификатора сессии
+        клиент запрашивает новый CSRF-токен. Поле login принимает username либо email: при наличии @
+        поиск выполняется только по email, иначе только по username без учёта регистра ASCII. displayName
+        не используется для входа. При неподтверждённом email сохраняется email_verification_required.'
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/LoginRequest
+              $ref: ./shared/common.yaml#/components/schemas/LoginRequest
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/SessionSnapshot
+                $ref: ./shared/common.yaml#/components/schemas/SessionSnapshot
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+      x-stability: proposed
   /api/auth/logout:
     post:
       tags:
@@ -158,16 +195,28 @@ paths:
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       responses:
         '204':
           description: Успешно
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/email/verify:
     post:
       tags:
@@ -179,54 +228,74 @@ paths:
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/EmailTokenRequest
+              $ref: ./shared/common.yaml#/components/schemas/EmailTokenRequest
       responses:
         '204':
           description: Email подтверждён
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '410':
-          $ref: ./common.yaml#/components/responses/Error410
+          $ref: ./shared/common.yaml#/components/responses/Error410
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/email/resend:
     post:
       tags:
       - Email
       summary: Повторно отправить подтверждение адреса
       operationId: resendVerificationEmail
-      description: Доступно только в режиме email_verification_required; применяется rate limit. Ответ не включает
-        сам токен.
+      description: Доступно только в режиме email_verification_required; применяется rate limit. Ответ
+        не включает сам токен.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
       x-required-auth-states:
       - email_verification_required
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       responses:
         '202':
           description: Письмо поставлено в очередь
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/email/unverified-address:
     post:
       tags:
@@ -241,32 +310,40 @@ paths:
       x-required-auth-states:
       - email_verification_required
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/ChangeUnverifiedEmailRequest
+              $ref: ./shared/common.yaml#/components/schemas/ChangeUnverifiedEmailRequest
       responses:
         '202':
           description: Новое подтверждение отправлено
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/2fa/challenge:
     post:
       tags:
@@ -281,38 +358,50 @@ paths:
       x-required-auth-states:
       - two_factor_required
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/TwoFactorProof
+              $ref: ./shared/common.yaml#/components/schemas/TwoFactorProof
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/SessionSnapshot
+                $ref: ./shared/common.yaml#/components/schemas/SessionSnapshot
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/2fa/setup:
     post:
       tags:
       - TwoFactor
       summary: Начать настройку TOTP
       operationId: startTwoFactorSetup
-      description: Доступно пользователю в активном сеансе или сотруднику в two_factor_setup_required. Не включать
-        фактор до успешного подтверждения. Секрет и otpauthUrl не сохраняются в логах.
+      description: 'Доступно пользователю в активном сеансе или сотруднику в two_factor_setup_required.
+        Не включать фактор до успешного подтверждения. Секрет и otpauthUrl не сохраняются в логах. При
+        уже включённой 2FA возвращает 409: setup не заменяет действующий фактор. Pending-секрет привязан
+        к пользователю и текущему сеансу, имеет срок действия и не может подтвердиться из другой сессии.'
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -320,27 +409,37 @@ paths:
       - active
       - two_factor_setup_required
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/TotpSetup
+                $ref: ./shared/common.yaml#/components/schemas/TotpSetup
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
       x-sensitive-response: true
+      x-stability: proposed
   /api/auth/2fa/setup/confirm:
     post:
       tags:
@@ -349,7 +448,9 @@ paths:
       operationId: confirmTwoFactorSetup
       description: После успешной проверки TOTP система активирует 2FA и единожды показывает набор резервных
         кодов. После аварийного восстановления Owner в том же защищённом ответе выдаётся новый офлайн-ключ;
-        только затем служебный доступ становится доступен.
+        только затем служебный доступ становится доступен. Погашение pending-секрета и включение фактора
+        атомарны. Повтор после успеха даёт 409 и не возвращает старые секреты; потерянный ответ требует
+        входа с TOTP и явной ротации кодов.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -357,35 +458,45 @@ paths:
       - active
       - two_factor_setup_required
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/TotpConfirm
+              $ref: ./shared/common.yaml#/components/schemas/TotpConfirm
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/TwoFactorActivated
+                $ref: ./shared/common.yaml#/components/schemas/TwoFactorActivated
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
       x-sensitive-response: true
+      x-stability: proposed
   /api/auth/2fa/disable:
     post:
       tags:
@@ -401,28 +512,38 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/TwoFactorDisable
+              $ref: ./shared/common.yaml#/components/schemas/TwoFactorDisable
       responses:
         '204':
           description: Успешно
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/2fa/recovery-codes/rotate:
     post:
       tags:
@@ -436,129 +557,175 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/TwoFactorRotateCodes
+              $ref: ./shared/common.yaml#/components/schemas/TwoFactorRotateCodes
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/RecoveryCodesResult
+                $ref: ./shared/common.yaml#/components/schemas/RecoveryCodesResult
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
       x-sensitive-response: true
+      x-stability: proposed
   /api/auth/2fa/assisted-recovery/complete:
     post:
       tags:
       - TwoFactor
       summary: Завершить одобренное восстановление 2FA
       operationId: completeAssistedRecovery
-      description: Требуется одноразовый токен из письма, инициированного администрацией. Для персонала после
-        завершения нет служебного доступа до настройки нового TOTP. Обычному пользователю фактор может быть
-        сброшен.
+      description: Требуется одноразовый токен из письма, инициированного администрацией. Для персонала
+        после завершения нет служебного доступа до настройки нового TOTP. Обычному пользователю фактор
+        может быть сброшен. Погашение токена, отзыв всех прежних сессий, pending-настроек и recovery-кодов
+        атомарны. Токен не создаёт новую активную сессию; далее обычный вход. Повторная проверка роли
+        исключает сброс Owner.
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/AssistedTwoFactorComplete
+              $ref: ./shared/common.yaml#/components/schemas/AssistedTwoFactorComplete
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/AssistedTwoFactorResult
+                $ref: ./shared/common.yaml#/components/schemas/AssistedTwoFactorResult
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '410':
-          $ref: ./common.yaml#/components/responses/Error410
+          $ref: ./shared/common.yaml#/components/responses/Error410
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/password-recovery/complete:
     post:
       tags:
       - Recovery
       summary: Установить пароль по одноразовой ссылке
       operationId: completePasswordRecovery
-      description: Ссылка отправляется только после ручного инициирования Admin/Owner. Успешная смена пароля
-        не отключает 2FA и не создаёт автоматически действующую сессию.
+      description: Ссылка отправляется только после ручного инициирования Admin/Owner. Успешная смена
+        пароля не отключает 2FA и не создаёт автоматически действующую сессию. В одной транзакции погашаются
+        токен и все прежние сессии/незавершённые recovery-токены аккаунта. Повтор погашенного токена даёт
+        410.
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/PasswordResetComplete
+              $ref: ./shared/common.yaml#/components/schemas/PasswordResetComplete
       responses:
         '204':
           description: Пароль обновлён
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '410':
-          $ref: ./common.yaml#/components/responses/Error410
+          $ref: ./shared/common.yaml#/components/responses/Error410
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/auth/owner/emergency-recovery/request:
     post:
       tags:
       - OwnerRecovery
       summary: Запросить подтверждение экстренного восстановления владельца
       operationId: requestOwnerEmergencyRecovery
-      description: Всегда нейтральный ответ; письмо только на текущий подтверждённый email единственного владельца.
-        Ни администратор, ни модератор не участвуют.
+      description: Всегда нейтральный ответ; письмо только на текущий подтверждённый email единственного
+        владельца. Ни администратор, ни модератор не участвуют.
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/EmergencyStartRequest
+              $ref: ./shared/common.yaml#/components/schemas/EmergencyStartRequest
       responses:
         '202':
           description: Если адрес подходит, инструкция отправлена
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+      x-stability: proposed
   /api/auth/owner/emergency-recovery/complete:
     post:
       tags:
@@ -566,38 +733,48 @@ paths:
       summary: Восстановить 2FA владельца по трём факторам
       operationId: completeOwnerEmergencyRecovery
       description: 'Все обязательны: одноразовый email-токен, текущий пароль, отдельный офлайн-ключ. Старые
-        owner-сессии и ключ аннулируются. Создаётся только ограниченная сессия для новой настройки TOTP и выдачи
-        нового аварийного ключа; доступ к полномочиям Owner до завершения настройки запрещён.'
+        owner-сессии и ключ аннулируются. Создаётся только ограниченная сессия для новой настройки TOTP
+        и выдачи нового аварийного ключа; доступ к полномочиям Owner до завершения настройки запрещён.'
       x-contract-zone: foundation
       security: []
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/EmergencyCompleteRequest
+              $ref: ./shared/common.yaml#/components/schemas/EmergencyCompleteRequest
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/EmergencyResult
+                $ref: ./shared/common.yaml#/components/schemas/EmergencyResult
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '410':
-          $ref: ./common.yaml#/components/responses/Error410
+          $ref: ./shared/common.yaml#/components/responses/Error410
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
       x-sensitive-request: true
+      x-stability: proposed
   /api/auth/owner/emergency-key/rotate:
     post:
       tags:
@@ -614,33 +791,43 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/EmergencyKeyRotateRequest
+              $ref: ./shared/common.yaml#/components/schemas/EmergencyKeyRotateRequest
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/EmergencyKeyResult
+                $ref: ./shared/common.yaml#/components/schemas/EmergencyKeyResult
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
       x-sensitive-response: true
+      x-stability: proposed
   /api/me:
     get:
       tags:
@@ -659,13 +846,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserProfile
+                $ref: ./shared/common.yaml#/components/schemas/UserProfile
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
     patch:
       tags:
       - Profile
@@ -678,74 +875,92 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/DisplayNamePatch
+              $ref: ./shared/common.yaml#/components/schemas/DisplayNamePatch
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserProfile
+                $ref: ./shared/common.yaml#/components/schemas/UserProfile
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/me/email-change:
     post:
       tags:
       - Profile
       summary: Запросить смену email
       operationId: requestEmailChange
-      description: Новый адрес становится действующим только после email-верификации; до этого старый остаётся
-        подтверждённым.
+      description: Новый адрес становится действующим только после email-верификации; до этого старый
+        остаётся подтверждённым.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/EmailChangeStart
+              $ref: ./shared/common.yaml#/components/schemas/EmailChangeStart
       responses:
         '202':
           description: Письмо отправлено на новый адрес
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
     delete:
       tags:
       - Profile
@@ -758,50 +973,68 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       responses:
         '204':
           description: Ожидающая смена отменена
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/me/email-change/resend:
     post:
       tags:
       - Profile
       summary: Повторить письмо на ожидающий подтверждения новый email
       operationId: resendPendingEmailChange
-      description: Только если ранее инициирована смена адреса. Текущий подтверждённый email остаётся действующим;
-        защищено rate limiting.
+      description: Только если ранее инициирована смена адреса. Текущий подтверждённый email остаётся
+        действующим; защищено rate limiting.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       responses:
         '202':
           description: Письмо поставлено в очередь
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/me/password:
     post:
       tags:
@@ -816,30 +1049,40 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/PasswordChange
+              $ref: ./shared/common.yaml#/components/schemas/PasswordChange
       responses:
         '204':
           description: Пароль изменён
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/me/avatar:
     put:
       tags:
@@ -854,34 +1097,44 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
-              $ref: ./common.yaml#/components/schemas/AvatarUpload
+              $ref: ./shared/common.yaml#/components/schemas/AvatarUpload
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserProfile
+                $ref: ./shared/common.yaml#/components/schemas/UserProfile
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '413':
-          $ref: ./common.yaml#/components/responses/Error413
+          $ref: ./shared/common.yaml#/components/responses/Error413
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
     delete:
       tags:
       - Profile
@@ -894,67 +1147,87 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserProfile
+                $ref: ./shared/common.yaml#/components/schemas/UserProfile
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/me/delete:
     post:
       tags:
       - Profile
       summary: Удалить свой аккаунт и выбрать судьбу комментариев
       operationId: deleteOwnAccount
-      description: Требует проверки пароля и, при включённой 2FA, второго фактора. Реакции удаляются, текст
-        комментариев сохраняется обезличенным либо стирается в зависимости от выбора; чужие ответы не удаляются.
-        Единственному владельцу запрещено, пока не передаст роль.
+      description: Требует проверки пароля и, при включённой 2FA, второго фактора. Реакции удаляются,
+        текст комментариев сохраняется обезличенным либо стирается в зависимости от выбора; чужие ответы
+        не удаляются. Единственному владельцу запрещено, пока не передаст роль.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/DeleteAccountRequest
+              $ref: ./shared/common.yaml#/components/schemas/DeleteAccountRequest
       responses:
         '204':
           description: Аккаунт удалён; сеансы отозваны
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/admin/users:
     get:
       tags:
       - AdminUsers
       summary: Список аккаунтов для административного надзора
       operationId: listUsers
-      description: Только admin/owner с обязательной 2FA. Не предоставляет изменение чужого профиля или принудительное
-        удаление аккаунта.
+      description: Только admin/owner с обязательной 2FA. Не предоставляет изменение чужого профиля или
+        принудительное удаление аккаунта.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -964,25 +1237,35 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/Page
-      - $ref: ./common.yaml#/components/parameters/PageSize
+      - $ref: ./shared/common.yaml#/components/parameters/Page
+      - $ref: ./shared/common.yaml#/components/parameters/PageSize
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserDirectoryPage
+                $ref: ./shared/common.yaml#/components/schemas/UserDirectoryPage
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/admin/users/{userId}:
     get:
       tags:
@@ -1000,33 +1283,45 @@ paths:
       - active
       parameters:
       - &id001
-        $ref: ./common.yaml#/components/parameters/UserId
+        $ref: ./shared/common.yaml#/components/parameters/UserId
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserDirectoryEntry
+                $ref: ./shared/common.yaml#/components/schemas/UserDirectoryEntry
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '404':
-          $ref: ./common.yaml#/components/responses/Error404
+          $ref: ./shared/common.yaml#/components/responses/Error404
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/admin/users/{userId}/role:
     put:
       tags:
       - AdminUsers
       summary: Назначить/снять роль moderator или admin
       operationId: changeUserRole
-      description: Только Owner может назначать/снимать Admin. Admin может назначать/снимать Moderator у обычных
-        аккаунтов, но не трогать Owner/Admin. Роль Owner этим методом не назначается. Проверяется состояние
-        email и 2FA; новому сотруднику до настройки 2FA служебный доступ запрещён.
+      description: Только Owner может назначать/снимать Admin. Admin может назначать/снимать Moderator
+        у обычных аккаунтов, но не трогать Owner/Admin. Роль Owner этим методом не назначается. Проверяется
+        состояние email и 2FA; новому сотруднику до настройки 2FA служебный доступ запрещён. Проверка
+        роли инициатора и цели, запись роли и отзыв прежних сессий цели атомарны; нельзя использовать
+        роль, закешированную до операции.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -1036,46 +1331,56 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       - *id001
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/RoleChangeRequest
+              $ref: ./shared/common.yaml#/components/schemas/RoleChangeRequest
       responses:
         '200':
           description: Успешно
           content:
             application/json:
               schema:
-                $ref: ./common.yaml#/components/schemas/UserDirectoryEntry
+                $ref: ./shared/common.yaml#/components/schemas/UserDirectoryEntry
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '404':
-          $ref: ./common.yaml#/components/responses/Error404
+          $ref: ./shared/common.yaml#/components/responses/Error404
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/admin/users/{userId}/password-recovery:
     post:
       tags:
       - AdminUsers
       summary: Инициировать ссылку восстановления пароля
       operationId: startPasswordRecovery
-      description: Администратор подтверждает проверку контроля привязанного подтверждённого email вне API;
-        сервер логирует действие и отправляет одноразовую ссылку. Сама администрация не получает пароль. Модераторы
-        не могут.
+      description: Администратор подтверждает проверку контроля привязанного подтверждённого email вне
+        API; сервер логирует действие и отправляет одноразовую ссылку. Сама администрация не получает
+        пароль. Модераторы не могут.
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -1085,42 +1390,52 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       - *id001
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/PasswordRecoveryStart
+              $ref: ./shared/common.yaml#/components/schemas/PasswordRecoveryStart
       responses:
         '202':
           description: Запрос на отправку одноразовой ссылки принят
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '404':
-          $ref: ./common.yaml#/components/responses/Error404
+          $ref: ./shared/common.yaml#/components/responses/Error404
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/admin/users/{userId}/2fa-recovery:
     post:
       tags:
       - AdminUsers
       summary: Инициировать контролируемое восстановление 2FA
       operationId: startAssisted2faRecovery
-      description: 'Для обычного пользователя Admin/Owner при подтверждённом контроле email. Для staff ТОЛЬКО
-        Owner, с проверкой своей 2FA. Для Owner запрещено: существует отдельная аварийная процедура. Выпускает
-        одноразовый email-токен, не выключает фактор в момент запроса.'
+      description: 'Для обычного пользователя Admin/Owner при подтверждённом контроле email. Для staff
+        ТОЛЬКО Owner, с проверкой своей 2FA. Для Owner запрещено: существует отдельная аварийная процедура.
+        Выпускает одноразовый email-токен, не выключает фактор в момент запроса. Для цели moderator/admin
+        обязательно тело с proof второго фактора инициатора Owner; отсутствие или неверный proof даёт
+        403. Роль цели повторно проверяется при погашении токена.'
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -1130,33 +1445,41 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       - *id001
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/PasswordRecoveryStart
+              $ref: ./shared/common.yaml#/components/schemas/AssistedRecoveryStart
       responses:
         '202':
           description: Запрос на восстановление 2FA принят
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '404':
-          $ref: ./common.yaml#/components/responses/Error404
+          $ref: ./shared/common.yaml#/components/responses/Error404
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
         '503':
-          $ref: ./common.yaml#/components/responses/Error503
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/owner/transfer:
     post:
       tags:
@@ -1164,8 +1487,13 @@ paths:
       summary: Передать исключительные полномочия владельца
       operationId: transferOwnership
       description: 'Только текущий Owner. Целевой аккаунт уже с подтверждённым email и активной 2FA. Передача
-        атомарна: после неё ровно один Owner, прежний теряет высшие права. Все затронутые привилегированные
-        сессии отзываются.'
+        атомарна: целевой аккаунт получает owner, прежний владелец получает user независимо от прежних
+        административных полномочий; после неё ровно один Owner. Все затронутые привилегированные
+        сессии отзываются. Токены восстановления и аварийные ключи прежнего владельца аннулируются в той
+        же транзакции. Новый Owner после обычного входа выпускает собственный аварийный ключ через emergency-key/rotate.
+        Пароль и totpCode текущего Owner обязательны. Проверка текущего владельца, ролей и подтверждения
+        2FA выполняется в той же транзакции; частичная смена ролей невозможна. Передача самому себе
+        отклоняется с 409 без изменений.'
       x-contract-zone: foundation
       security:
       - SessionCookie: []
@@ -1174,35 +1502,45 @@ paths:
       x-required-auth-states:
       - active
       parameters:
-      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: ./common.yaml#/components/schemas/OwnerTransferRequest
+              $ref: ./shared/common.yaml#/components/schemas/OwnerTransferRequest
       responses:
         '204':
           description: Право владения передано
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
         '400':
-          $ref: ./common.yaml#/components/responses/Error400
+          $ref: ./shared/common.yaml#/components/responses/Error400
         '401':
-          $ref: ./common.yaml#/components/responses/Error401
+          $ref: ./shared/common.yaml#/components/responses/Error401
         '403':
-          $ref: ./common.yaml#/components/responses/Error403
+          $ref: ./shared/common.yaml#/components/responses/Error403
         '404':
-          $ref: ./common.yaml#/components/responses/Error404
+          $ref: ./shared/common.yaml#/components/responses/Error404
         '409':
-          $ref: ./common.yaml#/components/responses/Error409
+          $ref: ./shared/common.yaml#/components/responses/Error409
         '422':
-          $ref: ./common.yaml#/components/responses/Error422
+          $ref: ./shared/common.yaml#/components/responses/Error422
         '429':
-          $ref: ./common.yaml#/components/responses/Error429
+          $ref: ./shared/common.yaml#/components/responses/Error429
         '500':
-          $ref: ./common.yaml#/components/responses/Error500
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
 components:
   securitySchemes:
     SessionCookie:
-      $ref: ./common.yaml#/components/securitySchemes/SessionCookie
+      $ref: ./shared/common.yaml#/components/securitySchemes/SessionCookie
 x-contract-zone: foundation
 x-stability: proposed

@@ -1,0 +1,405 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: presskit'
+  version: 0.2.0-proposed
+paths:
+  /api/presskit:
+    get:
+      tags:
+      - PressKit
+      operationId: getPublicPressKit
+      summary: Опубликованный PressKit
+      x-contract-zone: core
+      security: []
+      parameters: []
+      description: ZIP формируется в зоне extended. Здесь только public-метаданные и текущий zipUrl, если
+        реализован; неопубликованные черновики исключены.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressKitPublic'
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/presskit:
+    get:
+      tags:
+      - CMSPressKit
+      operationId: getCmsPressKit
+      summary: Опубликованное состояние и черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressKitEditor'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/presskit/draft:
+    put:
+      tags:
+      - CMSPressKit
+      operationId: savePressKitDraft
+      summary: Сохранить черновик содержимого
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Без изменения публичной версии. История опубликованных редакций отсутствует. PUT полностью
+        заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются
+        с прежними. Публичная версия не меняется.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PressKitDraftContent'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressKitEditor'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/presskit/publish:
+    post:
+      tags:
+      - CMSPressKit
+      operationId: publishPressKit
+      summary: Опубликовать подготовленные изменения
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: При одиночной публикации заменяет публичное содержимое; групповые публикации в зоне
+        extended. Публикация смены файлов PressKit завершается успешно только при готовом ZIP именно этого
+        опубликованного снимка; при сбое архивирования не публиковать частичное состояние (механизм в
+        extended).
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressKitEditor'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+components:
+  schemas:
+    PressKitContent:
+      type: object
+      additionalProperties: false
+      properties:
+        gameTitle:
+          type: string
+          minLength: 1
+        shortDescription:
+          type: string
+          minLength: 1
+        longDescription:
+          type: string
+          minLength: 1
+        genre:
+          type: string
+          minLength: 1
+        releaseStatus:
+          type: string
+          minLength: 1
+        platforms:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        logoMediaId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        screenshotMediaIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        artMediaIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        trailerUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+        pressEmail:
+          oneOf:
+          - type: string
+            format: email
+          - type: object
+            nullable: true
+            enum:
+            - null
+        socialUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+      - gameTitle
+      - shortDescription
+      - longDescription
+      - genre
+      - releaseStatus
+      - platforms
+      - logoMediaId
+      - screenshotMediaIds
+      - artMediaIds
+      - trailerUrl
+      - pressEmail
+      - socialUrls
+      description: Закреплённый порядок/компоновка на frontend; ссылки на видео внешние; медиа — идентификаторы
+        из общей библиотеки.
+    PressKitPublic:
+      type: object
+      additionalProperties: false
+      properties:
+        content:
+          $ref: '#/components/schemas/PressKitContent'
+        media:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                minLength: 1
+              url:
+                type: string
+                format: uri
+            required:
+            - id
+            - url
+        zipUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - content
+      - media
+      - zipUrl
+      description: zipUrl создаёт расширенная зона; должен указывать на архив из того же опубликованного
+        снимка.
+    PressKitEditor:
+      type: object
+      additionalProperties: false
+      properties:
+        published:
+          oneOf:
+          - $ref: '#/components/schemas/PressKitContent'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        draft:
+          oneOf:
+          - $ref: '#/components/schemas/PressKitDraftContent'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        editVersion:
+          type: integer
+          minimum: 1
+      required:
+      - published
+      - draft
+      - editVersion
+    PressKitDraftContent:
+      type: object
+      additionalProperties: false
+      properties:
+        gameTitle:
+          type: string
+        shortDescription:
+          type: string
+        longDescription:
+          type: string
+        genre:
+          type: string
+        releaseStatus:
+          type: string
+        platforms:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        logoMediaId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        screenshotMediaIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        artMediaIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        trailerUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+        pressEmail:
+          oneOf:
+          - type: string
+            format: email
+          - type: object
+            nullable: true
+            enum:
+            - null
+        socialUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+      description: Неполный рабочий черновик разрешён; при публикации сервер проверяет обязательные поля
+        опубликованной версии.
+x-contract-zone: core
+x-stability: proposed

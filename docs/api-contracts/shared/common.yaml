@@ -92,6 +92,7 @@ components:
           minLength: 3
           maxLength: 30
           pattern: ^[a-zA-Z0-9_]{3,30}$
+          description: Уникальный логин без учёта регистра ASCII (A-Z приводятся к a-z для сравнения). Символ @ запрещён. Отдельный от displayName идентификатор.
         displayName:
           type: string
           minLength: 3
@@ -156,7 +157,8 @@ components:
       - state
       - user
       - capabilities
-      description: GET session возвращает 200 даже для гостя. Наличие cookie не является доказательством полномочий.
+      description: GET session возвращает 200 даже для гостя. Наличие cookie не является доказательством
+        полномочий.
     RegisterRequest:
       type: object
       additionalProperties: false
@@ -166,6 +168,7 @@ components:
           minLength: 3
           maxLength: 30
           pattern: ^[a-zA-Z0-9_]{3,30}$
+          description: Уникальный логин без учёта регистра ASCII (A-Z приводятся к a-z для сравнения). Символ @ запрещён. Конкурирующие регистрации одного нормализованного username не могут создать два аккаунта; конфликт даёт 409.
         displayName:
           type: string
           minLength: 3
@@ -182,8 +185,11 @@ components:
       - displayName
       - email
       - password
-      description: 'Проверки исходного ТЗ: пароль содержит букву и цифру; окончательное правило должно учитываться
-        в серверной валидации.'
+      description: 'Проверки исходного ТЗ: пароль содержит букву и цифру; окончательное правило должно
+        учитываться в серверной валидации. username уникален без учёта регистра ASCII, displayName является
+        отдельным изменяемым отображаемым именем и не служит логином. Email для входа также однозначно
+        идентифицирует аккаунт; повторная регистрация занятого username или email возвращает 409.
+        Уникальность проверяется атомарно, включая конкурентные регистрации.'
     RegisterResult:
       type: object
       additionalProperties: false
@@ -203,6 +209,7 @@ components:
         login:
           type: string
           minLength: 1
+          description: Одно поле для username или email. Если содержит @, искать только по email; иначе только по username без учёта регистра ASCII (A-Z приводятся к a-z). Не использовать displayName и не пробовать второй способ поиска после неудачи. Email должен однозначно соответствовать аккаунту по тем же правилам сравнения, что при регистрации и смене email.
         password:
           type: string
           minLength: 1
@@ -333,7 +340,8 @@ components:
           type: boolean
           enum:
           - true
-          description: Администратор подтверждает завершение проверки доступа к email; сервер пишет audit event.
+          description: Администратор подтверждает завершение проверки доступа к email; сервер пишет audit
+            event.
       required:
       - userEmailOwnershipVerified
       description: Не заменяет реальную процедуру проверки контрольного email.
@@ -448,6 +456,10 @@ components:
           maxLength: 128
         username:
           type: string
+          minLength: 3
+          maxLength: 30
+          pattern: ^[a-zA-Z0-9_]{3,30}$
+          description: Тот же уникальный без учёта регистра ASCII username, что в регистрации и собственном профиле; не displayName.
         displayName:
           type: string
         email:
@@ -514,8 +526,8 @@ components:
           - admin
       required:
       - role
-      description: Нельзя назначать owner через эту операцию. Owner может назначать admin/moderator/user; Admin
-        только moderator/user с запретом трогать admin/owner.
+      description: Нельзя назначать owner через эту операцию. Owner может назначать admin/moderator/user;
+        Admin только moderator/user с запретом трогать admin/owner.
     OwnerTransferRequest:
       type: object
       additionalProperties: false
@@ -534,8 +546,10 @@ components:
       - targetUserId
       - password
       - totpCode
-      description: 'Цель: email подтверждён, 2FA настроена; передача атомарна, прежние привилегированные сессии
-        инвалидируются.'
+      description: 'Цель: другой аккаунт с подтверждённым email и настроенной 2FA. В одной транзакции целевой
+        аккаунт получает owner, прежний владелец получает user независимо от прежних административных
+        полномочий; в системе остаётся ровно один Owner. Пароль и totpCode подтверждают действие текущего
+        Owner; прежние привилегированные сессии инвалидируются.'
     EmergencyStartRequest:
       type: object
       additionalProperties: false
@@ -545,8 +559,8 @@ components:
           format: email
       required:
       - email
-      description: Инициирует отправку подтверждения на уже привязанный и подтверждённый email Owner; ответ
-        не раскрывает наличие аккаунта.
+      description: Инициирует отправку подтверждения на уже привязанный и подтверждённый email Owner;
+        ответ не раскрывает наличие аккаунта.
     EmergencyCompleteRequest:
       type: object
       additionalProperties: false
@@ -563,8 +577,8 @@ components:
       - token
       - password
       - emergencyKey
-      description: 'Проверяются все три независимых фактора: email-токен, пароль, офлайн-ключ. Нет обхода через
-        администратора.'
+      description: 'Проверяются все три независимых фактора: email-токен, пароль, офлайн-ключ. Нет обхода
+        через администратора.'
     EmergencyResult:
       type: object
       additionalProperties: false
@@ -613,7 +627,8 @@ components:
         coverPartId:
           type: string
           nullable: true
-          description: Content-ID соответствующей бинарной части multipart/mixed; null означает отсутствие обложки.
+          description: Content-ID соответствующей бинарной части multipart/mixed; null означает отсутствие
+            обложки.
         publishedAt:
           type: string
           format: date-time
@@ -648,13 +663,30 @@ components:
       - page
       - pageSize
       - nextPage
+    AssistedRecoveryStart:
+      type: object
+      additionalProperties: false
+      properties:
+        userEmailOwnershipVerified:
+          type: boolean
+          enum:
+          - true
+          description: Администратор подтверждает завершение проверки доступа к email; сервер пишет audit
+            event.
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - userEmailOwnershipVerified
+      description: 'Подтверждение внешней проверки email. При восстановлении moderator/admin поле proof
+        обязательно: проверяется текущий второй фактор инициатора Owner в этом запросе. Цель Owner запрещена.
+        Для цели user proof необязателен.'
   parameters:
     CsrfHeader:
       name: X-CSRF-Token
       in: header
       required: true
-      description: Токен текущей анонимной/авторизованной сессии из GET /api/auth/csrf; клиент обновляет после
-        смены сессии.
+      description: Токен текущей анонимной/авторизованной сессии из GET /api/auth/csrf; клиент обновляет
+        после смены сессии.
       schema:
         type: string
         minLength: 1
@@ -690,70 +722,166 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error401:
-      description: Нет действующей или достаточной по фактору сессии
+      description: Нет действующей сессии. Для существующей ограниченной сессии с недостаточными правами
+        используется 403.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error403:
-      description: Нет прав, email не подтверждён, или обязательная 2FA не настроена
+      description: Нет прав, недопустимое состояние сессии, неверный CSRF-токен или Origin.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error404:
       description: Ресурс не найден либо скрыт для запрашивающего
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error409:
       description: Конфликт состояния/роли
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error410:
       description: Одноразовая ссылка недействительна или срок истёк
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error413:
       description: Загружаемый файл слишком большой
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error422:
       description: Проверка входных данных не пройдена
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error429:
       description: Слишком много запросов
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
+        Retry-After:
+          description: Число секунд до разрешённого повтора; лимиты определяет backend.
+          schema:
+            type: integer
+            minimum: 1
     Error500:
       description: Ошибка сервера
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
     Error503:
       description: Сервис временно недоступен
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
+    Error428:
+      description: Требуется If-Match с конкретной текущей редакторской версией.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
   securitySchemes:
     SessionCookie:
       type: apiKey
       in: cookie
       name: zarya_session
-      description: Предлагаемое имя HttpOnly Secure cookie; фактические Domain/Path/SameSite и срок жизни зависят
-        от развёртывания. Сервер не доверяет роли из клиента.
+      description: Предлагаемое имя HttpOnly Secure cookie; фактические Domain/Path/SameSite и срок жизни
+        зависят от развёртывания. Сервер не доверяет роли из клиента.

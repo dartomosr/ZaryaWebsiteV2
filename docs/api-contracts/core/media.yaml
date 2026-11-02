@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: media'
+  version: 0.2.0-proposed
+paths:
+  /api/cms/media:
+    get:
+      tags:
+      - CMSMedia
+      operationId: listMedia
+      summary: Изображения общей медиатеки
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaPage'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    post:
+      tags:
+      - CMSMedia
+      operationId: uploadMedia
+      summary: Загрузить JPEG/PNG/WebP до 5 МБ
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Сервер валидирует MIME по содержимому, размер и безопасный формат. Не публикует фото
+        автоматически.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+              additionalProperties: false
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAsset'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '413':
+          $ref: ../shared/common.yaml#/components/responses/Error413
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/media/{mediaId}:
+    get:
+      tags:
+      - CMSMedia
+      operationId: getCmsMedia
+      summary: Метаданные изображения
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAsset'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    delete:
+      tags:
+      - CMSMedia
+      operationId: deleteCmsMedia
+      summary: Удалить неиспользуемый медиафайл
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: 409, если файл где-либо используется, включая черновики. Молчаливой замены уже опубликованных
+        файлов нет. Учитываются также сохранённые редакции и ZIP-снимки. Проверка ссылок и отметка удаления
+        атомарны с публикацией; физическая очистка выполняется после commit и не удаляет закреплённые
+        файлы.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/media/{mediaId}/references:
+    get:
+      tags:
+      - CMSMedia
+      operationId: listMediaReferences
+      summary: Публикации и черновики, использующие изображение
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaReferences'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+components:
+  schemas:
+    MediaAsset:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        url:
+          type: string
+          format: uri
+        fileName:
+          type: string
+          minLength: 1
+        mimeType:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/webp
+        sizeBytes:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+        createdAt:
+          type: string
+          format: date-time
+        usageCount:
+          type: integer
+          minimum: 0
+      required:
+      - id
+      - url
+      - fileName
+      - mimeType
+      - sizeBytes
+      - createdAt
+      - usageCount
+    MediaPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaAsset'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+    MediaReference:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum:
+          - news
+          - update
+          - faq
+          - presskit
+          - game-summary
+          - other
+        resourceId:
+          type: string
+          minLength: 1
+        scope:
+          type: string
+          enum:
+          - published
+          - draft
+          - revision
+          - archive
+        title:
+          type: string
+          minLength: 0
+      required:
+      - kind
+      - resourceId
+      - scope
+      - title
+      description: title может быть пустым для неполного черновика. scope=revision/archive защищает ссылки
+        истории и закреплённых ZIP от очистки.
+    MediaReferences:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaReference'
+      required:
+      - items
+x-contract-zone: core
+x-stability: proposed

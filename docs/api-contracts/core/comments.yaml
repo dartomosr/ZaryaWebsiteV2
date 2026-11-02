@@ -1,0 +1,557 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: comments'
+  version: 0.2.0-proposed
+paths:
+  /api/news/{newsId}/comments:
+    get:
+      tags:
+      - Comments
+      operationId: listNewsComments
+      summary: Публичные корневые комментарии
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      description: Пагинация корневых комментариев; ответы GET /api/comments/{rootCommentId}/replies.
+        Отсутствие прав на комментирование не запрещает чтение. Сервер проверяет публичность родительского
+        материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404.
+        Непрозрачный ID не является разрешением доступа.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPage'
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    post:
+      tags:
+      - Comments
+      operationId: createNewsComment
+      summary: Написать комментарий или ответ
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: 'Только active + подтверждённый email + нет коммент-банов + комментарии включены. Публикуется
+        сразу. rootId: null для корня, id корня для ответа. Сервер проверяет replyToCommentId той же ветки.
+        403 COMMENTING_DISABLED/COMMENT_BANNED и 429 с Retry-After. Сервер проверяет публичность родительского
+        материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404.
+        Непрозрачный ID не является разрешением доступа.'
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewComment'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/updates/{updateId}/comments:
+    get:
+      tags:
+      - Comments
+      operationId: listUpdateComments
+      summary: Публичные корневые комментарии
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      description: Пагинация корневых комментариев; ответы GET /api/comments/{rootCommentId}/replies.
+        Отсутствие прав на комментирование не запрещает чтение. Сервер проверяет публичность родительского
+        материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404.
+        Непрозрачный ID не является разрешением доступа.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPage'
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    post:
+      tags:
+      - Comments
+      operationId: createUpdateComment
+      summary: Написать комментарий или ответ
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: 'Только active + подтверждённый email + нет коммент-банов + комментарии включены. Публикуется
+        сразу. rootId: null для корня, id корня для ответа. Сервер проверяет replyToCommentId той же ветки.
+        403 COMMENTING_DISABLED/COMMENT_BANNED и 429 с Retry-After. Сервер проверяет публичность родительского
+        материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404.
+        Непрозрачный ID не является разрешением доступа.'
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewComment'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/comments/{rootCommentId}/replies:
+    get:
+      tags:
+      - Comments
+      operationId: listCommentReplies
+      summary: Ответы в одной ветке
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: rootCommentId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      description: Результат содержит только ответы первого уровня, без рекурсивных вложений. Сервер проверяет
+        публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный
+        материал дают 404. Непрозрачный ID не является разрешением доступа.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPage'
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/comments/{commentId}:
+    patch:
+      tags:
+      - Comments
+      operationId: editOwnComment
+      summary: Изменить собственный комментарий
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Без лимита времени. После редактирования editedAt != null; коммент-бан запрещает редактирование.
+        403 также если не автор. Сервер проверяет публичность родительского материала в том же запросе;
+        черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является
+        разрешением доступа.
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditComment'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    delete:
+      tags:
+      - Comments
+      operationId: deleteOwnComment
+      summary: Удалить собственный комментарий
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Даже при коммент-бане автор может удалить свой текст. Если у корня есть ответы, placeholder;
+        иначе запись исчезает из публичного списка. Сервер проверяет публичность родительского материала
+        в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный
+        ID не является разрешением доступа.
+      x-required-auth-states:
+      - active
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+components:
+  schemas:
+    PublicAuthor:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        displayName:
+          type: string
+          minLength: 1
+        avatarUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+        deleted:
+          type: boolean
+      required:
+      - id
+      - displayName
+      - avatarUrl
+      - deleted
+      description: Никаких email, username, ссылок на публичный профиль.
+    Comment:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        materialType:
+          type: string
+          enum:
+          - news
+          - update
+        materialId:
+          type: string
+          minLength: 1
+        rootId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        replyToCommentId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        author:
+          $ref: '#/components/schemas/PublicAuthor'
+        text:
+          oneOf:
+          - type: string
+          - type: object
+            nullable: true
+            enum:
+            - null
+        createdAt:
+          type: string
+          format: date-time
+        editedAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        isPlaceholder:
+          type: boolean
+        repliesCount:
+          type: integer
+          minimum: 0
+      required:
+      - id
+      - materialType
+      - materialId
+      - rootId
+      - replyToCommentId
+      - author
+      - text
+      - createdAt
+      - editedAt
+      - isPlaceholder
+      - repliesCount
+      description: Корневой комментарий rootId=null; ответ rootId=id корня, даже если отвечает на другой
+        ответ. После удаления текст=null и заполнитель при наличии ответов.
+    CommentPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+      description: Для ленты материалов содержит только корневые комментарии; GET /api/comments/{rootId}/replies
+        — ответы.
+    NewComment:
+      type: object
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+        rootId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        replyToCommentId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - text
+      - rootId
+      - replyToCommentId
+      description: Для корня оба null. Для ответа rootId=id корневого комментария, replyToCommentId=id
+        адресата в той же ветке. Проверяется сервером.
+      oneOf:
+      - properties:
+          rootId:
+            type: object
+            nullable: true
+            enum:
+            - null
+          replyToCommentId:
+            type: object
+            nullable: true
+            enum:
+            - null
+      - properties:
+          rootId:
+            type: string
+            minLength: 1
+          replyToCommentId:
+            type: string
+            minLength: 1
+    EditComment:
+      type: object
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+      required:
+      - text
+x-contract-zone: core
+x-stability: proposed

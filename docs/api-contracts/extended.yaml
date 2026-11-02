@@ -1,11 +1,1221 @@
 openapi: 3.0.3
 info:
-  title: 'ZaryaWebsite API — Зона 3: расширенный функционал'
-  version: 0.1.0
-  description: Зарезервировано для Мировой Машины, пакетной публикации, ZIP PressKit и расширенных CMS-операций.
-    На этом этапе не публикуем фиктивные HTTP-маршруты.
+  title: 'ZaryaWebsite API — зона 3: расширенный функционал'
+  version: 0.3.0
+  description: PROPOSED. API-схемы предназначены для согласования с backend ASP.NET Core; функции утверждены,
+    но маршруты и DTO предварительные.
 servers:
 - url: /
-paths: {}
+tags:
+- name: WorldMachine
+- name: CMSWorldMachine
+- name: CMSBatchPublishing
+- name: PressKitArchive
+- name: CMSPressKitArchive
+- name: CMSRevisionCompare
+paths:
+  /api/world-machine/texts:
+    get:
+      tags:
+      - WorldMachine
+      operationId: getWorldMachineTexts
+      summary: Получить тексты Мировой Машины одним набором
+      description: Вызывать только после активации консоли. Возвращает все публичные тексты за один запрос.
+        В процессе зума, кликов и переходов между пространствами новых API-запросов на тексты нет. Изображения
+        могут подгружаться отдельно. Не выдавать непубликованные/удалённые ключи. Заголовок ETag на 200/304.
+      x-contract-zone: extended
+      x-stability: proposed
+      security: []
+      parameters:
+      - name: If-None-Match
+        in: header
+        required: false
+        schema:
+          type: string
+        description: Опциональная проверка ETag.
+      responses:
+        '200':
+          description: Тексты текущей опубликованной версии
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachineTextBundle'
+          headers: &id001
+            ETag:
+              description: Версия опубликованного набора текстов; допускается условный GET.
+              schema:
+                type: string
+            Cache-Control:
+              description: public, no-cache, must-revalidate; реальные сроки определяет CDN.
+              schema:
+                type: string
+        '304':
+          description: Не изменилось, используется кеш клиента
+          headers: *id001
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/world-machine/texts:
+    get:
+      tags:
+      - CMSWorldMachine
+      operationId: listCmsWorldMachineTexts
+      summary: Список фиксированных текстовых элементов и черновиков
+      description: Возвращаются только существующие ключи из одобренного набора фронтенда. Редактор не
+        может создавать, удалять или переставлять узлы.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Список разрешённых ключей со состоянием публикации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachineCmsList'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/world-machine/texts/{textKey}:
+    get:
+      tags:
+      - CMSWorldMachine
+      operationId: getCmsWorldMachineText
+      summary: Читать один текстовый объект с версией редактора
+      description: Неизвестный ключ возвращает 404. Ключ известен frontend и является непрозрачным стабильным
+        идентификатором.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - name: textKey
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: Состояние текстового объекта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachineCmsEntry'
+          headers: &id002
+            ETag:
+              description: Версия редакторского состояния для последующих If-Match.
+              schema:
+                type: string
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/world-machine/texts/{textKey}/draft:
+    put:
+      tags:
+      - CMSWorldMachine
+      operationId: saveWorldMachineTextDraft
+      summary: Сохранить черновик текста, не публикуя
+      description: Меняются только title и bodyMarkdown, не меняются данные узлов. Черновик может быть
+        неполным. If-Match предотвращает потерю конкурирующих правок. PUT полностью заменяет рабочий черновик
+        переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная
+        версия не меняется.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
+      - name: textKey
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: ^"[^"\r\n]+"$
+        description: Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший
+          даёт 412. Один конкретный ETag; wildcard, weak и списки не принимаются (400). Отсутствие заголовка
+          даёт 428.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorldMachineTextDraft'
+      responses:
+        '200':
+          description: Черновик сохранён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachineCmsEntry'
+          headers: *id002
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '409':
+          $ref: ./shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./core/shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ./shared/common.yaml#/components/responses/Error422
+        '428':
+          $ref: ./shared/common.yaml#/components/responses/Error428
+    delete:
+      tags:
+      - CMSWorldMachine
+      operationId: discardWorldMachineTextDraft
+      summary: Сбросить только черновик данного текста
+      description: Опубликованная версия не изменяется. Никаких операций удаления информационного узла.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
+      - name: textKey
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: ^"[^"\r\n]+"$
+        description: Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший
+          даёт 412. Один конкретный ETag; wildcard, weak и списки не принимаются (400). Отсутствие заголовка
+          даёт 428.
+      responses:
+        '200':
+          description: Черновик отменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachineCmsEntry'
+          headers: *id002
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '409':
+          $ref: ./shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./core/shared.yaml#/components/responses/Error412
+        '428':
+          $ref: ./shared/common.yaml#/components/responses/Error428
+  /api/cms/world-machine/texts/{textKey}/publish:
+    post:
+      tags:
+      - CMSWorldMachine
+      operationId: publishWorldMachineText
+      summary: Опубликовать одну подготовленную редакцию текста
+      description: Без истории прошлых опубликованных версий. Публикуется только подготовленный черновик.
+        В случае невалидного текста 422 без частичного обновления. Пакетная публикация — отдельный endpoint.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
+      - name: textKey
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: ^"[^"\r\n]+"$
+        description: Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший
+          даёт 412. Один конкретный ETag; wildcard, weak и списки не принимаются (400). Отсутствие заголовка
+          даёт 428.
+      responses:
+        '200':
+          description: Текст опубликован, публичный снимок обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachineCmsEntry'
+          headers: *id002
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '409':
+          $ref: ./shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./core/shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ./shared/common.yaml#/components/responses/Error422
+        '428':
+          $ref: ./shared/common.yaml#/components/responses/Error428
+  /api/cms/world-machine/preview:
+    get:
+      tags:
+      - CMSWorldMachine
+      operationId: previewWorldMachineTexts
+      summary: Предпросмотр набора с неопубликованными черновиками
+      description: 'Собранный набор: опубликованные тексты с наложением черновиков. Предпросмотр не публикует
+        ничего и не должен кэшироваться общедоступно.'
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Превью для редактора
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldMachinePreviewBundle'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/publication-batches/validate:
+    post:
+      tags:
+      - CMSBatchPublishing
+      operationId: validatePublicationBatch
+      summary: Проверить группу подготовленных изменений без публикации
+      description: Не меняет публичный или черновой контент. Проверяет права, версии, полный набор полей,
+        ссылки на медиа, порядок FAQ, доступность ZIP PressKit и дубли. Между проверкой и публикацией
+        изменения возможны.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationBatchRequest'
+      responses:
+        '200':
+          description: Результаты предварительной проверки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationBatchValidation'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '409':
+          $ref: ./shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./shared/common.yaml#/components/responses/Error422
+  /api/cms/publication-batches/publish:
+    post:
+      tags:
+      - CMSBatchPublishing
+      operationId: publishPublicationBatch
+      summary: Атомарно опубликовать группу информационных изменений
+      description: 'Поддерживает FAQ (вопросы и их порядок), короткое описание игры, PressKit и существующие
+        текстовые ключи Мировой Машины. Все элементы либо публикуются, либо ни один. При неудаче ZIP или
+        несовпадении любой expectedEditVersion публикации нет. Бэкенд обеспечивает согласованный новый
+        публичный снимок и не раскрывает промежуточных состояний; подготовленные файлы могут размещаться
+        во временном хранилище с очисткой после сбоя. Публикация сохраняет прежние значения до успешного
+        commit; история опубликованных версий для этих типов не создаётся. Idempotency-Key ограничен инициатором
+        и operationId, связан с каноническим телом. Сначала повторно проверить аутентификацию/права, затем
+        искать результат: успешный повтор возвращает исходный результат без повторной проверки уже изменившихся
+        версий. Одновременный незавершённый запрос с тем же ключом даёт 409 IDEMPOTENCY_IN_PROGRESS; другое
+        тело даёт 409 IDEMPOTENCY_KEY_REUSED. Запись результата и commit публикации атомарны; срок хранения
+        ключа согласовать до внедрения.'
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./shared/common.yaml#/components/parameters/CsrfHeader
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 128
+        description: Уникальный ключ запроса. Повтор с тем же телом возвращает прежний результат; с другим
+          телом 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationBatchRequest'
+      responses:
+        '200':
+          description: Все выбранные элементы опубликованы одновременно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationBatchResult'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+        '409':
+          $ref: ./shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./core/shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ./shared/common.yaml#/components/responses/Error422
+  /api/presskit/archive/{snapshotId}:
+    get:
+      tags:
+      - PressKitArchive
+      operationId: downloadPressKitArchive
+      summary: Скачать ZIP конкретной опубликованной версии PressKit
+      description: Публичный PressKitPublic.zipUrl должен указывать на этот URL и закреплённый snapshotId.
+        Не отдавать черновики. Архив сформирован и закреплён до публикации новой версии PressKit; содержимое
+        URL неизменно, даже если позже опубликована следующая версия. 404 для неизвестных/неопубликованных
+        снимков.
+      x-contract-zone: extended
+      x-stability: proposed
+      security: []
+      parameters:
+      - name: snapshotId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: Скачиваемый ZIP опубликованного снимка PressKit
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Disposition:
+              description: attachment; filename="Zarya-PressKit.zip"
+              schema:
+                type: string
+            ETag:
+              description: ETag неизменяемого ZIP-снимка
+              schema:
+                type: string
+            Cache-Control:
+              description: Разрешён долгий кеш для URL с неизменяемым snapshotId.
+              schema:
+                type: string
+            Content-Length:
+              description: Размер ZIP в байтах, если известен серверу
+              schema:
+                type: integer
+                minimum: 0
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/presskit/archive/preview-manifest:
+    get:
+      tags:
+      - CMSPressKitArchive
+      operationId: previewPressKitArchiveManifest
+      summary: Посмотреть список будущих файлов ZIP для черновика
+      description: Только для CMS, ничего не публикует и не создаёт публично доступный ZIP. Если файлы
+        отсутствуют или связаны с неподготовленными записями, вернёт предупреждения и canBuild=false.
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Список файлов и внешних ссылок для проверки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressKitDraftArchiveManifest'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/news/{newsId}/revision-diff:
+    get:
+      tags:
+      - CMSRevisionCompare
+      operationId: compareNewsRevisions
+      summary: Сравнить две сохранённые редакции новости
+      description: 'Только просмотр: не создаёт новую редакцию и не публикует. Сравниваются все содержательные
+        поля, включая заголовок, описание, обложку и разделы обновлений. Если редакция недоступна/удалена,
+        404. Новую редакцию из отката создаёт существующий метод core. Обе редакции должны принадлежать
+        материалу из пути; чужой revisionId даёт 404.'
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: fromRevisionId
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description: Идентификатор исходной сохранённой редакции.
+      - name: toRevisionId
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description: Идентификатор целевой сохранённой редакции.
+      responses:
+        '200':
+          description: Различия между редакциями
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentRevisionDiff'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+  /api/cms/updates/{updateId}/revision-diff:
+    get:
+      tags:
+      - CMSRevisionCompare
+      operationId: compareUpdateRevisions
+      summary: Сравнить две сохранённые редакции обновления
+      description: 'Только просмотр: не создаёт новую редакцию и не публикует. Сравниваются все содержательные
+        поля, включая заголовок, описание, обложку и разделы обновлений. Если редакция недоступна/удалена,
+        404. Новую редакцию из отката создаёт существующий метод core. Обе редакции должны принадлежать
+        материалу из пути; чужой revisionId даёт 404.'
+      x-contract-zone: extended
+      x-stability: proposed
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: fromRevisionId
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description: Идентификатор исходной сохранённой редакции.
+      - name: toRevisionId
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description: Идентификатор целевой сохранённой редакции.
+      responses:
+        '200':
+          description: Различия между редакциями
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentRevisionDiff'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
+components:
+  schemas:
+    WorldMachineTextContent:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 300
+        bodyMarkdown:
+          type: string
+          minLength: 1
+          maxLength: 50000
+      required:
+      - title
+      - bodyMarkdown
+      description: Только редактируемые текстовые поля уже существующего элемента. Программные координаты,
+        граф, связи, пространство и эффекты не передаются и не меняются.
+    WorldMachineTextDraft:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          maxLength: 300
+        bodyMarkdown:
+          type: string
+          maxLength: 50000
+      description: Черновик может быть неполным. Публикация требует оба непустых поля title и bodyMarkdown
+        согласно WorldMachineTextContent; превью допускает отсутствие полей.
+    WorldMachineTextItem:
+      type: object
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 128
+        title:
+          type: string
+          minLength: 1
+          maxLength: 300
+        bodyMarkdown:
+          type: string
+          minLength: 1
+          maxLength: 50000
+      required:
+      - key
+      - title
+      - bodyMarkdown
+    WorldMachineTextBundle:
+      type: object
+      additionalProperties: false
+      properties:
+        contentGeneration:
+          type: string
+          minLength: 1
+          maxLength: 128
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorldMachineTextItem'
+          uniqueItems: true
+      required:
+      - contentGeneration
+      - items
+      description: Снимок всего опубликованного текстового наполнения для фронтенда при входе. Без карты/координат/структуры.
+        Ключи регистрирует frontend-разработка, не CMS. Ключи key уникальны во всём items; uniqueItems
+        проверяет только полные объекты, поэтому уникальность key проверяется сервером.
+    WorldMachineCmsEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 128
+        editVersion:
+          type: integer
+          minimum: 1
+        published:
+          $ref: '#/components/schemas/WorldMachineTextContent'
+        draft:
+          $ref: '#/components/schemas/WorldMachineTextDraft'
+      required:
+      - key
+      - editVersion
+      description: published/draft опускаются при отсутствии. Никаких операций create/delete для ключа.
+    WorldMachineCmsList:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorldMachineCmsEntry'
+          uniqueItems: true
+      required:
+      - items
+      description: ' Ключи key уникальны во всём items; uniqueItems проверяет только полные объекты, поэтому
+        уникальность key проверяется сервером.'
+    PublicationBatchItem:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - worldMachineText
+          - faqItem
+          - faqOrder
+          - presskit
+          - gameSummary
+        resourceKey:
+          type: string
+          minLength: 1
+          maxLength: 128
+        expectedEditVersion:
+          type: integer
+          minimum: 1
+      required:
+      - type
+      - resourceKey
+      - expectedEditVersion
+      description: 'resourceKey: ключ текста для worldMachineText, id вопроса для faqItem; для одиночных
+        ресурсов строго faq-order, presskit или game-summary. FAQ delete предварительно ставится в черновик
+        соответствующим методом core.'
+      oneOf:
+      - properties:
+          type:
+            enum:
+            - worldMachineText
+            - faqItem
+      - properties:
+          type:
+            enum:
+            - faqOrder
+          resourceKey:
+            enum:
+            - faq-order
+      - properties:
+          type:
+            enum:
+            - presskit
+          resourceKey:
+            enum:
+            - presskit
+      - properties:
+          type:
+            enum:
+            - gameSummary
+          resourceKey:
+            enum:
+            - game-summary
+    PublicationBatchRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/PublicationBatchItem'
+          uniqueItems: true
+      required:
+      - items
+      description: В одном запросе нельзя повторять (type,resourceKey). Публикация атомарна для всех элементов;
+        в каждом должен существовать подготовленный черновик.
+    PublicationBatchCheck:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - worldMachineText
+          - faqItem
+          - faqOrder
+          - presskit
+          - gameSummary
+        resourceKey:
+          type: string
+          minLength: 1
+          maxLength: 128
+        ready:
+          type: boolean
+        issues:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              code:
+                type: string
+                minLength: 1
+                maxLength: 80
+              message:
+                type: string
+              fieldPath:
+                type: string
+            required:
+            - code
+            - message
+      required:
+      - type
+      - resourceKey
+      - ready
+      - issues
+    PublicationBatchValidation:
+      type: object
+      additionalProperties: false
+      properties:
+        canPublish:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicationBatchCheck'
+      required:
+      - canPublish
+      - items
+      description: Результат проверки в данный момент. Между validate и publish возможны конкурентные
+        изменения, publish повторно проверяет версии.
+    PublicationBatchPublishedItem:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - worldMachineText
+          - faqItem
+          - faqOrder
+          - presskit
+          - gameSummary
+        resourceKey:
+          type: string
+          minLength: 1
+          maxLength: 128
+        newEditVersion:
+          type: integer
+          minimum: 1
+      required:
+      - type
+      - resourceKey
+      - newEditVersion
+    PublicationBatchResult:
+      type: object
+      additionalProperties: false
+      properties:
+        batchId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        publishedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PublicationBatchPublishedItem'
+      required:
+      - batchId
+      - publishedAt
+      - items
+      description: batchId — идентификатор операции для диагностики, не история опубликованных версий
+        информационных материалов.
+    PressKitArchiveItem:
+      type: object
+      additionalProperties: false
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 260
+        fileName:
+          type: string
+          minLength: 1
+          maxLength: 260
+        mediaId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        mimeType:
+          type: string
+          minLength: 1
+          maxLength: 120
+        sizeBytes:
+          type: integer
+          minimum: 0
+      required:
+      - path
+      - fileName
+      - mediaId
+      - mimeType
+      - sizeBytes
+      description: 'Файл из выбранного снимка: preview-manifest использует черновик, публичный ZIP только
+        опубликованный снимок. path относительный, без .., корня, диска, обратных слешей и повторов. Внешние
+        URL не скачиваются сервером.'
+    PressKitDraftArchiveManifest:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PressKitArchiveItem'
+        externalLinks:
+          type: array
+          items:
+            type: string
+            format: uri
+        warnings:
+          type: array
+          items:
+            type: string
+        canBuild:
+          type: boolean
+      required:
+      - items
+      - externalLinks
+      - warnings
+      - canBuild
+      description: Только анализ материалов подготовленного черновика для редактора; не ссылка на публичный
+        ZIP. Загрузка/архивация не выполняется в этой операции.
+    FieldChange:
+      type: object
+      additionalProperties: false
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 160
+        kind:
+          type: string
+          enum:
+          - added
+          - removed
+          - modified
+        before:
+          type: string
+          nullable: true
+        after:
+          type: string
+          nullable: true
+      required:
+      - path
+      - kind
+      - before
+      - after
+      description: Для листовых текстовых/медиа-id полей; path например title или sections.fixes. null
+        означает отсутствие поля, а не пустую строку.
+    ContentRevisionDiff:
+      type: object
+      additionalProperties: false
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - news
+          - update
+        resourceId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        fromRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        toRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldChange'
+      required:
+      - resourceType
+      - resourceId
+      - fromRevisionId
+      - toRevisionId
+      - changes
+      description: Семантические изменения содержательных полей между двумя сохранёнными редакциями; не
+        затрагиваются автор, исходная дата, комментарии и реакции. Внутреннее хранение остаётся дельта-историей.
+    WorldMachinePreviewItem:
+      type: object
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 128
+        title:
+          type: string
+          maxLength: 300
+        bodyMarkdown:
+          type: string
+          maxLength: 50000
+      required:
+      - key
+      description: 'Эффективный текст для превью: опубликованные поля с наложением черновика; отсутствующие
+        поля первого черновика остаются отсутствующими, пустые строки сохраняются.'
+    WorldMachinePreviewBundle:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorldMachinePreviewItem'
+      required:
+      - items
+      description: Непубличное превью, уникальный key каждого элемента; публичное contentGeneration здесь
+        неприменимо.
+  securitySchemes:
+    SessionCookie:
+      $ref: ./shared/common.yaml#/components/securitySchemes/SessionCookie
 x-contract-zone: extended
-x-stability: unscoped
+x-stability: proposed
+x-dependencies:
+- ./shared/common.yaml
+- ./core/shared.yaml

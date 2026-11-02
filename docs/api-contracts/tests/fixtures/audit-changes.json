@@ -1,0 +1,5128 @@
+{
+  "beforeVersion": "0.3.0-proposed",
+  "afterVersion": "0.4.0-proposed",
+  "changes": [
+    {
+      "path": "/components/responses/Error400/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error401/description",
+      "kind": "changed",
+      "before": "Нет действующей или достаточной по фактору сессии",
+      "after": "Нет действующей сессии. Для существующей ограниченной сессии с недостаточными правами используется 403."
+    },
+    {
+      "path": "/components/responses/Error401/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error403/description",
+      "kind": "changed",
+      "before": "Нет прав, email не подтверждён, или обязательная 2FA не настроена",
+      "after": "Нет прав, недопустимое состояние сессии, неверный CSRF-токен или Origin."
+    },
+    {
+      "path": "/components/responses/Error403/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error404/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error409/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error410/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error412/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error413/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error422/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error428",
+      "kind": "added",
+      "after": {
+        "description": "Требуется If-Match с конкретной текущей редакторской версией.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "Cache-Control": {
+            "description": "Не сохранять ответ в браузерных или общих кешах.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "no-store"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error429/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        },
+        "Retry-After": {
+          "description": "Число секунд до разрешённого повтора; лимиты определяет backend.",
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error500/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/responses/Error503/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/components/schemas/AssistedRecoveryStart",
+      "kind": "added",
+      "after": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userEmailOwnershipVerified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Администратор подтверждает завершение проверки доступа к email; сервер пишет audit event."
+          },
+          "proof": {
+            "$ref": "#/components/schemas/TwoFactorProof"
+          }
+        },
+        "required": [
+          "userEmailOwnershipVerified"
+        ],
+        "description": "Подтверждение внешней проверки email. При восстановлении moderator/admin поле proof обязательно: проверяется текущий второй фактор инициатора Owner в этом запросе. Цель Owner запрещена. Для цели user proof необязателен."
+      }
+    },
+    {
+      "path": "/components/schemas/EditComment/properties/text/pattern",
+      "kind": "added",
+      "after": "\\S"
+    },
+    {
+      "path": "/components/schemas/FaqOrderDraft/description",
+      "kind": "changed",
+      "before": "Полный порядок опубликованных вопросов без пропусков/дубликатов; новые вопросы добавляются после их публикации.",
+      "after": "Полный порядок итогового публичного FAQ без пропусков и дубликатов. При одиночной публикации проверяется текущий публичный набор; в пакете учитываются создаваемые и удаляемые вопросы того же пакета. Сервер проверяет итоговое множество в транзакции."
+    },
+    {
+      "path": "/components/schemas/FaqOrderDraft/properties/itemIds/uniqueItems",
+      "kind": "added",
+      "after": true
+    },
+    {
+      "path": "/components/schemas/LoginRequest/properties/login/description",
+      "kind": "added",
+      "after": "Одно поле для username или email. Если содержит @, искать только по email; иначе только по username без учёта регистра ASCII (A-Z приводятся к a-z). Не использовать displayName и не пробовать второй способ поиска после неудачи. Email должен однозначно соответствовать аккаунту по тем же правилам сравнения, что при регистрации и смене email."
+    },
+    {
+      "path": "/components/schemas/MediaReference/description",
+      "kind": "added",
+      "after": "title может быть пустым для неполного черновика. scope=revision/archive защищает ссылки истории и закреплённых ZIP от очистки."
+    },
+    {
+      "path": "/components/schemas/MediaReference/properties/scope/enum",
+      "kind": "changed",
+      "before": [
+        "published",
+        "draft"
+      ],
+      "after": [
+        "published",
+        "draft",
+        "revision",
+        "archive"
+      ]
+    },
+    {
+      "path": "/components/schemas/MediaReference/properties/title/minLength",
+      "kind": "changed",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "path": "/components/schemas/NewComment/oneOf",
+      "kind": "added",
+      "after": [
+        {
+          "properties": {
+            "rootId": {
+              "type": "object",
+              "nullable": true,
+              "enum": [
+                null
+              ]
+            },
+            "replyToCommentId": {
+              "type": "object",
+              "nullable": true,
+              "enum": [
+                null
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "rootId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "replyToCommentId": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/components/schemas/NewComment/properties/text/pattern",
+      "kind": "added",
+      "after": "\\S"
+    },
+    {
+      "path": "/components/schemas/OwnerTransferRequest/description",
+      "kind": "changed",
+      "before": "Цель: email подтверждён, 2FA настроена; передача атомарна, прежние привилегированные сессии инвалидируются.",
+      "after": "Цель: другой аккаунт с подтверждённым email и настроенной 2FA. В одной транзакции целевой аккаунт получает owner, прежний владелец получает user независимо от прежних административных полномочий; в системе остаётся ровно один Owner. Пароль и totpCode подтверждают действие текущего Owner; прежние привилегированные сессии инвалидируются."
+    },
+    {
+      "path": "/components/schemas/PressKitArchiveItem/description",
+      "kind": "changed",
+      "before": "В архив попадают только опубликованные реально скачиваемые ресурсы. Видео по внешней ссылке файлом не загружается.",
+      "after": "Файл из выбранного снимка: preview-manifest использует черновик, публичный ZIP только опубликованный снимок. path относительный, без .., корня, диска, обратных слешей и повторов. Внешние URL не скачиваются сервером."
+    },
+    {
+      "path": "/components/schemas/PublicationBatchItem/oneOf",
+      "kind": "added",
+      "after": [
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "worldMachineText",
+                "faqItem"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "faqOrder"
+              ]
+            },
+            "resourceKey": {
+              "enum": [
+                "faq-order"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "presskit"
+              ]
+            },
+            "resourceKey": {
+              "enum": [
+                "presskit"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "gameSummary"
+              ]
+            },
+            "resourceKey": {
+              "enum": [
+                "game-summary"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/components/schemas/PublicationBatchRequest/properties/items/uniqueItems",
+      "kind": "added",
+      "after": true
+    },
+    {
+      "path": "/components/schemas/PublishRequest/oneOf",
+      "kind": "added",
+      "after": [
+        {
+          "properties": {
+            "mode": {
+              "enum": [
+                "now"
+              ]
+            },
+            "scheduledAt": {
+              "type": "object",
+              "nullable": true,
+              "enum": [
+                null
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "mode": {
+              "enum": [
+                "schedule"
+              ]
+            },
+            "scheduledAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/components/schemas/RegisterRequest/description",
+      "kind": "changed",
+      "before": "Проверки исходного ТЗ: пароль содержит букву и цифру; окончательное правило должно учитываться в серверной валидации.",
+      "after": "Проверки исходного ТЗ: пароль содержит букву и цифру; окончательное правило должно учитываться в серверной валидации. username уникален без учёта регистра ASCII, displayName является отдельным изменяемым отображаемым именем и не служит логином. Email для входа также однозначно идентифицирует аккаунт; повторная регистрация занятого username или email возвращает 409. Уникальность проверяется атомарно, включая конкурентные регистрации."
+    },
+    {
+      "path": "/components/schemas/RegisterRequest/properties/username/description",
+      "kind": "added",
+      "after": "Уникальный логин без учёта регистра ASCII (A-Z приводятся к a-z для сравнения). Символ @ запрещён. Конкурирующие регистрации одного нормализованного username не могут создать два аккаунта; конфликт даёт 409."
+    },
+    {
+      "path": "/components/schemas/UserDirectoryEntry/properties/username/description",
+      "kind": "added",
+      "after": "Тот же уникальный без учёта регистра ASCII username, что в регистрации и собственном профиле; не displayName."
+    },
+    {
+      "path": "/components/schemas/UserDirectoryEntry/properties/username/maxLength",
+      "kind": "added",
+      "after": 30
+    },
+    {
+      "path": "/components/schemas/UserDirectoryEntry/properties/username/minLength",
+      "kind": "added",
+      "after": 3
+    },
+    {
+      "path": "/components/schemas/UserDirectoryEntry/properties/username/pattern",
+      "kind": "added",
+      "after": "^[a-zA-Z0-9_]{3,30}$"
+    },
+    {
+      "path": "/components/schemas/UserProfile/properties/username/description",
+      "kind": "added",
+      "after": "Уникальный логин без учёта регистра ASCII (A-Z приводятся к a-z для сравнения). Символ @ запрещён. Отдельный от displayName идентификатор."
+    },
+    {
+      "path": "/components/schemas/WorldMachineCmsList/description",
+      "kind": "added",
+      "after": " Ключи key уникальны во всём items; uniqueItems проверяет только полные объекты, поэтому уникальность key проверяется сервером."
+    },
+    {
+      "path": "/components/schemas/WorldMachinePreviewBundle",
+      "kind": "added",
+      "after": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorldMachinePreviewItem"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "description": "Непубличное превью, уникальный key каждого элемента; публичное contentGeneration здесь неприменимо."
+      }
+    },
+    {
+      "path": "/components/schemas/WorldMachinePreviewItem",
+      "kind": "added",
+      "after": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "bodyMarkdown": {
+            "type": "string",
+            "maxLength": 50000
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "description": "Эффективный текст для превью: опубликованные поля с наложением черновика; отсутствующие поля первого черновика остаются отсутствующими, пустые строки сохраняются."
+      }
+    },
+    {
+      "path": "/components/schemas/WorldMachineTextBundle/description",
+      "kind": "changed",
+      "before": "Снимок всего опубликованного текстового наполнения для фронтенда при входе. Без карты/координат/структуры. Ключи регистрирует frontend-разработка, не CMS.",
+      "after": "Снимок всего опубликованного текстового наполнения для фронтенда при входе. Без карты/координат/структуры. Ключи регистрирует frontend-разработка, не CMS. Ключи key уникальны во всём items; uniqueItems проверяет только полные объекты, поэтому уникальность key проверяется сервером."
+    },
+    {
+      "path": "/components/schemas/WorldMachineTextDraft/description",
+      "kind": "changed",
+      "before": "Неполный черновик разрешён; минимум один непустой текстовый элемент требуется при публикации, согласно назначению объекта.",
+      "after": "Черновик может быть неполным. Публикация требует оба непустых поля title и bodyMarkdown согласно WorldMachineTextContent; превью допускает отсутствие полей."
+    },
+    {
+      "path": "/info/version",
+      "kind": "changed",
+      "before": "0.3.0-proposed",
+      "after": "0.4.0-proposed"
+    },
+    {
+      "path": "/paths/~1api~1admin~1users/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users/get/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}/get/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~12fa-recovery/post/description",
+      "kind": "changed",
+      "before": "Для обычного пользователя Admin/Owner при подтверждённом контроле email. Для staff ТОЛЬКО Owner, с проверкой своей 2FA. Для Owner запрещено: существует отдельная аварийная процедура. Выпускает одноразовый email-токен, не выключает фактор в момент запроса.",
+      "after": "Для обычного пользователя Admin/Owner при подтверждённом контроле email. Для staff ТОЛЬКО Owner, с проверкой своей 2FA. Для Owner запрещено: существует отдельная аварийная процедура. Выпускает одноразовый email-токен, не выключает фактор в момент запроса. Для цели moderator/admin обязательно тело с proof второго фактора инициатора Owner; отсутствие или неверный proof даёт 403. Роль цели повторно проверяется при погашении токена."
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~12fa-recovery/post/requestBody/content/application~1json/schema/$ref",
+      "kind": "changed",
+      "before": "#/components/schemas/PasswordRecoveryStart",
+      "after": "#/components/schemas/AssistedRecoveryStart"
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~12fa-recovery/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~12fa-recovery/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~1password-recovery/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~1password-recovery/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~1role/put/description",
+      "kind": "changed",
+      "before": "Только Owner может назначать/снимать Admin. Admin может назначать/снимать Moderator у обычных аккаунтов, но не трогать Owner/Admin. Роль Owner этим методом не назначается. Проверяется состояние email и 2FA; новому сотруднику до настройки 2FA служебный доступ запрещён.",
+      "after": "Только Owner может назначать/снимать Admin. Admin может назначать/снимать Moderator у обычных аккаунтов, но не трогать Owner/Admin. Роль Owner этим методом не назначается. Проверяется состояние email и 2FA; новому сотруднику до настройки 2FA служебный доступ запрещён. Проверка роли инициатора и цели, запись роли и отзыв прежних сессий цели атомарны; нельзя использовать роль, закешированную до операции."
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~1role/put/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~1role/put/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1admin~1users~1{userId}~1role/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1assisted-recovery~1complete/post/description",
+      "kind": "changed",
+      "before": "Требуется одноразовый токен из письма, инициированного администрацией. Для персонала после завершения нет служебного доступа до настройки нового TOTP. Обычному пользователю фактор может быть сброшен.",
+      "after": "Требуется одноразовый токен из письма, инициированного администрацией. Для персонала после завершения нет служебного доступа до настройки нового TOTP. Обычному пользователю фактор может быть сброшен. Погашение токена, отзыв всех прежних сессий, pending-настроек и recovery-кодов атомарны. Токен не создаёт новую активную сессию; далее обычный вход. Повторная проверка роли исключает сброс Owner."
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1assisted-recovery~1complete/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1assisted-recovery~1complete/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1assisted-recovery~1complete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1challenge/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1challenge/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1challenge/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1disable/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1disable/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1disable/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1recovery-codes~1rotate/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1recovery-codes~1rotate/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1recovery-codes~1rotate/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup/post/description",
+      "kind": "changed",
+      "before": "Доступно пользователю в активном сеансе или сотруднику в two_factor_setup_required. Не включать фактор до успешного подтверждения. Секрет и otpauthUrl не сохраняются в логах.",
+      "after": "Доступно пользователю в активном сеансе или сотруднику в two_factor_setup_required. Не включать фактор до успешного подтверждения. Секрет и otpauthUrl не сохраняются в логах. При уже включённой 2FA возвращает 409: setup не заменяет действующий фактор. Pending-секрет привязан к пользователю и текущему сеансу, имеет срок действия и не может подтвердиться из другой сессии."
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup~1confirm/post/description",
+      "kind": "changed",
+      "before": "После успешной проверки TOTP система активирует 2FA и единожды показывает набор резервных кодов. После аварийного восстановления Owner в том же защищённом ответе выдаётся новый офлайн-ключ; только затем служебный доступ становится доступен.",
+      "after": "После успешной проверки TOTP система активирует 2FA и единожды показывает набор резервных кодов. После аварийного восстановления Owner в том же защищённом ответе выдаётся новый офлайн-ключ; только затем служебный доступ становится доступен. Погашение pending-секрета и включение фактора атомарны. Повтор после успеха даёт 409 и не возвращает старые секреты; потерянный ответ требует входа с TOTP и явной ротации кодов."
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup~1confirm/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup~1confirm/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~12fa~1setup~1confirm/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1csrf/get/responses/200/headers/Cache-Control/description",
+      "kind": "changed",
+      "before": "no-store",
+      "after": "Не сохранять ответ в браузерных или общих кешах."
+    },
+    {
+      "path": "/paths/~1api~1auth~1csrf/get/responses/200/headers/Cache-Control/schema/enum",
+      "kind": "added",
+      "after": [
+        "no-store"
+      ]
+    },
+    {
+      "path": "/paths/~1api~1auth~1csrf/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1resend/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1resend/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1unverified-address/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1unverified-address/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1verify/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1verify/post/responses/403",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error403"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1verify/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1email~1verify/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1login/post/description",
+      "kind": "changed",
+      "before": "Успешный ответ отражает итоговый этап: active / email_verification_required / two_factor_required / two_factor_setup_required. Пароль не означает прохождение 2FA. При смене идентификатора сессии клиент запрашивает новый CSRF-токен.",
+      "after": "Успешный ответ отражает итоговый этап: active / email_verification_required / two_factor_required / two_factor_setup_required. Пароль не означает прохождение 2FA. При смене идентификатора сессии клиент запрашивает новый CSRF-токен. Поле login принимает username либо email: при наличии @ поиск выполняется только по email, иначе только по username без учёта регистра ASCII. displayName не используется для входа. При неподтверждённом email сохраняется email_verification_required."
+    },
+    {
+      "path": "/paths/~1api~1auth~1login/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1login/post/responses/403",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error403"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1login/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1logout/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1logout/post/responses/403",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error403"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1logout/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1logout/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-key~1rotate/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-key~1rotate/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-key~1rotate/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-recovery~1complete/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-recovery~1complete/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-recovery~1complete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-recovery~1request/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-recovery~1request/post/responses/403",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error403"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1owner~1emergency-recovery~1request/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1password-recovery~1complete/post/description",
+      "kind": "changed",
+      "before": "Ссылка отправляется только после ручного инициирования Admin/Owner. Успешная смена пароля не отключает 2FA и не создаёт автоматически действующую сессию.",
+      "after": "Ссылка отправляется только после ручного инициирования Admin/Owner. Успешная смена пароля не отключает 2FA и не создаёт автоматически действующую сессию. В одной транзакции погашаются токен и все прежние сессии/незавершённые recovery-токены аккаунта. Повтор погашенного токена даёт 410."
+    },
+    {
+      "path": "/paths/~1api~1auth~1password-recovery~1complete/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1password-recovery~1complete/post/responses/403",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error403"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1password-recovery~1complete/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1password-recovery~1complete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1register/post/responses/201/description",
+      "kind": "changed",
+      "before": "Создан аккаунт, письмо отправлено",
+      "after": "Аккаунт создан, служебное письмо надёжно поставлено в очередь; доставка может завершиться позже."
+    },
+    {
+      "path": "/paths/~1api~1auth~1register/post/responses/201/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1register/post/responses/403",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error403"
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1register/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1auth~1session/get/description",
+      "kind": "changed",
+      "before": "Всегда 200, в том числе для гостя. `state` определяет, разрешён ли доступ к основным/служебным операциям.",
+      "after": "Для гостя и действующей сессии возвращает 200; инфраструктурные ошибки и rate limit имеют отдельные статусы. state определяет доступ к операциям. Для anonymous user=null и все capabilities=false; для ограниченных состояний все capabilities=false. Состояние и роль пересчитываются сервером."
+    },
+    {
+      "path": "/paths/~1api~1auth~1session/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1auth~1session/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq/get/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items/post/responses/201/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1draft/put/description",
+      "kind": "added",
+      "after": "PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется."
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "faqId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "faqId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1draft/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "faqId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "faqId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1publish/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1publish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1stage-delete/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "faqId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "faqId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1stage-delete/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1stage-delete/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1items~1{faqId}~1stage-delete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1draft/put/description",
+      "kind": "changed",
+      "before": "If-Match по версии списка (orderEditVersion), а не отдельного вопроса.",
+      "after": "If-Match по версии списка (orderEditVersion), а не отдельного вопроса. PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется. Версия orderEditVersion сериализуется как \"7\" для If-Match. После сохранения использовать новую версию из тела; ETag всего списка не является версией отдельного вопроса."
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1draft/put/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1draft/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1publish/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1faq~1order~1publish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1draft/put/description",
+      "kind": "changed",
+      "before": "Без изменения публичной версии. История опубликованных редакций отсутствует.",
+      "after": "Без изменения публичной версии. История опубликованных редакций отсутствует. PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется."
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1draft/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1publish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1game-summary~1publish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1media/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1media/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1media/post/requestBody/content/multipart~1form-data/schema/additionalProperties",
+      "kind": "added",
+      "after": false
+    },
+    {
+      "path": "/paths/~1api~1cms~1media/post/responses/201/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1media/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}/delete/description",
+      "kind": "changed",
+      "before": "409, если файл где-либо используется, включая черновики. Молчаливой замены уже опубликованных файлов нет.",
+      "after": "409, если файл где-либо используется, включая черновики. Молчаливой замены уже опубликованных файлов нет. Учитываются также сохранённые редакции и ZIP-снимки. Проверка ссылок и отметка удаления атомарны с публикацией; физическая очистка выполняется после commit и не удаляет закреплённые файлы."
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}/delete/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}/delete/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}~1references/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1media~1{mediaId}~1references/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news/get/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news/post/responses/201/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}/delete/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}/delete/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}/delete/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1comments-settings/patch/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1comments-settings/patch/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1comments-settings/patch/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1comments-settings/patch/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/delete/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/delete/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/delete/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/put/description",
+      "kind": "changed",
+      "before": "Если материал опубликован, изменяется только draft; посетители видят прежнюю редакцию. Сервер возвращает обновлённый editVersion.",
+      "after": "Если материал опубликован, изменяется только draft; посетители видят прежнюю редакцию. Сервер возвращает обновлённый editVersion. PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется. Для scheduled сначала отменить расписание; иначе 409. Это предотвращает публикацию правок, не прошедших явное подтверждение."
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1draft/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1permanent-delete/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1permanent-delete/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1permanent-delete/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1permanent-delete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1publish/post/description",
+      "kind": "changed",
+      "before": "Нужен черновик. mode=now: атомарно заменяет публичный снимок; mode=schedule: планирует первую публикацию неопубликованной записи. Исходная дата публикации уже публиковавшейся записи сохраняется. Запланированный материал до срока не виден.",
+      "after": "Нужен черновик. mode=now: атомарно заменяет публичный снимок; mode=schedule: планирует первую публикацию неопубликованной записи. Исходная дата публикации уже публиковавшейся записи сохраняется. Запланированный материал до срока не виден. При отсутствующем черновике или несовместимом состоянии 409. Планировщик перед commit повторно проверяет status, срок и редакторскую версию; конкурирующее снятие/корзина отменяет устаревшую задачу. Коммит повышает editVersion и создаёт ровно одну редакцию. Повтор со старым If-Match даёт 412; после тайм-аута сначала GET текущего состояния."
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1publish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1publish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1restore/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1restore/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1restore/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1restore/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revision-diff/get/description",
+      "kind": "changed",
+      "before": "Только просмотр: не создаёт новую редакцию и не публикует. Сравниваются все содержательные поля, включая заголовок, описание, обложку и разделы обновлений. Если редакция недоступна/удалена, 404. Новую редакцию из отката создаёт существующий метод core.",
+      "after": "Только просмотр: не создаёт новую редакцию и не публикует. Сравниваются все содержательные поля, включая заголовок, описание, обложку и разделы обновлений. Если редакция недоступна/удалена, 404. Новую редакцию из отката создаёт существующий метод core. Обе редакции должны принадлежать материалу из пути; чужой revisionId даёт 404."
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revision-diff/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions/get/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}/get/description",
+      "kind": "changed",
+      "before": "Сервер реконструирует содержимое старой редакции из дельт.",
+      "after": "Сервер реконструирует содержимое старой редакции из дельт. revisionId должен принадлежать указанному материалу; иначе 404."
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}/get/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}~1restore/post/description",
+      "kind": "changed",
+      "before": "Не меняет автора, исходную дату публикации, комментарии или реакции. Публичный материал не меняется до явной публикации черновика.",
+      "after": "Не меняет автора, исходную дату публикации, комментарии или реакции. Публичный материал не меняется до явной публикации черновика. revisionId должен принадлежать указанному материалу; иначе 404."
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}~1restore/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "revisionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "revisionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}~1restore/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}~1restore/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1revisions~1{revisionId}~1restore/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unpublish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unpublish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unpublish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unpublish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unschedule/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "newsId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unschedule/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unschedule/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1news~1{newsId}~1unschedule/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1archive~1preview-manifest/get/responses/200/headers/Cache-Control/description",
+      "kind": "changed",
+      "before": "no-store",
+      "after": "Не сохранять ответ в браузерных или общих кешах."
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1archive~1preview-manifest/get/responses/200/headers/Cache-Control/schema/enum",
+      "kind": "added",
+      "after": [
+        "no-store"
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1draft/put/description",
+      "kind": "changed",
+      "before": "Без изменения публичной версии. История опубликованных редакций отсутствует.",
+      "after": "Без изменения публичной версии. История опубликованных редакций отсутствует. PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется."
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1draft/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1publish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1presskit~1publish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1publication-batches~1publish/post/description",
+      "kind": "changed",
+      "before": "Поддерживает FAQ (вопросы и их порядок), короткое описание игры, PressKit и существующие текстовые ключи Мировой Машины. Все элементы либо публикуются, либо ни один. При неудаче ZIP или несовпадении любой expectedEditVersion публикации нет. Бэкенд обеспечивает согласованный новый публичный снимок и не раскрывает промежуточных состояний; подготовленные файлы могут размещаться во временном хранилище с очисткой после сбоя. Публикация сохраняет прежние значения до успешного commit; история опубликованных версий для этих типов не создаётся.",
+      "after": "Поддерживает FAQ (вопросы и их порядок), короткое описание игры, PressKit и существующие текстовые ключи Мировой Машины. Все элементы либо публикуются, либо ни один. При неудаче ZIP или несовпадении любой expectedEditVersion публикации нет. Бэкенд обеспечивает согласованный новый публичный снимок и не раскрывает промежуточных состояний; подготовленные файлы могут размещаться во временном хранилище с очисткой после сбоя. Публикация сохраняет прежние значения до успешного commit; история опубликованных версий для этих типов не создаётся. Idempotency-Key ограничен инициатором и operationId, связан с каноническим телом. Сначала повторно проверить аутентификацию/права, затем искать результат: успешный повтор возвращает исходный результат без повторной проверки уже изменившихся версий. Одновременный незавершённый запрос с тем же ключом даёт 409 IDEMPOTENCY_IN_PROGRESS; другое тело даёт 409 IDEMPOTENCY_KEY_REUSED. Запись результата и commit публикации атомарны; срок хранения ключа согласовать до внедрения."
+    },
+    {
+      "path": "/paths/~1api~1cms~1publication-batches~1publish/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1publication-batches~1validate/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates/post/responses/201/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}/delete/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}/delete/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}/delete/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1comments-settings/patch/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1comments-settings/patch/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1comments-settings/patch/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1comments-settings/patch/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/delete/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/delete/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/delete/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/put/description",
+      "kind": "changed",
+      "before": "Если материал опубликован, изменяется только draft; посетители видят прежнюю редакцию. Сервер возвращает обновлённый editVersion.",
+      "after": "Если материал опубликован, изменяется только draft; посетители видят прежнюю редакцию. Сервер возвращает обновлённый editVersion. PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется. Для scheduled сначала отменить расписание; иначе 409. Это предотвращает публикацию правок, не прошедших явное подтверждение."
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1draft/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1permanent-delete/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1permanent-delete/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1permanent-delete/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1permanent-delete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1publish/post/description",
+      "kind": "changed",
+      "before": "Нужен черновик. mode=now: атомарно заменяет публичный снимок; mode=schedule: планирует первую публикацию неопубликованной записи. Исходная дата публикации уже публиковавшейся записи сохраняется. Запланированный материал до срока не виден.",
+      "after": "Нужен черновик. mode=now: атомарно заменяет публичный снимок; mode=schedule: планирует первую публикацию неопубликованной записи. Исходная дата публикации уже публиковавшейся записи сохраняется. Запланированный материал до срока не виден. При отсутствующем черновике или несовместимом состоянии 409. Планировщик перед commit повторно проверяет status, срок и редакторскую версию; конкурирующее снятие/корзина отменяет устаревшую задачу. Коммит повышает editVersion и создаёт ровно одну редакцию. Повтор со старым If-Match даёт 412; после тайм-аута сначала GET текущего состояния."
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1publish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1publish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1restore/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1restore/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1restore/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1restore/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revision-diff/get/description",
+      "kind": "changed",
+      "before": "Только просмотр: не создаёт новую редакцию и не публикует. Сравниваются все содержательные поля, включая заголовок, описание, обложку и разделы обновлений. Если редакция недоступна/удалена, 404. Новую редакцию из отката создаёт существующий метод core.",
+      "after": "Только просмотр: не создаёт новую редакцию и не публикует. Сравниваются все содержательные поля, включая заголовок, описание, обложку и разделы обновлений. Если редакция недоступна/удалена, 404. Новую редакцию из отката создаёт существующий метод core. Обе редакции должны принадлежать материалу из пути; чужой revisionId даёт 404."
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revision-diff/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions/get/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}/get/description",
+      "kind": "changed",
+      "before": "Сервер реконструирует содержимое старой редакции из дельт.",
+      "after": "Сервер реконструирует содержимое старой редакции из дельт. revisionId должен принадлежать указанному материалу; иначе 404."
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}/get/responses/200/headers/ETag",
+      "kind": "removed",
+      "before": {
+        "description": "Сильный ETag текущей редакторской версии для If-Match.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}~1restore/post/description",
+      "kind": "changed",
+      "before": "Не меняет автора, исходную дату публикации, комментарии или реакции. Публичный материал не меняется до явной публикации черновика.",
+      "after": "Не меняет автора, исходную дату публикации, комментарии или реакции. Публичный материал не меняется до явной публикации черновика. revisionId должен принадлежать указанному материалу; иначе 404."
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}~1restore/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "revisionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "revisionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}~1restore/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}~1restore/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1revisions~1{revisionId}~1restore/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unpublish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unpublish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unpublish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unpublish/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unschedule/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Сильный ETag текущей редакторской версии, пример: If-Match: \"7\". Соответствует editVersion, который сервер возвращает в CMS DTO/ETag. При конфликте 412."
+        }
+      ],
+      "after": [
+        {
+          "name": "updateId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\"[1-9][0-9]*\"$"
+          },
+          "description": "Один конкретный сильный ETag редакторского агрегата, например \"7\". Получить из GET отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412 при устаревшей версии. Сравнение и изменение атомарны."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unschedule/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unschedule/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1updates~1{updateId}~1unschedule/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1preview/get/responses/200/content/application~1json/schema/$ref",
+      "kind": "changed",
+      "before": "#/components/schemas/WorldMachineTextBundle",
+      "after": "#/components/schemas/WorldMachinePreviewBundle"
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1preview/get/responses/200/headers/Cache-Control/description",
+      "kind": "changed",
+      "before": "no-store",
+      "after": "Не сохранять ответ в браузерных или общих кешах."
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1preview/get/responses/200/headers/Cache-Control/schema/enum",
+      "kind": "added",
+      "after": [
+        "no-store"
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}/get/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/delete/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "textKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "description": "Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший даёт 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "textKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "^\"[^\"\\r\\n]+\"$"
+          },
+          "description": "Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший даёт 412. Один конкретный ETag; wildcard, weak и списки не принимаются (400). Отсутствие заголовка даёт 428."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/delete/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/delete/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/put/description",
+      "kind": "changed",
+      "before": "Меняются только title и bodyMarkdown, не меняются данные узлов. Черновик может быть неполным. If-Match предотвращает потерю конкурирующих правок.",
+      "after": "Меняются только title и bodyMarkdown, не меняются данные узлов. Черновик может быть неполным. If-Match предотвращает потерю конкурирующих правок. PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия не меняется."
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/put/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "textKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "description": "Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший даёт 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "textKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "^\"[^\"\\r\\n]+\"$"
+          },
+          "description": "Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший даёт 412. Один конкретный ETag; wildcard, weak и списки не принимаются (400). Отсутствие заголовка даёт 428."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/put/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1draft/put/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1publish/post/parameters",
+      "kind": "changed",
+      "before": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "textKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "description": "Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший даёт 412."
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/CsrfHeader"
+        },
+        {
+          "name": "textKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "^\"[^\"\\r\\n]+\"$"
+          },
+          "description": "Сильный ETag актуальной редакторской версии, полученный из ответа GET; устаревший даёт 412. Один конкретный ETag; wildcard, weak и списки не принимаются (400). Отсутствие заголовка даёт 428."
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1publish/post/responses/200/headers/Cache-Control",
+      "kind": "added",
+      "after": {
+        "description": "Не сохранять ответ в браузерных или общих кешах.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1cms~1world-machine~1texts~1{textKey}~1publish/post/responses/428",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error428"
+      }
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/delete/description",
+      "kind": "changed",
+      "before": "Даже при коммент-бане автор может удалить свой текст. Если у корня есть ответы, placeholder; иначе запись исчезает из публичного списка.",
+      "after": "Даже при коммент-бане автор может удалить свой текст. Если у корня есть ответы, placeholder; иначе запись исчезает из публичного списка. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/delete/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/delete/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/patch/description",
+      "kind": "changed",
+      "before": "Без лимита времени. После редактирования editedAt != null; коммент-бан запрещает редактирование. 403 также если не автор.",
+      "after": "Без лимита времени. После редактирования editedAt != null; коммент-бан запрещает редактирование. 403 также если не автор. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/patch/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/patch/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1comments~1{commentId}/patch/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1comments~1{rootCommentId}~1replies/get/description",
+      "kind": "changed",
+      "before": "Результат содержит только ответы первого уровня, без рекурсивных вложений.",
+      "after": "Результат содержит только ответы первого уровня, без рекурсивных вложений. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1comments~1{rootCommentId}~1replies/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1faq/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1game~1summary/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me/get/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me/patch/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me/patch/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me/patch/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1avatar/delete/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1avatar/delete/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1avatar/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1avatar/put/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1avatar/put/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1avatar/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1delete/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1delete/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1delete/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change/delete/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change/delete/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change~1resend/post/responses/202/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1email-change~1resend/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1me~1password/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1password/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1me~1password/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comment-bans/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comment-bans/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1hide/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1hide/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1hide/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1restore/post/description",
+      "kind": "changed",
+      "before": "Нельзя восстановить текст, окончательно удалённый автором или удалением аккаунта.",
+      "after": "Нельзя восстановить текст, окончательно удалённый автором или удалением аккаунта. Проверка author_removed и восстановление атомарны. При гонке со стиранием текста приоритет у стирания; вернуть 409 и не восстановить содержимое из истории или кеша."
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1restore/post/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1restore/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1comments~1{commentId}~1restore/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1moderation~1users~1{userId}~1comment-ban/delete/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1users~1{userId}~1comment-ban/delete/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1users~1{userId}~1comment-ban/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1moderation~1users~1{userId}~1comment-ban/put/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1users~1{userId}~1comment-ban/put/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1moderation~1users~1{userId}~1comment-ban/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news/get/description",
+      "kind": "changed",
+      "before": "Ответ multipart/mixed: первая часть содержит JSON-метаданные, следующие части содержат бинарные изображения. Content-ID обложки связывает бинарную часть с карточкой. Контракт предварительный, backend не подтверждал.",
+      "after": "multipart/mixed с бинарными изображениями обязателен по требованию backend-разработчика. Сохраняется существующий frontend/MSW. Первая часть metadata, остальные сопоставляются по Content-ID. Детали протокола: guides/MULTIPART_NEWS.md. Остальные HTTP-детали остаются PROPOSED. Сортировка publishedAt DESC, затем id ASC по согласованному стабильному сравнению. page/pageSize отражают запрос; nextPage=page+1 или null, пустой список всегда nextPage=null. Пагинация не является снимком между запросами. Ошибки до начала тела возвращаются JSON; при обрыве multipart клиент отклоняет весь ответ."
+    },
+    {
+      "path": "/paths/~1api~1news/get/responses/200/description",
+      "kind": "changed",
+      "before": "Успешно. Сырой multipart-поток: первая часть Content-ID <metadata>, application/json с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если обложек нет, передаётся только часть metadata.",
+      "after": "Успешно. Сырой multipart-поток: первая часть Content-ID `<metadata>`, application/json с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если обложек нет, передаётся только часть metadata."
+    },
+    {
+      "path": "/paths/~1api~1news/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Для текущего клиента без conditional GET: не хранить multipart-ответ; 304 не предусмотрен.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1news/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1comments/get/description",
+      "kind": "changed",
+      "before": "Пагинация корневых комментариев; ответы GET /api/comments/{rootCommentId}/replies. Отсутствие прав на комментирование не запрещает чтение.",
+      "after": "Пагинация корневых комментариев; ответы GET /api/comments/{rootCommentId}/replies. Отсутствие прав на комментирование не запрещает чтение. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1comments/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1comments/post/description",
+      "kind": "changed",
+      "before": "Только active + подтверждённый email + нет коммент-банов + комментарии включены. Публикуется сразу. rootId: null для корня, id корня для ответа. Сервер проверяет replyToCommentId той же ветки. 403 COMMENTING_DISABLED/COMMENT_BANNED и 429 с Retry-After.",
+      "after": "Только active + подтверждённый email + нет коммент-банов + комментарии включены. Публикуется сразу. rootId: null для корня, id корня для ответа. Сервер проверяет replyToCommentId той же ветки. 403 COMMENTING_DISABLED/COMMENT_BANNED и 429 с Retry-After. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1comments/post/responses/201/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1comments/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1comments/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/delete/description",
+      "kind": "changed",
+      "before": "Идемпотентное снятие своей реакции. При удалении аккаунта реакции удаляются.",
+      "after": "Идемпотентное снятие своей реакции. При удалении аккаунта реакции удаляются. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/delete/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/delete/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/delete/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/put/description",
+      "kind": "changed",
+      "before": "Одновременно не более одной реакции на новость от аккаунта. Повтор PUT того же типа не создаёт дубликатов. Для отмены использовать DELETE. Только active session + подтверждённый email.",
+      "after": "Одновременно не более одной реакции на новость от аккаунта. Повтор PUT того же типа не создаёт дубликатов. Для отмены использовать DELETE. Только active session + подтверждённый email. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/put/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/put/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reaction/put/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reactions/get/description",
+      "kind": "changed",
+      "before": "При наличии active session включает myReactionTypeId, иначе null.",
+      "after": "При наличии active session включает myReactionTypeId, иначе null. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reactions/get/responses/200/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1news~1{newsId}~1reactions/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1owner~1transfer/post/description",
+      "kind": "changed",
+      "before": "Только текущий Owner. Целевой аккаунт уже с подтверждённым email и активной 2FA. Передача атомарна: после неё ровно один Owner, прежний теряет высшие права. Все затронутые привилегированные сессии отзываются.",
+      "after": "Только текущий Owner. Целевой аккаунт уже с подтверждённым email и активной 2FA. Передача атомарна: целевой аккаунт получает owner, прежний владелец получает user независимо от прежних административных полномочий; после неё ровно один Owner. Все затронутые привилегированные сессии отзываются. Токены восстановления и аварийные ключи прежнего владельца аннулируются в той же транзакции. Новый Owner после обычного входа выпускает собственный аварийный ключ через emergency-key/rotate. Пароль и totpCode текущего Owner обязательны. Проверка текущего владельца, ролей и подтверждения 2FA выполняется в той же транзакции; частичная смена ролей невозможна. Передача самому себе отклоняется с 409 без изменений."
+    },
+    {
+      "path": "/paths/~1api~1owner~1transfer/post/responses/204/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1owner~1transfer/post/responses/503",
+      "kind": "added",
+      "after": {
+        "$ref": "#/components/responses/Error503"
+      }
+    },
+    {
+      "path": "/paths/~1api~1owner~1transfer/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1presskit/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1reactions~1types/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1updates/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}~1comments/get/description",
+      "kind": "changed",
+      "before": "Пагинация корневых комментариев; ответы GET /api/comments/{rootCommentId}/replies. Отсутствие прав на комментирование не запрещает чтение.",
+      "after": "Пагинация корневых комментариев; ответы GET /api/comments/{rootCommentId}/replies. Отсутствие прав на комментирование не запрещает чтение. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}~1comments/get/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}~1comments/post/description",
+      "kind": "changed",
+      "before": "Только active + подтверждённый email + нет коммент-банов + комментарии включены. Публикуется сразу. rootId: null для корня, id корня для ответа. Сервер проверяет replyToCommentId той же ветки. 403 COMMENTING_DISABLED/COMMENT_BANNED и 429 с Retry-After.",
+      "after": "Только active + подтверждённый email + нет коммент-банов + комментарии включены. Публикуется сразу. rootId: null для корня, id корня для ответа. Сервер проверяет replyToCommentId той же ветки. 403 COMMENTING_DISABLED/COMMENT_BANNED и 429 с Retry-After. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа."
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}~1comments/post/responses/201/headers",
+      "kind": "added",
+      "after": {
+        "Cache-Control": {
+          "description": "Не сохранять ответ в браузерных или общих кешах.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "no-store"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}~1comments/post/responses/412",
+      "kind": "removed",
+      "before": {
+        "$ref": "#/components/responses/Error412"
+      }
+    },
+    {
+      "path": "/paths/~1api~1updates~1{updateId}~1comments/post/x-stability",
+      "kind": "added",
+      "after": "proposed"
+    }
+  ]
+}

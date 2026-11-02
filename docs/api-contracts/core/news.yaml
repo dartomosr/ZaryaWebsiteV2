@@ -1,0 +1,137 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: news'
+  version: 0.2.0-proposed
+paths:
+  /api/news:
+    get:
+      tags:
+      - News
+      operationId: listPublicNews
+      x-contract-zone: core
+      summary: Список опубликованных новостей с бинарными обложками
+      description: 'multipart/mixed с бинарными изображениями обязателен по требованию backend-разработчика.
+        Сохраняется существующий frontend/MSW. Первая часть metadata, остальные сопоставляются по Content-ID.
+        Детали протокола: guides/MULTIPART_NEWS.md. Остальные HTTP-детали остаются PROPOSED. Сортировка
+        publishedAt DESC, затем id ASC по согласованному стабильному сравнению. page/pageSize отражают
+        запрос; nextPage=page+1 или null, пустой список всегда nextPage=null. Пагинация не является снимком
+        между запросами. Ошибки до начала тела возвращаются JSON; при обрыве multipart клиент отклоняет
+        весь ответ.'
+      security: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      responses:
+        '200':
+          description: 'Успешно. Сырой multipart-поток: первая часть Content-ID `<metadata>`, application/json
+            с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий
+            с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если
+            обложек нет, передаётся только часть metadata.'
+          content:
+            multipart/mixed:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Cache-Control:
+              description: 'Для текущего клиента без conditional GET: не хранить multipart-ответ; 304
+                не предусмотрен.'
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/news/{newsId}:
+    get:
+      tags:
+      - News
+      operationId: getPublicNews
+      summary: Опубликованная новость
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      description: Скрывает черновики, снятые, удалённые и ещё не наступившие запланированные публикации.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedNews'
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+components:
+  schemas:
+    PublishedNews:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+          minLength: 1
+        bodyMarkdown:
+          type: string
+          minLength: 1
+        coverUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+        publishedAt:
+          type: string
+          format: date-time
+        editedAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        commentsEnabled:
+          type: boolean
+      required:
+      - id
+      - title
+      - summary
+      - bodyMarkdown
+      - coverUrl
+      - publishedAt
+      - editedAt
+      - commentsEnabled
+      description: Опубликованный снимок. Черновики и корзина гостю недоступны.
+x-contract-zone: core
+x-stability: proposed

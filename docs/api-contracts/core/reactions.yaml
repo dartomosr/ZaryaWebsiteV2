@@ -1,0 +1,259 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: reactions'
+  version: 0.2.0-proposed
+paths:
+  /api/reactions/types:
+    get:
+      tags:
+      - Reactions
+      operationId: listReactionTypes
+      summary: Доступные фирменные реакции
+      x-contract-zone: core
+      security: []
+      parameters: []
+      description: Список типов/иконок задаётся контентом проекта. Не выдумывать фиксированные реакции
+        и не вводить их на обновлениях.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionCatalog'
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/news/{newsId}/reactions:
+    get:
+      tags:
+      - Reactions
+      operationId: getNewsReactionCounts
+      summary: Счётчики реакций новости
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      description: При наличии active session включает myReactionTypeId, иначе null. Сервер проверяет
+        публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё не опубликованный
+        материал дают 404. Непрозрачный ID не является разрешением доступа.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionCounts'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/news/{newsId}/reaction:
+    put:
+      tags:
+      - Reactions
+      operationId: setOwnNewsReaction
+      summary: Установить или заменить свою реакцию
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Одновременно не более одной реакции на новость от аккаунта. Повтор PUT того же типа
+        не создаёт дубликатов. Для отмены использовать DELETE. Только active session + подтверждённый
+        email. Сервер проверяет публичность родительского материала в том же запросе; черновик, корзина,
+        снятый и ещё не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа.
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetReaction'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionCounts'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    delete:
+      tags:
+      - Reactions
+      operationId: removeOwnNewsReaction
+      summary: Снять свою реакцию
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: newsId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Идемпотентное снятие своей реакции. При удалении аккаунта реакции удаляются. Сервер
+        проверяет публичность родительского материала в том же запросе; черновик, корзина, снятый и ещё
+        не опубликованный материал дают 404. Непрозрачный ID не является разрешением доступа.
+      x-required-auth-states:
+      - active
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+components:
+  schemas:
+    ReactionType:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        label:
+          type: string
+          minLength: 1
+        iconKey:
+          type: string
+          minLength: 1
+      required:
+      - id
+      - label
+      - iconKey
+      description: iconKey для фирменного frontend-ассета; набор реакций пока не утверждён, не выдумывать
+        конкретные значения.
+    ReactionCatalog:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionType'
+      required:
+      - items
+    ReactionCounts:
+      type: object
+      additionalProperties: false
+      properties:
+        counts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              typeId:
+                type: string
+                minLength: 1
+              count:
+                type: integer
+                minimum: 0
+            required:
+            - typeId
+            - count
+        myReactionTypeId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - counts
+      - myReactionTypeId
+      description: Гостю myReactionTypeId=null. Одна реакция пользователя на одну новость.
+    SetReaction:
+      type: object
+      additionalProperties: false
+      properties:
+        typeId:
+          type: string
+          minLength: 1
+      required:
+      - typeId
+x-contract-zone: core
+x-stability: proposed

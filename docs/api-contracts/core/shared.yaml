@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: shared'
+  version: 0.2.0-proposed
+paths: {}
+components:
+  schemas:
+    ContentStatus:
+      type: string
+      enum:
+      - draft
+      - scheduled
+      - published
+      - unpublished
+      - trashed
+    AdminContentFilter:
+      type: string
+      enum:
+      - all
+      - draft
+      - scheduled
+      - published
+      - unpublished
+      - trashed
+    PublishRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        mode:
+          type: string
+          enum:
+          - now
+          - schedule
+        scheduledAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - mode
+      - scheduledAt
+      description: Для mode=schedule required scheduledAt строго в будущем; mode=now uses null. Повторная
+        правка опубликованного материала выходит только по явному publish.
+      oneOf:
+      - properties:
+          mode:
+            enum:
+            - now
+          scheduledAt:
+            type: object
+            nullable: true
+            enum:
+            - null
+      - properties:
+          mode:
+            enum:
+            - schedule
+          scheduledAt:
+            type: string
+            format: date-time
+    ChangeCommentsEnabled:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+      required:
+      - enabled
+    RevisionSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        createdAt:
+          type: string
+          format: date-time
+        changedBy:
+          type: string
+          minLength: 1
+        changedFields:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        isRestore:
+          type: boolean
+      required:
+      - id
+      - createdAt
+      - changedBy
+      - changedFields
+      - isRestore
+      description: Хранение дельт на сервере; API может вычислять представление редакции для просмотра.
+    RevisionList:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RevisionSummary'
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+      required:
+      - items
+      - nextPage
+      - page
+      - pageSize
+    ConfirmPermanentDeletion:
+      type: object
+      additionalProperties: false
+      properties:
+        confirm:
+          type: boolean
+          enum:
+          - true
+      required:
+      - confirm
+  securitySchemes:
+    SessionCookie:
+      $ref: ../shared/common.yaml#/components/securitySchemes/SessionCookie
+  responses:
+    Error412:
+      description: 'Предпосылка редактирования устарела: повторно загрузить актуальную версию и разрешить
+        конфликт'
+      content:
+        application/json:
+          schema:
+            $ref: ../shared/common.yaml#/components/schemas/Error
+      headers:
+        Cache-Control:
+          description: Не сохранять ответ в браузерных или общих кешах.
+          schema:
+            type: string
+            enum:
+            - no-store
+  headers:
+    EditingETag:
+      description: Сильный ETag текущей редакторской версии для If-Match.
+      schema:
+        type: string
+  parameters:
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        pattern: ^"[1-9][0-9]*"$
+      description: Один конкретный сильный ETag редакторского агрегата, например "7". Получить из GET
+        отдельного CMS-ресурса; для FAQ order использовать orderEditVersion из GET /api/cms/faq, заключив
+        число в кавычки. 428 при отсутствии, 400 при wildcard/списке/weak или неверном синтаксисе, 412
+        при устаревшей версии. Сравнение и изменение атомарны.
+x-contract-zone: core
+x-stability: proposed
+x-inline-components:
+- '#/components/parameters/IfMatch'
+- '#/components/headers/EditingETag'

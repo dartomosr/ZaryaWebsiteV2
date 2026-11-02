@@ -1,0 +1,632 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: faq'
+  version: 0.2.0-proposed
+paths:
+  /api/faq:
+    get:
+      tags:
+      - FAQ
+      operationId: getPublicFaq
+      summary: Публичный FAQ на главной
+      x-contract-zone: core
+      security: []
+      parameters: []
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqPublic'
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/faq:
+    get:
+      tags:
+      - CMSFAQ
+      operationId: getCmsFaq
+      summary: Вопросы FAQ и редакторские черновики
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqAdminList'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/faq/items/{faqId}:
+    get:
+      tags:
+      - CMSFAQ
+      operationId: getCmsFaqItem
+      summary: Состояние одного вопроса FAQ
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: faqId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqAdminItem'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/faq/items:
+    post:
+      tags:
+      - CMSFAQ
+      operationId: createFaqItemDraft
+      summary: Добавить вопрос в черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaqDraftContent'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqAdminItem'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/faq/items/{faqId}/draft:
+    put:
+      tags:
+      - CMSFAQ
+      operationId: saveFaqItemDraft
+      summary: Изменить черновик вопроса
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: faqId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaqDraftContent'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqAdminItem'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+      description: PUT полностью заменяет рабочий черновик переданным объектом; пропущенные поля удаляются
+        из черновика, а не сливаются с прежними. Публичная версия не меняется.
+  /api/cms/faq/items/{faqId}/stage-delete:
+    post:
+      tags:
+      - CMSFAQ
+      operationId: stageFaqItemDelete
+      summary: Подготовить удаление вопроса
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: faqId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Пока не опубликовано, публичный вопрос остаётся доступен.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqAdminItem'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/faq/items/{faqId}/publish:
+    post:
+      tags:
+      - CMSFAQ
+      operationId: publishFaqItem
+      summary: Опубликовать один вопрос или его удаление
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: faqId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Отдельная публикация элемента; пакетная атомарная публикация нескольких элементов в
+        зоне extended. История опубликованных FAQ не ведётся.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/faq/order/draft:
+    put:
+      tags:
+      - CMSFAQ
+      operationId: saveFaqOrderDraft
+      summary: Сохранить черновой порядок FAQ
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: If-Match по версии списка (orderEditVersion), а не отдельного вопроса. PUT полностью
+        заменяет рабочий черновик переданным объектом; пропущенные поля удаляются из черновика, а не сливаются
+        с прежними. Публичная версия не меняется. Версия orderEditVersion сериализуется как "7" для If-Match.
+        После сохранения использовать новую версию из тела; ETag всего списка не является версией отдельного
+        вопроса.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaqOrderDraft'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqAdminList'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/faq/order/publish:
+    post:
+      tags:
+      - CMSFAQ
+      operationId: publishFaqOrder
+      summary: Опубликовать новый порядок FAQ
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Атомарно переключает порядок вопросов. Более сложные пакетные действия в зоне extended.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+components:
+  schemas:
+    FaqItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        question:
+          type: string
+          minLength: 1
+        answerMarkdown:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          minimum: 0
+      required:
+      - id
+      - question
+      - answerMarkdown
+      - order
+    FaqPublic:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FaqItem'
+      required:
+      - items
+    FaqContent:
+      type: object
+      additionalProperties: false
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 500
+        answerMarkdown:
+          type: string
+          minLength: 1
+          maxLength: 30000
+      required:
+      - question
+      - answerMarkdown
+    FaqAdminItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        published:
+          oneOf:
+          - $ref: '#/components/schemas/FaqItem'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        draft:
+          oneOf:
+          - $ref: '#/components/schemas/FaqDraftContent'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        draftAction:
+          type: string
+          enum:
+          - upsert
+          - delete
+          - null
+          nullable: true
+        editVersion:
+          type: integer
+          minimum: 1
+      required:
+      - id
+      - published
+      - draft
+      - draftAction
+      - editVersion
+      description: draftAction=delete означает ожидающее публикации удаление; пока элемент публичен.
+    FaqAdminList:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FaqAdminItem'
+        orderDraft:
+          oneOf:
+          - type: array
+            items:
+              type: string
+              minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+        orderEditVersion:
+          type: integer
+          minimum: 1
+      required:
+      - items
+      - orderDraft
+      - orderEditVersion
+    FaqOrderDraft:
+      type: object
+      additionalProperties: false
+      properties:
+        itemIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          uniqueItems: true
+      required:
+      - itemIds
+      description: Полный порядок итогового публичного FAQ без пропусков и дубликатов. При одиночной публикации
+        проверяется текущий публичный набор; в пакете учитываются создаваемые и удаляемые вопросы того
+        же пакета. Сервер проверяет итоговое множество в транзакции.
+    FaqDraftContent:
+      type: object
+      additionalProperties: false
+      properties:
+        question:
+          type: string
+          maxLength: 500
+        answerMarkdown:
+          type: string
+          maxLength: 30000
+      description: Неполный рабочий черновик разрешён; при публикации сервер проверяет обязательные поля
+        опубликованной версии.
+x-contract-zone: core
+x-stability: proposed

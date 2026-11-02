@@ -1,0 +1,1155 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: cms-updates'
+  version: 0.2.0-proposed
+paths:
+  /api/cms/updates:
+    get:
+      tags:
+      - CMSUpdates
+      operationId: listCmsUpdate
+      summary: Список материалов в CMS, включая корзину
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - all
+          - draft
+          - scheduled
+          - published
+          - unpublished
+          - trashed
+      description: Показывает редакторские состояния, НЕ используется публичным сайтом.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUpdatesPage'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    post:
+      tags:
+      - CMSUpdates
+      operationId: createCmsUpdate
+      summary: Создать черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      description: Создаёт не опубликованную запись. Даже если содержимое полное, публикации без явного
+        действия нет.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDraftContent'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/updates/{updateId}:
+    get:
+      tags:
+      - CMSUpdates
+      operationId: getCmsUpdate
+      summary: Открыть материал и черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      description: Возвращает опубликованную и редакторскую версии раздельно. editVersion используется
+        для If-Match в мутациях.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+    delete:
+      tags:
+      - CMSUpdates
+      operationId: trashUpdate
+      summary: Переместить материал в корзину
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Мягкое удаление, публичное содержимое и обсуждения скрыты, сохранены.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/draft:
+    put:
+      tags:
+      - CMSUpdates
+      operationId: saveUpdateDraft
+      summary: Сохранить черновик без публикации
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Если материал опубликован, изменяется только draft; посетители видят прежнюю редакцию.
+        Сервер возвращает обновлённый editVersion. PUT полностью заменяет рабочий черновик переданным
+        объектом; пропущенные поля удаляются из черновика, а не сливаются с прежними. Публичная версия
+        не меняется. Для scheduled сначала отменить расписание; иначе 409. Это предотвращает публикацию
+        правок, не прошедших явное подтверждение.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDraftContent'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+    delete:
+      tags:
+      - CMSUpdates
+      operationId: discardUpdateDraft
+      summary: Отбросить неопубликованные изменения
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: 'Для ранее опубликованного материала удаляет только отдельный черновик, не трогая публичную
+        редакцию. Если материал ни разу не публиковался и у него нет отдельной опубликованной редакции,
+        возвращает 409: удаляйте такой черновик через корзину.'
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/publish:
+    post:
+      tags:
+      - CMSUpdates
+      operationId: publishUpdate
+      summary: Опубликовать черновик сейчас или по расписанию
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: 'Нужен черновик. mode=now: атомарно заменяет публичный снимок; mode=schedule: планирует
+        первую публикацию неопубликованной записи. Исходная дата публикации уже публиковавшейся записи
+        сохраняется. Запланированный материал до срока не виден. При отсутствующем черновике или несовместимом
+        состоянии 409. Планировщик перед commit повторно проверяет status, срок и редакторскую версию;
+        конкурирующее снятие/корзина отменяет устаревшую задачу. Коммит повышает editVersion и создаёт
+        ровно одну редакцию. Повтор со старым If-Match даёт 412; после тайм-аута сначала GET текущего
+        состояния.'
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./shared.yaml#/components/schemas/PublishRequest
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/unschedule:
+    post:
+      tags:
+      - CMSUpdates
+      operationId: unscheduleUpdate
+      summary: Отменить запланированную публикацию
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Запланированная запись становится черновиком; сервер останавливает плановую публикацию.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/unpublish:
+    post:
+      tags:
+      - CMSUpdates
+      operationId: unpublishUpdate
+      summary: Снять материал с публикации
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Публичное чтение прекращается; комментарии и реакции скрываются, но сохраняются.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/restore:
+    post:
+      tags:
+      - CMSUpdates
+      operationId: restoreTrashedUpdate
+      summary: Восстановить из корзины только в черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Никогда не восстанавливает публичный статус или прежнее расписание; сохранены история,
+        комментарии и реакции (для новости).
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/permanent-delete:
+    post:
+      tags:
+      - CMSUpdates
+      operationId: permanentlyDeleteUpdate
+      summary: Безвозвратно удалить материал
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Разрешено только из корзины. Удаляет связанную историю, комментарии и реакции (если
+        новости). Требует confirm=true. Не удаляет медиа, используемые иными материалами.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./shared.yaml#/components/schemas/ConfirmPermanentDeletion
+      responses:
+        '204':
+          description: Без тела
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/comments-settings:
+    patch:
+      tags:
+      - CMSUpdates
+      operationId: setUpdateCommentsEnabled
+      summary: Включить или выключить новые комментарии
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Изменяется отдельно от публикации текста. Старые комментарии всегда сохраняются и остаются
+        читаемы, если материал публичен.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./shared.yaml#/components/schemas/ChangeCommentsEnabled
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/cms/updates/{updateId}/revisions:
+    get:
+      tags:
+      - CMSUpdates
+      operationId: listUpdateRevisions
+      summary: История опубликованных содержательных редакций
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      description: Ревизии охватывают заголовок, описание, текст, обложку, разделы; хранятся как дельты,
+        не обязательно полные копии.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./shared.yaml#/components/schemas/RevisionList
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/updates/{updateId}/revisions/{revisionId}:
+    get:
+      tags:
+      - CMSUpdates
+      operationId: getUpdateRevision
+      summary: Просмотреть выбранную редакцию
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: revisionId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      description: Сервер реконструирует содержимое старой редакции из дельт. revisionId должен принадлежать
+        указанному материалу; иначе 404.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRevision'
+          headers:
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/cms/updates/{updateId}/revisions/{revisionId}/restore:
+    post:
+      tags:
+      - CMSUpdates
+      operationId: restoreUpdateRevisionToDraft
+      summary: Восстановить содержимое редакции в новый черновик
+      x-contract-zone: core
+      security:
+      - SessionCookie: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - name: revisionId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      - $ref: ../shared/common.yaml#/components/parameters/CsrfHeader
+      - $ref: ./shared.yaml#/components/parameters/IfMatch
+      description: Не меняет автора, исходную дату публикации, комментарии или реакции. Публичный материал
+        не меняется до явной публикации черновика. revisionId должен принадлежать указанному материалу;
+        иначе 404.
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminRecord'
+          headers:
+            ETag:
+              $ref: ./shared.yaml#/components/headers/EditingETag
+            Cache-Control:
+              description: Не сохранять ответ в браузерных или общих кешах.
+              schema:
+                type: string
+                enum:
+                - no-store
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '401':
+          $ref: ../shared/common.yaml#/components/responses/Error401
+        '403':
+          $ref: ../shared/common.yaml#/components/responses/Error403
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '409':
+          $ref: ../shared/common.yaml#/components/responses/Error409
+        '412':
+          $ref: ./shared.yaml#/components/responses/Error412
+        '422':
+          $ref: ../shared/common.yaml#/components/responses/Error422
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+        '428':
+          $ref: ../shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+components:
+  schemas:
+    UpdateContent:
+      type: object
+      additionalProperties: false
+      properties:
+        version:
+          type: string
+          minLength: 1
+          maxLength: 80
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        releaseDate:
+          oneOf:
+          - type: string
+            format: date
+          - type: object
+            nullable: true
+            enum:
+            - null
+        sections:
+          $ref: ./updates.yaml#/components/schemas/UpdateSections
+        coverMediaId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+      required:
+      - version
+      - title
+      - summary
+      - releaseDate
+      - sections
+      - coverMediaId
+      description: Релиз игры releaseDate не равен серверной дате публикации. Разделов минимум один.
+    UpdateAdminRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        status:
+          $ref: ./shared.yaml#/components/schemas/ContentStatus
+        draft:
+          oneOf:
+          - $ref: '#/components/schemas/UpdateDraftContent'
+          - type: object
+            nullable: true
+            enum:
+            - null
+        published:
+          oneOf:
+          - $ref: ./updates.yaml#/components/schemas/PublishedUpdate
+          - type: object
+            nullable: true
+            enum:
+            - null
+        scheduledAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        editVersion:
+          type: integer
+          minimum: 1
+        commentsEnabled:
+          type: boolean
+      required:
+      - id
+      - status
+      - draft
+      - published
+      - scheduledAt
+      - editVersion
+      - commentsEnabled
+    AdminUpdatesPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateAdminRecord'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+    UpdateRevision:
+      type: object
+      additionalProperties: false
+      properties:
+        revision:
+          $ref: ./shared.yaml#/components/schemas/RevisionSummary
+        content:
+          $ref: '#/components/schemas/UpdateContent'
+      required:
+      - revision
+      - content
+    UpdateSectionsDraft:
+      type: object
+      additionalProperties: false
+      properties:
+        newFeatures:
+          type: string
+          maxLength: 30000
+        changes:
+          type: string
+          maxLength: 30000
+        fixes:
+          type: string
+          maxLength: 30000
+        balance:
+          type: string
+          maxLength: 30000
+      description: Неполный рабочий черновик разрешён; при публикации сервер проверяет обязательные поля
+        опубликованной версии.
+      x-display-order:
+      - newFeatures
+      - changes
+      - fixes
+      - balance
+    UpdateDraftContent:
+      type: object
+      additionalProperties: false
+      properties:
+        version:
+          type: string
+          maxLength: 80
+        title:
+          type: string
+          maxLength: 200
+        summary:
+          type: string
+          maxLength: 1000
+        releaseDate:
+          oneOf:
+          - type: string
+            format: date
+          - type: object
+            nullable: true
+            enum:
+            - null
+        sections:
+          $ref: '#/components/schemas/UpdateSectionsDraft'
+        coverMediaId:
+          oneOf:
+          - type: string
+            minLength: 1
+          - type: object
+            nullable: true
+            enum:
+            - null
+      description: Неполный рабочий черновик разрешён; при публикации сервер проверяет обязательные поля
+        опубликованной версии.
+x-contract-zone: core
+x-stability: proposed

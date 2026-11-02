@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite CORE: updates'
+  version: 0.2.0-proposed
+paths:
+  /api/updates:
+    get:
+      tags:
+      - Updates
+      operationId: listPublicUpdates
+      summary: Опубликованные обновления игры
+      x-contract-zone: core
+      security: []
+      parameters:
+      - $ref: ../shared/common.yaml#/components/parameters/Page
+      - $ref: ../shared/common.yaml#/components/parameters/PageSize
+      description: Сортировка по исходной publishedAt по убыванию, при равенстве стабильный id; даты UTC
+        ISO Z. Аналог GET /api/news.
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatesPage'
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+  /api/updates/{updateId}:
+    get:
+      tags:
+      - Updates
+      operationId: getPublicUpdate
+      summary: Опубликованное обновление
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: updateId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedUpdate'
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
+components:
+  schemas:
+    UpdateSections:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        newFeatures:
+          type: string
+          minLength: 1
+          maxLength: 30000
+        changes:
+          type: string
+          minLength: 1
+          maxLength: 30000
+        fixes:
+          type: string
+          minLength: 1
+          maxLength: 30000
+        balance:
+          type: string
+          minLength: 1
+          maxLength: 30000
+      description: Ключи фиксированы, отображаются только непустые в порядке Нововведения, Изменения,
+        Исправления, Баланс.
+      x-display-order:
+      - newFeatures
+      - changes
+      - fixes
+      - balance
+    PublishedUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        version:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+          minLength: 1
+        releaseDate:
+          oneOf:
+          - type: string
+            format: date
+          - type: object
+            nullable: true
+            enum:
+            - null
+        sections:
+          $ref: '#/components/schemas/UpdateSections'
+        coverUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+        publishedAt:
+          type: string
+          format: date-time
+        editedAt:
+          oneOf:
+          - type: string
+            format: date-time
+          - type: object
+            nullable: true
+            enum:
+            - null
+        commentsEnabled:
+          type: boolean
+      required:
+      - id
+      - version
+      - title
+      - summary
+      - releaseDate
+      - sections
+      - coverUrl
+      - publishedAt
+      - editedAt
+      - commentsEnabled
+    UpdateCard:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        version:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+          minLength: 1
+        coverUrl:
+          oneOf:
+          - type: string
+            format: uri
+          - type: object
+            nullable: true
+            enum:
+            - null
+        publishedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - version
+      - title
+      - summary
+      - coverUrl
+      - publishedAt
+    UpdatesPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateCard'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type: integer
+          minimum: 1
+          nullable: true
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+x-contract-zone: core
+x-stability: proposed

@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: 'ZaryaWebsite API — Зона 2: основной функционал'
+  version: 0.2.0-proposed
+  description: ПРЕДЛОЖЕНИЕ на согласование с backend. Функциональное ТЗ 0.2 утверждает поведение, но НЕ
+    эти конкретные URL/DTO. Зона 1 не изменяется. Статус PROPOSED. GET /api/news сохраняет фактический
+    предварительный multipart/mixed-контракт frontend/MSW с бинарными изображениями.
+servers:
+- url: /
+tags:
+- name: News
+- name: Updates
+- name: Comments
+- name: Reactions
+- name: CMSNews
+- name: CMSUpdates
+- name: CMSFAQ
+- name: CMSPressKit
+- name: CMSGameSummary
+- name: CMSMedia
+- name: Moderation
+- name: FAQ
+- name: PressKit
+- name: GameSummary
+x-contract-zone: core
+x-stability: proposed
+paths: {}
+x-modules:
+- ./news.yaml
+- ./updates.yaml
+- ./comments.yaml
+- ./reactions.yaml
+- ./moderation.yaml
+- ./cms-news.yaml
+- ./cms-updates.yaml
+- ./faq.yaml
+- ./presskit.yaml
+- ./game-summary.yaml
+- ./media.yaml
+- ./shared.yaml
