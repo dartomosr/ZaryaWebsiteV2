@@ -3,7 +3,17 @@ import react from '@vitejs/plugin-react';
 import { msw } from 'msw/vite';
 export default defineConfig({
   plugins: [react(), msw()],
-  server: { host: '127.0.0.1', port: 5173, strictPort: true },
-  preview: { host: '127.0.0.1', port: 6173, strictPort: true },
+  server: {
+    host: '127.0.0.1',
+    port: 5173,
+    strictPort: true,
+    proxy: { '/api': { target: 'http://localhost:5257', changeOrigin: true } },
+  },
+  preview: {
+    host: '127.0.0.1',
+    port: 6173,
+    strictPort: true,
+    proxy: { '/api': { target: 'http://localhost:5257', changeOrigin: true } },
+  },
   test: { environment: 'jsdom', setupFiles: ['./src/test/setup.js'], clearMocks: true },
 });
