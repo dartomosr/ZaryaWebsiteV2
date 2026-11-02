@@ -1,0 +1,62 @@
+### ZaryaWebsite API — примеры, НЕ запросы к работающему серверу
+### Переменные нужно заполнить вручную после согласования backend.
+@baseUrl = https://your-backend.example/api
+@csrf = REPLACE_WITH_CSRF_TOKEN
+
+### 1. Получить токен CSRF (и анонимную session cookie)
+GET {{baseUrl}}/auth/csrf
+Accept: application/json
+
+### 2. Проверить состояние сессии
+GET {{baseUrl}}/auth/session
+Accept: application/json
+
+### 3. Регистрация (username — предложенное отдельное поле)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+
+{
+  "username": "sample_user",
+  "displayName": "Пример игрока",
+  "email": "player@example.test",
+  "password": "ExamplePassword123"
+}
+
+### 4. Вход (по email или username)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+
+{
+  "login": "sample_user",
+  "password": "ExamplePassword123"
+}
+
+### 5. Пройти второй фактор (если state == two_factor_required)
+POST {{baseUrl}}/auth/2fa/challenge
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+
+{
+  "method": "totp",
+  "code": "123456"
+}
+
+### 6. Публичный список новостей, сохранённый предварительный frontend/MSW формат
+GET {{baseUrl}}/news?page=1&pageSize=12
+Accept: application/json
+
+### 7. Профиль — только активная сессия
+GET {{baseUrl}}/me
+Accept: application/json
+
+### 8. Выход
+POST {{baseUrl}}/auth/logout
+X-CSRF-Token: {{csrf}}
+
+### ВАЖНО
+# Cookies автоматически передаются только если HTTP-клиент хранит cookie jar.
+# В браузере для раздельных origin понадобятся соответствующие credentials/CORS настройки.
+# После входа/смены сессии заново получите CSRF через GET /api/auth/csrf.
+# Никогда не помещайте настоящие пароли, ключи восстановления и TOTP-секреты в VCS.

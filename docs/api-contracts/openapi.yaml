@@ -1,0 +1,1985 @@
+openapi: 3.1.0
+info:
+  title: ZaryaWebsite API — общий черновик трёх зон
+  version: 0.1.0
+  description: Объединённая локальная спецификация. Статусы в x-contract-zone; никакие методы не подтверждены
+    backend-разработчиком.
+servers:
+- url: /
+  description: Предпочтительно единый HTTPS origin через reverse proxy; фактические origins согласовать
+tags:
+- name: Auth
+- name: Email
+- name: TwoFactor
+- name: Recovery
+- name: OwnerRecovery
+- name: Profile
+- name: AdminUsers
+- name: Owner
+- name: News
+paths:
+  /api/auth/csrf:
+    get:
+      tags:
+      - Auth
+      summary: Получить CSRF-токен
+      operationId: getCsrfToken
+      description: Выдаёт токен, связанный с текущим анонимным либо авторизованным сеансом. При отсутствии
+        cookie создаёт безопасный анонимный сеанс. Ответ no-store.
+      x-contract-zone: foundation
+      security: []
+      responses:
+        '200':
+          description: CSRF-токен
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  token:
+                    type: string
+                    minLength: 1
+                required:
+                - token
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/session:
+    get:
+      tags:
+      - Auth
+      summary: Получить текущее состояние сессии
+      operationId: getSession
+      description: Всегда 200, в том числе для гостя. `state` определяет, разрешён ли доступ к основным/служебным
+        операциям.
+      x-contract-zone: foundation
+      security: []
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSnapshot'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Зарегистрировать обычный аккаунт
+      operationId: register
+      description: Не выполняет вход автоматически. При регистрации высылается служебное письмо; после входа
+        возможен ограниченный режим до подтверждения email. Пользователь не может сам назначить роль.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Создан аккаунт, письмо отправлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Вход по email/уникальному username и паролю
+      operationId: login
+      description: 'Успешный ответ отражает итоговый этап: active / email_verification_required / two_factor_required
+        / two_factor_setup_required. Пароль не означает прохождение 2FA. При смене идентификатора сессии клиент
+        запрашивает новый CSRF-токен.'
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSnapshot'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Выйти из текущей сессии
+      operationId: logout
+      description: Сервер отзывает текущую сессию/предавторизационное состояние и сбрасывает cookie.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '204':
+          description: Успешно
+        '400':
+          $ref: '#/components/responses/Error400'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/auth/email/verify:
+    post:
+      tags:
+      - Email
+      summary: Подтвердить email одноразовым токеном
+      operationId: verifyEmail
+      description: Не создаёт полноценную сессию по email-токену; при действующей сессии состояние обновится
+        при GET /api/auth/session. Подходит для первичного адреса и для подтверждения смены email.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTokenRequest'
+      responses:
+        '204':
+          description: Email подтверждён
+        '400':
+          $ref: '#/components/responses/Error400'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/auth/email/resend:
+    post:
+      tags:
+      - Email
+      summary: Повторно отправить подтверждение адреса
+      operationId: resendVerificationEmail
+      description: Доступно только в режиме email_verification_required; применяется rate limit. Ответ не включает
+        сам токен.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - email_verification_required
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '202':
+          description: Письмо поставлено в очередь
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/email/unverified-address:
+    post:
+      tags:
+      - Email
+      summary: Исправить почту неподтверждённого аккаунта
+      operationId: changeUnverifiedEmail
+      description: Только ограниченный режим. Проверка пароля нужна, чтобы злоумышленник с временной сессией
+        не подменил email.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - email_verification_required
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeUnverifiedEmailRequest'
+      responses:
+        '202':
+          description: Новое подтверждение отправлено
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/2fa/challenge:
+    post:
+      tags:
+      - TwoFactor
+      summary: Завершить вход одноразовым кодом
+      operationId: confirmLoginSecondFactor
+      description: Только состояние two_factor_required. Одноразовый резервный код погашается после успешного
+        использования; успешный ответ активирует сессию.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - two_factor_required
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorProof'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSnapshot'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/auth/2fa/setup:
+    post:
+      tags:
+      - TwoFactor
+      summary: Начать настройку TOTP
+      operationId: startTwoFactorSetup
+      description: Доступно пользователю в активном сеансе или сотруднику в two_factor_setup_required. Не включать
+        фактор до успешного подтверждения. Секрет и otpauthUrl не сохраняются в логах.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      - two_factor_setup_required
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotpSetup'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+      x-sensitive-response: true
+  /api/auth/2fa/setup/confirm:
+    post:
+      tags:
+      - TwoFactor
+      summary: Подтвердить TOTP и получить резервные коды
+      operationId: confirmTwoFactorSetup
+      description: После успешной проверки TOTP система активирует 2FA и единожды показывает набор резервных
+        кодов. После аварийного восстановления Owner в том же защищённом ответе выдаётся новый офлайн-ключ;
+        только затем служебный доступ становится доступен.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      - two_factor_setup_required
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TotpConfirm'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFactorActivated'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+      x-sensitive-response: true
+  /api/auth/2fa/disable:
+    post:
+      tags:
+      - TwoFactor
+      summary: Отключить собственную 2FA (только обычный User)
+      operationId: disableOwnTwoFactor
+      description: Для owner/admin/moderator всегда 403. Нужны пароль и код текущего фактора.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - user
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorDisable'
+      responses:
+        '204':
+          description: Успешно
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/auth/2fa/recovery-codes/rotate:
+    post:
+      tags:
+      - TwoFactor
+      summary: Заменить резервные коды 2FA
+      operationId: rotateRecoveryCodes
+      description: Инвалидируются все старые резервные коды. Новый набор возвращается только один раз.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorRotateCodes'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCodesResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+      x-sensitive-response: true
+  /api/auth/2fa/assisted-recovery/complete:
+    post:
+      tags:
+      - TwoFactor
+      summary: Завершить одобренное восстановление 2FA
+      operationId: completeAssistedRecovery
+      description: Требуется одноразовый токен из письма, инициированного администрацией. Для персонала после
+        завершения нет служебного доступа до настройки нового TOTP. Обычному пользователю фактор может быть
+        сброшен.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistedTwoFactorComplete'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistedTwoFactorResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/auth/password-recovery/complete:
+    post:
+      tags:
+      - Recovery
+      summary: Установить пароль по одноразовой ссылке
+      operationId: completePasswordRecovery
+      description: Ссылка отправляется только после ручного инициирования Admin/Owner. Успешная смена пароля
+        не отключает 2FA и не создаёт автоматически действующую сессию.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetComplete'
+      responses:
+        '204':
+          description: Пароль обновлён
+        '400':
+          $ref: '#/components/responses/Error400'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/auth/owner/emergency-recovery/request:
+    post:
+      tags:
+      - OwnerRecovery
+      summary: Запросить подтверждение экстренного восстановления владельца
+      operationId: requestOwnerEmergencyRecovery
+      description: Всегда нейтральный ответ; письмо только на текущий подтверждённый email единственного владельца.
+        Ни администратор, ни модератор не участвуют.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyStartRequest'
+      responses:
+        '202':
+          description: Если адрес подходит, инструкция отправлена
+        '400':
+          $ref: '#/components/responses/Error400'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/auth/owner/emergency-recovery/complete:
+    post:
+      tags:
+      - OwnerRecovery
+      summary: Восстановить 2FA владельца по трём факторам
+      operationId: completeOwnerEmergencyRecovery
+      description: 'Все обязательны: одноразовый email-токен, текущий пароль, отдельный офлайн-ключ. Старые
+        owner-сессии и ключ аннулируются. Создаётся только ограниченная сессия для новой настройки TOTP и выдачи
+        нового аварийного ключа; доступ к полномочиям Owner до завершения настройки запрещён.'
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyCompleteRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+      x-sensitive-request: true
+  /api/auth/owner/emergency-key/rotate:
+    post:
+      tags:
+      - OwnerRecovery
+      summary: Перевыпустить аварийный ключ владельца
+      operationId: rotateOwnerEmergencyKey
+      description: Выпуск и показ нового офлайн-ключа только один раз; прежний становится недействительным.
+        Доступ после новой TOTP-настройки либо обычной активной owner-сессии с проверкой пароля и TOTP.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyKeyRotateRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyKeyResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+      x-sensitive-response: true
+  /api/me:
+    get:
+      tags:
+      - Profile
+      summary: Получить собственный профиль
+      operationId: getMe
+      description: Получить собственный профиль
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '500':
+          $ref: '#/components/responses/Error500'
+    patch:
+      tags:
+      - Profile
+      summary: Изменить отображаемое имя
+      operationId: updateMe
+      description: Изменить отображаемое имя
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisplayNamePatch'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/me/email-change:
+    post:
+      tags:
+      - Profile
+      summary: Запросить смену email
+      operationId: requestEmailChange
+      description: Новый адрес становится действующим только после email-верификации; до этого старый остаётся
+        подтверждённым.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailChangeStart'
+      responses:
+        '202':
+          description: Письмо отправлено на новый адрес
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+    delete:
+      tags:
+      - Profile
+      summary: Отменить неподтверждённую смену email
+      operationId: cancelPendingEmailChange
+      description: Отменяет ожидающее подтверждение; старый подтверждённый адрес остаётся без изменений.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '204':
+          description: Ожидающая смена отменена
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/me/email-change/resend:
+    post:
+      tags:
+      - Profile
+      summary: Повторить письмо на ожидающий подтверждения новый email
+      operationId: resendPendingEmailChange
+      description: Только если ранее инициирована смена адреса. Текущий подтверждённый email остаётся действующим;
+        защищено rate limiting.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '202':
+          description: Письмо поставлено в очередь
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/me/password:
+    post:
+      tags:
+      - Profile
+      summary: Изменить пароль собственного аккаунта
+      operationId: changePassword
+      description: Нужен действующий пароль и, при включённой 2FA, второй фактор. Все другие сессии отзываются;
+        2FA не отключается.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+      responses:
+        '204':
+          description: Пароль изменён
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/me/avatar:
+    put:
+      tags:
+      - Profile
+      summary: Загрузить/заменить аватар
+      operationId: uploadAvatar
+      description: Допустим JPEG, PNG или WebP размером до 2 MiB. Сервер проверяет фактический тип и безопасно
+        преобразует изображение.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AvatarUpload'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+    delete:
+      tags:
+      - Profile
+      summary: Удалить свой аватар
+      operationId: deleteAvatar
+      description: Удалить свой аватар
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/me/delete:
+    post:
+      tags:
+      - Profile
+      summary: Удалить свой аккаунт и выбрать судьбу комментариев
+      operationId: deleteOwnAccount
+      description: Требует проверки пароля и, при включённой 2FA, второго фактора. Реакции удаляются, текст
+        комментариев сохраняется обезличенным либо стирается в зависимости от выбора; чужие ответы не удаляются.
+        Единственному владельцу запрещено, пока не передаст роль.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAccountRequest'
+      responses:
+        '204':
+          description: Аккаунт удалён; сеансы отозваны
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/admin/users:
+    get:
+      tags:
+      - AdminUsers
+      summary: Список аккаунтов для административного надзора
+      operationId: listUsers
+      description: Только admin/owner с обязательной 2FA. Не предоставляет изменение чужого профиля или принудительное
+        удаление аккаунта.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDirectoryPage'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/admin/users/{userId}:
+    get:
+      tags:
+      - AdminUsers
+      summary: Просмотр статуса аккаунта
+      operationId: getUserAdmin
+      description: Просмотр статуса аккаунта
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - &id001
+        $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDirectoryEntry'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/admin/users/{userId}/role:
+    put:
+      tags:
+      - AdminUsers
+      summary: Назначить/снять роль moderator или admin
+      operationId: changeUserRole
+      description: Только Owner может назначать/снимать Admin. Admin может назначать/снимать Moderator у обычных
+        аккаунтов, но не трогать Owner/Admin. Роль Owner этим методом не назначается. Проверяется состояние
+        email и 2FA; новому сотруднику до настройки 2FA служебный доступ запрещён.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      - *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleChangeRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDirectoryEntry'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/admin/users/{userId}/password-recovery:
+    post:
+      tags:
+      - AdminUsers
+      summary: Инициировать ссылку восстановления пароля
+      operationId: startPasswordRecovery
+      description: Администратор подтверждает проверку контроля привязанного подтверждённого email вне API;
+        сервер логирует действие и отправляет одноразовую ссылку. Сама администрация не получает пароль. Модераторы
+        не могут.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      - *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordRecoveryStart'
+      responses:
+        '202':
+          description: Запрос на отправку одноразовой ссылки принят
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/admin/users/{userId}/2fa-recovery:
+    post:
+      tags:
+      - AdminUsers
+      summary: Инициировать контролируемое восстановление 2FA
+      operationId: startAssisted2faRecovery
+      description: 'Для обычного пользователя Admin/Owner при подтверждённом контроле email. Для staff ТОЛЬКО
+        Owner, с проверкой своей 2FA. Для Owner запрещено: существует отдельная аварийная процедура. Выпускает
+        одноразовый email-токен, не выключает фактор в момент запроса.'
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      - *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordRecoveryStart'
+      responses:
+        '202':
+          description: Запрос на восстановление 2FA принят
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /api/owner/transfer:
+    post:
+      tags:
+      - Owner
+      summary: Передать исключительные полномочия владельца
+      operationId: transferOwnership
+      description: 'Только текущий Owner. Целевой аккаунт уже с подтверждённым email и активной 2FA. Передача
+        атомарна: после неё ровно один Owner, прежний теряет высшие права. Все затронутые привилегированные
+        сессии отзываются.'
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OwnerTransferRequest'
+      responses:
+        '204':
+          description: Право владения передано
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /api/news:
+    get:
+      tags:
+      - News
+      operationId: listPublicNews
+      x-contract-zone: core
+      summary: Список опубликованных новостей (сохранённый предварительный контракт)
+      description: 'Существующий frontend/MSW ожидает page/pageSize, nextPage и строки дат в UTC с суффиксом
+        Z. Статус: предварительный, backend не подтверждал.'
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsPage'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+components:
+  schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: Машинный код ошибки, не локализуется.
+          pattern: ^[A-Z][A-Z0-9_]*$
+        message:
+          type: string
+          description: Безопасное сообщение для пользователя.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          properties: {}
+          description: Ошибки полей по имени JSON-поля; значения являются массивами строк.
+        requestId:
+          type: string
+          description: Идентификатор запроса для техподдержки.
+      required:
+      - code
+      - message
+    Accepted:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          const: accepted
+        message:
+          type: string
+      required:
+      - status
+    UserRole:
+      type: string
+      enum:
+      - user
+      - moderator
+      - admin
+      - owner
+    AuthState:
+      type: string
+      enum:
+      - anonymous
+      - email_verification_required
+      - two_factor_required
+      - two_factor_setup_required
+      - active
+    Capabilities:
+      type: object
+      additionalProperties: false
+      properties:
+        canComment:
+          type: boolean
+        canReact:
+          type: boolean
+        canUseCms:
+          type: boolean
+        canModerate:
+          type: boolean
+        canManageUsers:
+          type: boolean
+      required:
+      - canComment
+      - canReact
+      - canUseCms
+      - canModerate
+      - canManageUsers
+      description: Подсказки для интерфейсов. Не заменяют серверную проверку прав.
+    UserProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: ^[a-zA-Z0-9_]{3,30}$
+        displayName:
+          type: string
+          minLength: 3
+          maxLength: 30
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/UserRole'
+        twoFactorEnabled:
+          type: boolean
+        avatarUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        pendingEmail:
+          type:
+          - string
+          - 'null'
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - username
+      - displayName
+      - email
+      - emailVerified
+      - role
+      - twoFactorEnabled
+      - avatarUrl
+    SessionSnapshot:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          $ref: '#/components/schemas/AuthState'
+        user:
+          oneOf:
+          - $ref: '#/components/schemas/UserProfile'
+          - type: 'null'
+        capabilities:
+          $ref: '#/components/schemas/Capabilities'
+        expiresAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        nextStep:
+          type:
+          - string
+          - 'null'
+          enum:
+          - verify_email
+          - enter_2fa
+          - setup_2fa
+          - null
+      required:
+      - state
+      - user
+      - capabilities
+      description: GET session возвращает 200 даже для гостя. Наличие cookie не является доказательством полномочий.
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: ^[a-zA-Z0-9_]{3,30}$
+        displayName:
+          type: string
+          minLength: 3
+          maxLength: 30
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+      required:
+      - username
+      - displayName
+      - email
+      - password
+      description: 'Проверки исходного ТЗ: пароль содержит букву и цифру; окончательное правило должно учитываться
+        в серверной валидации.'
+    RegisterResult:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          const: registered
+        message:
+          type: string
+      required:
+      - status
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        login:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - login
+      - password
+    EmailTokenRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+          description: Только в теле запроса; токены не записывать в логи или query URL API.
+      required:
+      - token
+    ChangeUnverifiedEmailRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - email
+      - password
+    TwoFactorProof:
+      type: object
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+          enum:
+          - totp
+          - recovery_code
+        code:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - method
+      - code
+      description: Код TOTP или одноразовый резервный код; проверка частоты попыток обязательна.
+    TotpSetup:
+      type: object
+      additionalProperties: false
+      properties:
+        secret:
+          type: string
+          description: 'Секрет TOTP только для одноразового показа, ответ Cache-Control: no-store.'
+        otpauthUrl:
+          type: string
+          description: otpauth:// URL для приложения-аутентификатора.
+      required:
+      - secret
+      - otpauthUrl
+    TotpConfirm:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          minLength: 6
+          maxLength: 12
+      required:
+      - code
+    TwoFactorActivated:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          const: enabled
+        recoveryCodes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: Одноразовый показ; после закрытия получить исходные коды нельзя.
+        emergencyKey:
+          type: string
+          description: Только при завершении аварийного восстановления Owner. Показывается единожды; новый
+            офлайн-ключ заменяет погашенный.
+      required:
+      - status
+      - recoveryCodes
+    TwoFactorDisable:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - password
+      - proof
+    TwoFactorRotateCodes:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - password
+      - proof
+    RecoveryCodesResult:
+      type: object
+      additionalProperties: false
+      properties:
+        recoveryCodes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+      required:
+      - recoveryCodes
+    PasswordRecoveryStart:
+      type: object
+      additionalProperties: false
+      properties:
+        userEmailOwnershipVerified:
+          const: true
+          description: Администратор подтверждает завершение проверки доступа к email; сервер пишет audit event.
+      required:
+      - userEmailOwnershipVerified
+      description: Не заменяет реальную процедуру проверки контрольного email.
+    PasswordResetComplete:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+      required:
+      - token
+      - newPassword
+    AssistedTwoFactorComplete:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+      required:
+      - token
+    AssistedTwoFactorResult:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum:
+          - two_factor_setup_required
+          - two_factor_disabled
+      required:
+      - status
+      description: У сотрудника после сброса нет служебного доступа до настройки 2FA.
+    EmailChangeStart:
+      type: object
+      additionalProperties: false
+      properties:
+        newEmail:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - newEmail
+      - password
+      description: Старый подтверждённый email действует до подтверждения нового.
+    DisplayNamePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        displayName:
+          type: string
+          minLength: 3
+          maxLength: 30
+      required:
+      - displayName
+    PasswordChange:
+      type: object
+      additionalProperties: false
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - currentPassword
+      - newPassword
+      description: proof обязателен для аккаунтов с включённой 2FA; сервер проверяет условие.
+    AvatarUpload:
+      type: object
+      additionalProperties: false
+      properties:
+        file:
+          type: string
+          format: binary
+      required:
+      - file
+      description: JPEG/PNG/WebP; максимум 2 MiB, сервер перекодирует и очищает метаданные.
+    DeleteAccountRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        comments:
+          type: string
+          enum:
+          - keep_anonymized
+          - erase_text
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - password
+      - comments
+      description: При включённой 2FA proof обязателен. Для единственного Owner операция запрещена.
+    UserDirectoryEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        username:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/UserRole'
+        twoFactorEnabled:
+          type: boolean
+        commentingRestriction:
+          type: string
+          enum:
+          - none
+          - temporary
+          - permanent
+        commentingBanEndsAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - id
+      - username
+      - displayName
+      - email
+      - emailVerified
+      - role
+      - twoFactorEnabled
+      - commentingRestriction
+    UserDirectoryPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDirectoryEntry'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+    RoleChangeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - moderator
+          - admin
+      required:
+      - role
+      description: Нельзя назначать owner через эту операцию. Owner может назначать admin/moderator/user; Admin
+        только moderator/user с запретом трогать admin/owner.
+    OwnerTransferRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        targetUserId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        password:
+          type: string
+        totpCode:
+          type: string
+          minLength: 6
+          maxLength: 12
+      required:
+      - targetUserId
+      - password
+      - totpCode
+      description: 'Цель: email подтверждён, 2FA настроена; передача атомарна, прежние привилегированные сессии
+        инвалидируются.'
+    EmergencyStartRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+      description: Инициирует отправку подтверждения на уже привязанный и подтверждённый email Owner; ответ
+        не раскрывает наличие аккаунта.
+    EmergencyCompleteRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+        password:
+          type: string
+        emergencyKey:
+          type: string
+          minLength: 1
+      required:
+      - token
+      - password
+      - emergencyKey
+      description: 'Проверяются все три независимых фактора: email-токен, пароль, офлайн-ключ. Нет обхода через
+        администратора.'
+    EmergencyResult:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          const: two_factor_setup_required
+      required:
+      - state
+      description: Требуется заново настроить TOTP; старые сессии и аварийный ключ аннулируются.
+    EmergencyKeyRotateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        totpCode:
+          type: string
+          minLength: 6
+          maxLength: 12
+      required:
+      - password
+      - totpCode
+    EmergencyKeyResult:
+      type: object
+      additionalProperties: false
+      properties:
+        emergencyKey:
+          type: string
+          description: Новый одноразовый офлайн-ключ. Возвращается один раз; в базе хранится только проверяемое
+            производное.
+      required:
+      - emergencyKey
+    NewsCard:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+        summary:
+          type: string
+        coverUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        publishedAt:
+          type: string
+          format: date-time
+          description: UTC ISO 8601, суффикс Z. Существующий фронтенд его требует.
+      required:
+      - id
+      - title
+      - summary
+      - coverUrl
+      - publishedAt
+    NewsPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsCard'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+  parameters:
+    CsrfHeader:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      description: Токен текущей анонимной/авторизованной сессии из GET /api/auth/csrf; клиент обновляет после
+        смены сессии.
+      schema:
+        type: string
+        minLength: 1
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 12
+        minimum: 1
+        maximum: 50
+  responses:
+    Error400:
+      description: Некорректные данные/запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error401:
+      description: Нет действующей или достаточной по фактору сессии
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error403:
+      description: Нет прав, email не подтверждён, или обязательная 2FA не настроена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error404:
+      description: Ресурс не найден либо скрыт для запрашивающего
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error409:
+      description: Конфликт состояния/роли
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error410:
+      description: Одноразовая ссылка недействительна или срок истёк
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error413:
+      description: Загружаемый файл слишком большой
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error422:
+      description: Проверка входных данных не пройдена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error429:
+      description: Слишком много запросов
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error500:
+      description: Ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error503:
+      description: Сервис временно недоступен
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: zarya_session
+      description: Предлагаемое имя HttpOnly Secure cookie; фактические Domain/Path/SameSite и срок жизни зависят
+        от развёртывания. Сервер не доверяет роли из клиента.
+x-contract-zone: foundation
+x-stability: proposed
+x-zone-status:
+  foundation: proposal
+  core: existing-frontend-msw-proposal
+  extended: reserved

@@ -1,0 +1,11 @@
+openapi: 3.1.0
+info:
+  title: 'ZaryaWebsite API — Зона 3: расширенный функционал'
+  version: 0.1.0
+  description: Зарезервировано для Мировой Машины, пакетной публикации, ZIP PressKit и расширенных CMS-операций.
+    На этом этапе не публикуем фиктивные HTTP-маршруты.
+servers:
+- url: /
+paths: {}
+x-contract-zone: extended
+x-stability: unscoped

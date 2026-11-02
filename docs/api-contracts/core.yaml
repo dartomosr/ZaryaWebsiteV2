@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: 'ZaryaWebsite API — Зона 2: основной функционал'
+  version: 0.1.0
+  description: Пока содержит только известный предварительный контракт публичного списка новостей из frontend/MSW.
+    Остальные ресурсы появятся после проектирования зоны 2.
+servers:
+- url: /
+tags:
+- name: News
+paths:
+  /api/news:
+    get:
+      tags:
+      - News
+      operationId: listPublicNews
+      x-contract-zone: core
+      summary: Список опубликованных новостей (сохранённый предварительный контракт)
+      description: 'Существующий frontend/MSW ожидает page/pageSize, nextPage и строки дат в UTC с суффиксом
+        Z. Статус: предварительный, backend не подтверждал.'
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/Page
+      - $ref: ./common.yaml#/components/parameters/PageSize
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/NewsPage
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+components: {}
+x-contract-zone: core
+x-stability: proposed-msw-only

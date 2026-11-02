@@ -1,0 +1,754 @@
+openapi: 3.1.0
+info:
+  title: ZaryaWebsite shared API types
+  version: 0.1.0
+  description: Схемы для трёх зон. Отдельно не является исполняемым API.
+paths: {}
+components:
+  schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: Машинный код ошибки, не локализуется.
+          pattern: ^[A-Z][A-Z0-9_]*$
+        message:
+          type: string
+          description: Безопасное сообщение для пользователя.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          properties: {}
+          description: Ошибки полей по имени JSON-поля; значения являются массивами строк.
+        requestId:
+          type: string
+          description: Идентификатор запроса для техподдержки.
+      required:
+      - code
+      - message
+    Accepted:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          const: accepted
+        message:
+          type: string
+      required:
+      - status
+    UserRole:
+      type: string
+      enum:
+      - user
+      - moderator
+      - admin
+      - owner
+    AuthState:
+      type: string
+      enum:
+      - anonymous
+      - email_verification_required
+      - two_factor_required
+      - two_factor_setup_required
+      - active
+    Capabilities:
+      type: object
+      additionalProperties: false
+      properties:
+        canComment:
+          type: boolean
+        canReact:
+          type: boolean
+        canUseCms:
+          type: boolean
+        canModerate:
+          type: boolean
+        canManageUsers:
+          type: boolean
+      required:
+      - canComment
+      - canReact
+      - canUseCms
+      - canModerate
+      - canManageUsers
+      description: Подсказки для интерфейсов. Не заменяют серверную проверку прав.
+    UserProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: ^[a-zA-Z0-9_]{3,30}$
+        displayName:
+          type: string
+          minLength: 3
+          maxLength: 30
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/UserRole'
+        twoFactorEnabled:
+          type: boolean
+        avatarUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        pendingEmail:
+          type:
+          - string
+          - 'null'
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - username
+      - displayName
+      - email
+      - emailVerified
+      - role
+      - twoFactorEnabled
+      - avatarUrl
+    SessionSnapshot:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          $ref: '#/components/schemas/AuthState'
+        user:
+          oneOf:
+          - $ref: '#/components/schemas/UserProfile'
+          - type: 'null'
+        capabilities:
+          $ref: '#/components/schemas/Capabilities'
+        expiresAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        nextStep:
+          type:
+          - string
+          - 'null'
+          enum:
+          - verify_email
+          - enter_2fa
+          - setup_2fa
+          - null
+      required:
+      - state
+      - user
+      - capabilities
+      description: GET session возвращает 200 даже для гостя. Наличие cookie не является доказательством полномочий.
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: ^[a-zA-Z0-9_]{3,30}$
+        displayName:
+          type: string
+          minLength: 3
+          maxLength: 30
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+      required:
+      - username
+      - displayName
+      - email
+      - password
+      description: 'Проверки исходного ТЗ: пароль содержит букву и цифру; окончательное правило должно учитываться
+        в серверной валидации.'
+    RegisterResult:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          const: registered
+        message:
+          type: string
+      required:
+      - status
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        login:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - login
+      - password
+    EmailTokenRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+          description: Только в теле запроса; токены не записывать в логи или query URL API.
+      required:
+      - token
+    ChangeUnverifiedEmailRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - email
+      - password
+    TwoFactorProof:
+      type: object
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+          enum:
+          - totp
+          - recovery_code
+        code:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - method
+      - code
+      description: Код TOTP или одноразовый резервный код; проверка частоты попыток обязательна.
+    TotpSetup:
+      type: object
+      additionalProperties: false
+      properties:
+        secret:
+          type: string
+          description: 'Секрет TOTP только для одноразового показа, ответ Cache-Control: no-store.'
+        otpauthUrl:
+          type: string
+          description: otpauth:// URL для приложения-аутентификатора.
+      required:
+      - secret
+      - otpauthUrl
+    TotpConfirm:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          minLength: 6
+          maxLength: 12
+      required:
+      - code
+    TwoFactorActivated:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          const: enabled
+        recoveryCodes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: Одноразовый показ; после закрытия получить исходные коды нельзя.
+        emergencyKey:
+          type: string
+          description: Только при завершении аварийного восстановления Owner. Показывается единожды; новый
+            офлайн-ключ заменяет погашенный.
+      required:
+      - status
+      - recoveryCodes
+    TwoFactorDisable:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - password
+      - proof
+    TwoFactorRotateCodes:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - password
+      - proof
+    RecoveryCodesResult:
+      type: object
+      additionalProperties: false
+      properties:
+        recoveryCodes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+      required:
+      - recoveryCodes
+    PasswordRecoveryStart:
+      type: object
+      additionalProperties: false
+      properties:
+        userEmailOwnershipVerified:
+          const: true
+          description: Администратор подтверждает завершение проверки доступа к email; сервер пишет audit event.
+      required:
+      - userEmailOwnershipVerified
+      description: Не заменяет реальную процедуру проверки контрольного email.
+    PasswordResetComplete:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+      required:
+      - token
+      - newPassword
+    AssistedTwoFactorComplete:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+      required:
+      - token
+    AssistedTwoFactorResult:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum:
+          - two_factor_setup_required
+          - two_factor_disabled
+      required:
+      - status
+      description: У сотрудника после сброса нет служебного доступа до настройки 2FA.
+    EmailChangeStart:
+      type: object
+      additionalProperties: false
+      properties:
+        newEmail:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - newEmail
+      - password
+      description: Старый подтверждённый email действует до подтверждения нового.
+    DisplayNamePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        displayName:
+          type: string
+          minLength: 3
+          maxLength: 30
+      required:
+      - displayName
+    PasswordChange:
+      type: object
+      additionalProperties: false
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - currentPassword
+      - newPassword
+      description: proof обязателен для аккаунтов с включённой 2FA; сервер проверяет условие.
+    AvatarUpload:
+      type: object
+      additionalProperties: false
+      properties:
+        file:
+          type: string
+          format: binary
+      required:
+      - file
+      description: JPEG/PNG/WebP; максимум 2 MiB, сервер перекодирует и очищает метаданные.
+    DeleteAccountRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        comments:
+          type: string
+          enum:
+          - keep_anonymized
+          - erase_text
+        proof:
+          $ref: '#/components/schemas/TwoFactorProof'
+      required:
+      - password
+      - comments
+      description: При включённой 2FA proof обязателен. Для единственного Owner операция запрещена.
+    UserDirectoryEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        username:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/UserRole'
+        twoFactorEnabled:
+          type: boolean
+        commentingRestriction:
+          type: string
+          enum:
+          - none
+          - temporary
+          - permanent
+        commentingBanEndsAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - id
+      - username
+      - displayName
+      - email
+      - emailVerified
+      - role
+      - twoFactorEnabled
+      - commentingRestriction
+    UserDirectoryPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDirectoryEntry'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+    RoleChangeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - moderator
+          - admin
+      required:
+      - role
+      description: Нельзя назначать owner через эту операцию. Owner может назначать admin/moderator/user; Admin
+        только moderator/user с запретом трогать admin/owner.
+    OwnerTransferRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        targetUserId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        password:
+          type: string
+        totpCode:
+          type: string
+          minLength: 6
+          maxLength: 12
+      required:
+      - targetUserId
+      - password
+      - totpCode
+      description: 'Цель: email подтверждён, 2FA настроена; передача атомарна, прежние привилегированные сессии
+        инвалидируются.'
+    EmergencyStartRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+      description: Инициирует отправку подтверждения на уже привязанный и подтверждённый email Owner; ответ
+        не раскрывает наличие аккаунта.
+    EmergencyCompleteRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 1
+        password:
+          type: string
+        emergencyKey:
+          type: string
+          minLength: 1
+      required:
+      - token
+      - password
+      - emergencyKey
+      description: 'Проверяются все три независимых фактора: email-токен, пароль, офлайн-ключ. Нет обхода через
+        администратора.'
+    EmergencyResult:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          const: two_factor_setup_required
+      required:
+      - state
+      description: Требуется заново настроить TOTP; старые сессии и аварийный ключ аннулируются.
+    EmergencyKeyRotateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+        totpCode:
+          type: string
+          minLength: 6
+          maxLength: 12
+      required:
+      - password
+      - totpCode
+    EmergencyKeyResult:
+      type: object
+      additionalProperties: false
+      properties:
+        emergencyKey:
+          type: string
+          description: Новый одноразовый офлайн-ключ. Возвращается один раз; в базе хранится только проверяемое
+            производное.
+      required:
+      - emergencyKey
+    NewsCard:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+        summary:
+          type: string
+        coverUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        publishedAt:
+          type: string
+          format: date-time
+          description: UTC ISO 8601, суффикс Z. Существующий фронтенд его требует.
+      required:
+      - id
+      - title
+      - summary
+      - coverUrl
+      - publishedAt
+    NewsPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsCard'
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextPage:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+      required:
+      - items
+      - page
+      - pageSize
+      - nextPage
+  parameters:
+    CsrfHeader:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      description: Токен текущей анонимной/авторизованной сессии из GET /api/auth/csrf; клиент обновляет после
+        смены сессии.
+      schema:
+        type: string
+        minLength: 1
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 12
+        minimum: 1
+        maximum: 50
+  responses:
+    Error400:
+      description: Некорректные данные/запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error401:
+      description: Нет действующей или достаточной по фактору сессии
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error403:
+      description: Нет прав, email не подтверждён, или обязательная 2FA не настроена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error404:
+      description: Ресурс не найден либо скрыт для запрашивающего
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error409:
+      description: Конфликт состояния/роли
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error410:
+      description: Одноразовая ссылка недействительна или срок истёк
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error413:
+      description: Загружаемый файл слишком большой
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error422:
+      description: Проверка входных данных не пройдена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error429:
+      description: Слишком много запросов
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error500:
+      description: Ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error503:
+      description: Сервис временно недоступен
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: zarya_session
+      description: Предлагаемое имя HttpOnly Secure cookie; фактические Domain/Path/SameSite и срок жизни зависят
+        от развёртывания. Сервер не доверяет роли из клиента.

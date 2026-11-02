@@ -1,0 +1,1208 @@
+openapi: 3.1.0
+info:
+  title: 'ZaryaWebsite API — Зона 1: фундамент'
+  version: 0.1.0
+  description: Предложение frontend-команды для согласования с backend ASP.NET Core. Функциональные требования
+    утверждены пользователем; HTTP-маршруты, DTO и механизмы безопасности пока черновые. Нельзя считать реализацией.
+servers:
+- url: /
+  description: Предпочтительно единый HTTPS origin через reverse proxy; фактические origins согласовать
+tags:
+- name: Auth
+- name: Email
+- name: TwoFactor
+- name: Recovery
+- name: OwnerRecovery
+- name: Profile
+- name: AdminUsers
+- name: Owner
+paths:
+  /api/auth/csrf:
+    get:
+      tags:
+      - Auth
+      summary: Получить CSRF-токен
+      operationId: getCsrfToken
+      description: Выдаёт токен, связанный с текущим анонимным либо авторизованным сеансом. При отсутствии
+        cookie создаёт безопасный анонимный сеанс. Ответ no-store.
+      x-contract-zone: foundation
+      security: []
+      responses:
+        '200':
+          description: CSRF-токен
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  token:
+                    type: string
+                    minLength: 1
+                required:
+                - token
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/session:
+    get:
+      tags:
+      - Auth
+      summary: Получить текущее состояние сессии
+      operationId: getSession
+      description: Всегда 200, в том числе для гостя. `state` определяет, разрешён ли доступ к основным/служебным
+        операциям.
+      x-contract-zone: foundation
+      security: []
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/SessionSnapshot
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Зарегистрировать обычный аккаунт
+      operationId: register
+      description: Не выполняет вход автоматически. При регистрации высылается служебное письмо; после входа
+        возможен ограниченный режим до подтверждения email. Пользователь не может сам назначить роль.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/RegisterRequest
+      responses:
+        '201':
+          description: Создан аккаунт, письмо отправлено
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/RegisterResult
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Вход по email/уникальному username и паролю
+      operationId: login
+      description: 'Успешный ответ отражает итоговый этап: active / email_verification_required / two_factor_required
+        / two_factor_setup_required. Пароль не означает прохождение 2FA. При смене идентификатора сессии клиент
+        запрашивает новый CSRF-токен.'
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/LoginRequest
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/SessionSnapshot
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Выйти из текущей сессии
+      operationId: logout
+      description: Сервер отзывает текущую сессию/предавторизационное состояние и сбрасывает cookie.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      responses:
+        '204':
+          description: Успешно
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/auth/email/verify:
+    post:
+      tags:
+      - Email
+      summary: Подтвердить email одноразовым токеном
+      operationId: verifyEmail
+      description: Не создаёт полноценную сессию по email-токену; при действующей сессии состояние обновится
+        при GET /api/auth/session. Подходит для первичного адреса и для подтверждения смены email.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/EmailTokenRequest
+      responses:
+        '204':
+          description: Email подтверждён
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '410':
+          $ref: ./common.yaml#/components/responses/Error410
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/auth/email/resend:
+    post:
+      tags:
+      - Email
+      summary: Повторно отправить подтверждение адреса
+      operationId: resendVerificationEmail
+      description: Доступно только в режиме email_verification_required; применяется rate limit. Ответ не включает
+        сам токен.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - email_verification_required
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      responses:
+        '202':
+          description: Письмо поставлено в очередь
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/email/unverified-address:
+    post:
+      tags:
+      - Email
+      summary: Исправить почту неподтверждённого аккаунта
+      operationId: changeUnverifiedEmail
+      description: Только ограниченный режим. Проверка пароля нужна, чтобы злоумышленник с временной сессией
+        не подменил email.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - email_verification_required
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/ChangeUnverifiedEmailRequest
+      responses:
+        '202':
+          description: Новое подтверждение отправлено
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/2fa/challenge:
+    post:
+      tags:
+      - TwoFactor
+      summary: Завершить вход одноразовым кодом
+      operationId: confirmLoginSecondFactor
+      description: Только состояние two_factor_required. Одноразовый резервный код погашается после успешного
+        использования; успешный ответ активирует сессию.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - two_factor_required
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/TwoFactorProof
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/SessionSnapshot
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/auth/2fa/setup:
+    post:
+      tags:
+      - TwoFactor
+      summary: Начать настройку TOTP
+      operationId: startTwoFactorSetup
+      description: Доступно пользователю в активном сеансе или сотруднику в two_factor_setup_required. Не включать
+        фактор до успешного подтверждения. Секрет и otpauthUrl не сохраняются в логах.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      - two_factor_setup_required
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/TotpSetup
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+      x-sensitive-response: true
+  /api/auth/2fa/setup/confirm:
+    post:
+      tags:
+      - TwoFactor
+      summary: Подтвердить TOTP и получить резервные коды
+      operationId: confirmTwoFactorSetup
+      description: После успешной проверки TOTP система активирует 2FA и единожды показывает набор резервных
+        кодов. После аварийного восстановления Owner в том же защищённом ответе выдаётся новый офлайн-ключ;
+        только затем служебный доступ становится доступен.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      - two_factor_setup_required
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/TotpConfirm
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/TwoFactorActivated
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+      x-sensitive-response: true
+  /api/auth/2fa/disable:
+    post:
+      tags:
+      - TwoFactor
+      summary: Отключить собственную 2FA (только обычный User)
+      operationId: disableOwnTwoFactor
+      description: Для owner/admin/moderator всегда 403. Нужны пароль и код текущего фактора.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - user
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/TwoFactorDisable
+      responses:
+        '204':
+          description: Успешно
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/auth/2fa/recovery-codes/rotate:
+    post:
+      tags:
+      - TwoFactor
+      summary: Заменить резервные коды 2FA
+      operationId: rotateRecoveryCodes
+      description: Инвалидируются все старые резервные коды. Новый набор возвращается только один раз.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/TwoFactorRotateCodes
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/RecoveryCodesResult
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+      x-sensitive-response: true
+  /api/auth/2fa/assisted-recovery/complete:
+    post:
+      tags:
+      - TwoFactor
+      summary: Завершить одобренное восстановление 2FA
+      operationId: completeAssistedRecovery
+      description: Требуется одноразовый токен из письма, инициированного администрацией. Для персонала после
+        завершения нет служебного доступа до настройки нового TOTP. Обычному пользователю фактор может быть
+        сброшен.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/AssistedTwoFactorComplete
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/AssistedTwoFactorResult
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '410':
+          $ref: ./common.yaml#/components/responses/Error410
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/auth/password-recovery/complete:
+    post:
+      tags:
+      - Recovery
+      summary: Установить пароль по одноразовой ссылке
+      operationId: completePasswordRecovery
+      description: Ссылка отправляется только после ручного инициирования Admin/Owner. Успешная смена пароля
+        не отключает 2FA и не создаёт автоматически действующую сессию.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/PasswordResetComplete
+      responses:
+        '204':
+          description: Пароль обновлён
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '410':
+          $ref: ./common.yaml#/components/responses/Error410
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/auth/owner/emergency-recovery/request:
+    post:
+      tags:
+      - OwnerRecovery
+      summary: Запросить подтверждение экстренного восстановления владельца
+      operationId: requestOwnerEmergencyRecovery
+      description: Всегда нейтральный ответ; письмо только на текущий подтверждённый email единственного владельца.
+        Ни администратор, ни модератор не участвуют.
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/EmergencyStartRequest
+      responses:
+        '202':
+          description: Если адрес подходит, инструкция отправлена
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/auth/owner/emergency-recovery/complete:
+    post:
+      tags:
+      - OwnerRecovery
+      summary: Восстановить 2FA владельца по трём факторам
+      operationId: completeOwnerEmergencyRecovery
+      description: 'Все обязательны: одноразовый email-токен, текущий пароль, отдельный офлайн-ключ. Старые
+        owner-сессии и ключ аннулируются. Создаётся только ограниченная сессия для новой настройки TOTP и выдачи
+        нового аварийного ключа; доступ к полномочиям Owner до завершения настройки запрещён.'
+      x-contract-zone: foundation
+      security: []
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/EmergencyCompleteRequest
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/EmergencyResult
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '410':
+          $ref: ./common.yaml#/components/responses/Error410
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+      x-sensitive-request: true
+  /api/auth/owner/emergency-key/rotate:
+    post:
+      tags:
+      - OwnerRecovery
+      summary: Перевыпустить аварийный ключ владельца
+      operationId: rotateOwnerEmergencyKey
+      description: Выпуск и показ нового офлайн-ключа только один раз; прежний становится недействительным.
+        Доступ после новой TOTP-настройки либо обычной активной owner-сессии с проверкой пароля и TOTP.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/EmergencyKeyRotateRequest
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/EmergencyKeyResult
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+      x-sensitive-response: true
+  /api/me:
+    get:
+      tags:
+      - Profile
+      summary: Получить собственный профиль
+      operationId: getMe
+      description: Получить собственный профиль
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserProfile
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+    patch:
+      tags:
+      - Profile
+      summary: Изменить отображаемое имя
+      operationId: updateMe
+      description: Изменить отображаемое имя
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/DisplayNamePatch
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserProfile
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/me/email-change:
+    post:
+      tags:
+      - Profile
+      summary: Запросить смену email
+      operationId: requestEmailChange
+      description: Новый адрес становится действующим только после email-верификации; до этого старый остаётся
+        подтверждённым.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/EmailChangeStart
+      responses:
+        '202':
+          description: Письмо отправлено на новый адрес
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+    delete:
+      tags:
+      - Profile
+      summary: Отменить неподтверждённую смену email
+      operationId: cancelPendingEmailChange
+      description: Отменяет ожидающее подтверждение; старый подтверждённый адрес остаётся без изменений.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      responses:
+        '204':
+          description: Ожидающая смена отменена
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/me/email-change/resend:
+    post:
+      tags:
+      - Profile
+      summary: Повторить письмо на ожидающий подтверждения новый email
+      operationId: resendPendingEmailChange
+      description: Только если ранее инициирована смена адреса. Текущий подтверждённый email остаётся действующим;
+        защищено rate limiting.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      responses:
+        '202':
+          description: Письмо поставлено в очередь
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/me/password:
+    post:
+      tags:
+      - Profile
+      summary: Изменить пароль собственного аккаунта
+      operationId: changePassword
+      description: Нужен действующий пароль и, при включённой 2FA, второй фактор. Все другие сессии отзываются;
+        2FA не отключается.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/PasswordChange
+      responses:
+        '204':
+          description: Пароль изменён
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/me/avatar:
+    put:
+      tags:
+      - Profile
+      summary: Загрузить/заменить аватар
+      operationId: uploadAvatar
+      description: Допустим JPEG, PNG или WebP размером до 2 MiB. Сервер проверяет фактический тип и безопасно
+        преобразует изображение.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: ./common.yaml#/components/schemas/AvatarUpload
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserProfile
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '413':
+          $ref: ./common.yaml#/components/responses/Error413
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+    delete:
+      tags:
+      - Profile
+      summary: Удалить свой аватар
+      operationId: deleteAvatar
+      description: Удалить свой аватар
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserProfile
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/me/delete:
+    post:
+      tags:
+      - Profile
+      summary: Удалить свой аккаунт и выбрать судьбу комментариев
+      operationId: deleteOwnAccount
+      description: Требует проверки пароля и, при включённой 2FA, второго фактора. Реакции удаляются, текст
+        комментариев сохраняется обезличенным либо стирается в зависимости от выбора; чужие ответы не удаляются.
+        Единственному владельцу запрещено, пока не передаст роль.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/DeleteAccountRequest
+      responses:
+        '204':
+          description: Аккаунт удалён; сеансы отозваны
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/admin/users:
+    get:
+      tags:
+      - AdminUsers
+      summary: Список аккаунтов для административного надзора
+      operationId: listUsers
+      description: Только admin/owner с обязательной 2FA. Не предоставляет изменение чужого профиля или принудительное
+        удаление аккаунта.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/Page
+      - $ref: ./common.yaml#/components/parameters/PageSize
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserDirectoryPage
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/admin/users/{userId}:
+    get:
+      tags:
+      - AdminUsers
+      summary: Просмотр статуса аккаунта
+      operationId: getUserAdmin
+      description: Просмотр статуса аккаунта
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - &id001
+        $ref: ./common.yaml#/components/parameters/UserId
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserDirectoryEntry
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./common.yaml#/components/responses/Error404
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/admin/users/{userId}/role:
+    put:
+      tags:
+      - AdminUsers
+      summary: Назначить/снять роль moderator или admin
+      operationId: changeUserRole
+      description: Только Owner может назначать/снимать Admin. Admin может назначать/снимать Moderator у обычных
+        аккаунтов, но не трогать Owner/Admin. Роль Owner этим методом не назначается. Проверяется состояние
+        email и 2FA; новому сотруднику до настройки 2FA служебный доступ запрещён.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/RoleChangeRequest
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: ./common.yaml#/components/schemas/UserDirectoryEntry
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./common.yaml#/components/responses/Error404
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+  /api/admin/users/{userId}/password-recovery:
+    post:
+      tags:
+      - AdminUsers
+      summary: Инициировать ссылку восстановления пароля
+      operationId: startPasswordRecovery
+      description: Администратор подтверждает проверку контроля привязанного подтверждённого email вне API;
+        сервер логирует действие и отправляет одноразовую ссылку. Сама администрация не получает пароль. Модераторы
+        не могут.
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/PasswordRecoveryStart
+      responses:
+        '202':
+          description: Запрос на отправку одноразовой ссылки принят
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./common.yaml#/components/responses/Error404
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/admin/users/{userId}/2fa-recovery:
+    post:
+      tags:
+      - AdminUsers
+      summary: Инициировать контролируемое восстановление 2FA
+      operationId: startAssisted2faRecovery
+      description: 'Для обычного пользователя Admin/Owner при подтверждённом контроле email. Для staff ТОЛЬКО
+        Owner, с проверкой своей 2FA. Для Owner запрещено: существует отдельная аварийная процедура. Выпускает
+        одноразовый email-токен, не выключает фактор в момент запроса.'
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - admin
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      - *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/PasswordRecoveryStart
+      responses:
+        '202':
+          description: Запрос на восстановление 2FA принят
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./common.yaml#/components/responses/Error404
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./common.yaml#/components/responses/Error503
+  /api/owner/transfer:
+    post:
+      tags:
+      - Owner
+      summary: Передать исключительные полномочия владельца
+      operationId: transferOwnership
+      description: 'Только текущий Owner. Целевой аккаунт уже с подтверждённым email и активной 2FA. Передача
+        атомарна: после неё ровно один Owner, прежний теряет высшие права. Все затронутые привилегированные
+        сессии отзываются.'
+      x-contract-zone: foundation
+      security:
+      - SessionCookie: []
+      x-permitted-roles:
+      - owner
+      x-required-auth-states:
+      - active
+      parameters:
+      - $ref: ./common.yaml#/components/parameters/CsrfHeader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./common.yaml#/components/schemas/OwnerTransferRequest
+      responses:
+        '204':
+          description: Право владения передано
+        '400':
+          $ref: ./common.yaml#/components/responses/Error400
+        '401':
+          $ref: ./common.yaml#/components/responses/Error401
+        '403':
+          $ref: ./common.yaml#/components/responses/Error403
+        '404':
+          $ref: ./common.yaml#/components/responses/Error404
+        '409':
+          $ref: ./common.yaml#/components/responses/Error409
+        '422':
+          $ref: ./common.yaml#/components/responses/Error422
+        '429':
+          $ref: ./common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./common.yaml#/components/responses/Error500
+components:
+  securitySchemes:
+    SessionCookie:
+      $ref: ./common.yaml#/components/securitySchemes/SessionCookie
+x-contract-zone: foundation
+x-stability: proposed
