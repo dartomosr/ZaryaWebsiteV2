@@ -1,5 +1,7 @@
+using ZaryaWebSite.Application.Interfaces;
+using ZaryaWebSite.Application.News.Get;
 
-namespace ZaryaWebSiteBackend;
+namespace ZaryaWebSite.WebApi;
 
 public class Program
 {
@@ -8,6 +10,19 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("Frontend", policy =>
+            {
+                policy.WithOrigins("http://127.0.0.1:5173")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
+
+        builder.Services.AddScoped<IStorageProvider, StorageProvider.JsonPlateProvider>();
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetNewsHandler).Assembly));
 
         var app = builder.Build();
 
