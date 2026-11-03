@@ -9,7 +9,7 @@ public class JsonPlateProvider : IStorageProvider
     private const string StorageDirectory = "Storage";
     private const string NewsFileName = "news.json";
 
-    public async Task<IReadOnlyCollection<News>> GetNewsAsync()
+    public async Task<IReadOnlyCollection<Domain.News>> GetNewsAsync(int page, int pageSize)
     {
         var path = Path.Combine(AppContext.BaseDirectory, StorageDirectory, NewsFileName);
         var options = new FileStreamOptions
@@ -24,6 +24,9 @@ public class JsonPlateProvider : IStorageProvider
         await using var stream = new FileStream(path, options);
         var news = await JsonSerializer.DeserializeAsync<List<News>>(stream) ?? [];
 
-        return news;
+        return news
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToArray();
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ZaryaWebSite.WebApi.DTO.Request;
+namespace ZaryaWebSite.WebApi.DTO.Response;
 
-internal record NewsRequestDto
+internal record NewsResponseDto
 {
     [FromForm(Name = "id")]
     internal required string Id { get; init; }
@@ -13,8 +13,8 @@ internal record NewsRequestDto
     [FromForm(Name = "summary")]
     internal required string Summary { get; init; }
     
-    [FromForm(Name = "image")]
-    internal required IFormFile Image { get; init; }
+    [FromForm(Name = "url")]
+    internal required PhysicalFileResult Url { get; init; }
 
     [FromForm(Name = "publishedAt")]
     internal required string PublishedAt { get; init; }

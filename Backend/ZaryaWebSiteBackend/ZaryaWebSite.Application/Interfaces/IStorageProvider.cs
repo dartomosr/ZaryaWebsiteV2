@@ -2,5 +2,5 @@
 
 public interface IStorageProvider
 {
-    public Task<IReadOnlyCollection<Domain.News>> GetNewsAsync();
+    public Task<IReadOnlyCollection<Domain.News>> GetNewsAsync(int page, int pageSize);
 }

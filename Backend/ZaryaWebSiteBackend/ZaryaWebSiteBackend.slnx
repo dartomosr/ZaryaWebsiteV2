@@ -4,6 +4,7 @@
     <Project Path="ZaryaWebSite.Domain/ZaryaWebSite.Domain.csproj" Id="3735608e-372c-4d1d-a0d0-81360129b107" />
   </Folder>
   <Folder Name="/Infrastructure/">
+    <Project Path="ZaryaWebSite.ImageProvider/ZaryaWebSite.ImageProvider.csproj" Id="f6a4a4b8-6ff4-43bd-83d3-b1610a6699b4" />
     <Project Path="ZaryaWebSite.StorageProvider/ZaryaWebSite.StorageProvider.csproj" Id="e47d7167-8d7c-4b3d-aeb0-6dcf352962bf" />
   </Folder>
   <Folder Name="/Presentation/">

@@ -12,12 +12,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\Response\" />
+    <ProjectReference Include="..\ZaryaWebSite.Application\ZaryaWebSite.Application.csproj" />
+    <ProjectReference Include="..\ZaryaWebSite.ImageProvider\ZaryaWebSite.ImageProvider.csproj" />
+    <ProjectReference Include="..\ZaryaWebSite.StorageProvider\ZaryaWebSite.StorageProvider.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZaryaWebSite.Application\ZaryaWebSite.Application.csproj" />
-    <ProjectReference Include="..\ZaryaWebSite.StorageProvider\ZaryaWebSite.StorageProvider.csproj" />
+    <Folder Include="DTO\Request\" />
   </ItemGroup>
 
 </Project>
