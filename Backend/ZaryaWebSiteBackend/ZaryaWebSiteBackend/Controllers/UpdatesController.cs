@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ZaryaWebSite.Application.Images.Get;
 using ZaryaWebSite.Application.Updates.Get;
 using ZaryaWebSite.Application.Updates.GetById;
 using ZaryaWebSite.WebApi.DTO.Response;
@@ -17,8 +16,7 @@ public class UpdatesController(ISender sender) : ControllerBase
 
         var updates = await sender.Send(getUpdatesQuery);
 
-        var tasks = updates.Select(CastUpdateToResponse);
-        var updateResponses = await Task.WhenAll(tasks);
+        var updateResponses = updates.Select(CastUpdateToResponse).ToArray();
 
         return Ok(updateResponses);
     }
@@ -29,21 +27,19 @@ public class UpdatesController(ISender sender) : ControllerBase
         var getUpdateByIdQuery = new GetUpdateByIdQuery(updateId);
 
         var update = await sender.Send(getUpdateByIdQuery);
-        var updateResponse = await CastUpdateToResponse(update);
+        var updateResponse = CastUpdateToResponse(update);
 
         return Ok(updateResponse);
     }
 
-    private async Task<UpdateResponseDto> CastUpdateToResponse(Domain.Update update)
+    private UpdateResponseDto CastUpdateToResponse(Domain.Update update)
     {
-        var getImageQuery = new GetImageQuery(update.Id);
-        var imagePath = await sender.Send(getImageQuery);
         var updateResponseDto = new UpdateResponseDto()
         {
             Id = update.Id.ToString(),
             PublishedAt = update.PublishedAt,
             Summary = update.Summary,
-            Image = PhysicalFile(imagePath, "image/jpeg"),
+            UrlToImage = $"/api/images/{update.Id}",
             Title = update.Title
         };
         return updateResponseDto;
