@@ -1,23 +1,18 @@
-// Предварительный контракт frontend/MSW. Требует согласования с backend.
+// DTO списка соответствует NewsResponse в docs/api-contracts/shared/common.yaml.
 /**
  * @typedef {Object} NewsSummaryDto
- * @property {string} id Непрозрачный идентификатор, не тип ключа БД.
+ * @property {string} id
  * @property {string} title
  * @property {string} summary
- * @property {Blob|null} coverImage Binary image bytes resolved from the multipart response.
- * @property {string} publishedAt ISO 8601, UTC.
+ * @property {string} coverUrl
+ * @property {string} publishedAt
  */
-/**
- * @typedef {Object} NewsPageDto
- * @property {NewsSummaryDto[]} items
- * @property {number} page
- * @property {number} pageSize
- * @property {number|null} nextPage
- */
+
 /**
  * @typedef {Object} ApiErrorDto
  * @property {string} code
  * @property {string} message
  * @property {Record<string, string[]>} [errors]
  */
+
 export {};
