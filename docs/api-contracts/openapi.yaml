@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: ZaryaWebsite API - FOUNDATION + CORE + EXTENDED
-  version: 0.4.0-proposed
+  version: 0.5.0-proposed
   description: 'PROPOSED: зоны 1, 2 и 3 не утверждены backend-разработчиком. Собрано из локальных исходников
     зон и общих компонентов.'
 servers:
@@ -1563,37 +1563,26 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список опубликованных новостей с бинарными обложками
-      description: 'multipart/mixed с бинарными изображениями обязателен по требованию backend-разработчика.
-        Сохраняется существующий frontend/MSW. Первая часть metadata, остальные сопоставляются по Content-ID.
-        Детали протокола: guides/MULTIPART_NEWS.md. Остальные HTTP-детали остаются PROPOSED. Сортировка
-        publishedAt DESC, затем id ASC по согласованному стабильному сравнению. page/pageSize отражают
-        запрос; nextPage=page+1 или null, пустой список всегда nextPage=null. Пагинация не является снимком
-        между запросами. Ошибки до начала тела возвращаются JSON; при обрыве multipart клиент отклоняет
-        весь ответ.'
+      summary: Список новостей с данными обложек
+      description: 'Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize
+        управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано
+        объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png
+        и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки. Подробности
+        и ограничения: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: '#/components/parameters/Page'
       - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
-          description: 'Успешно. Сырой multipart-поток: первая часть Content-ID `<metadata>`, application/json
-            с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий
-            с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если
-            обложек нет, передаётся только часть metadata.'
+          description: Успешный ответ — JSON-массив элементов NewsResponse; пустая выборка возвращает
+            пустой массив.
           content:
-            multipart/mixed:
+            application/json:
               schema:
-                type: string
-                format: binary
-          headers:
-            Cache-Control:
-              description: 'Для текущего клиента без conditional GET: не хранить multipart-ответ; 304
-                не предусмотрен.'
-              schema:
-                type: string
-                enum:
-                - no-store
+                type: array
+                items:
+                  $ref: '#/components/schemas/NewsResponse'
         '400':
           $ref: '#/components/responses/Error400'
         '429':
@@ -7456,56 +7445,6 @@ components:
             производное.
       required:
       - emergencyKey
-    NewsCard:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          minLength: 1
-        title:
-          type: string
-        summary:
-          type: string
-        coverPartId:
-          type: string
-          nullable: true
-          description: Content-ID соответствующей бинарной части multipart/mixed; null означает отсутствие
-            обложки.
-        publishedAt:
-          type: string
-          format: date-time
-          description: UTC ISO 8601, суффикс Z.
-      required:
-      - id
-      - title
-      - summary
-      - coverPartId
-      - publishedAt
-    NewsPage:
-      type: object
-      additionalProperties: false
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/NewsCard'
-        page:
-          type: integer
-          minimum: 1
-        pageSize:
-          type: integer
-          minimum: 1
-          maximum: 50
-        nextPage:
-          type: integer
-          nullable: true
-          minimum: 1
-      required:
-      - items
-      - page
-      - pageSize
-      - nextPage
     AssistedRecoveryStart:
       type: object
       additionalProperties: false
@@ -7523,6 +7462,60 @@ components:
       description: 'Подтверждение внешней проверки email. При восстановлении moderator/admin поле proof
         обязательно: проверяется текущий второй фактор инициатора Owner в этом запросе. Цель Owner запрещена.
         Для цели user proof необязателен.'
+    NewsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+        summary:
+          type: string
+        url:
+          $ref: '#/components/schemas/NewsImageResult'
+        publishedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - title
+      - summary
+      - url
+      - publishedAt
+    NewsImageResult:
+      type: object
+      description: Сериализованный PhysicalFileResult, вложенный в поле DTO url; это не публичная URL-строка.
+      properties:
+        fileName:
+          type: string
+          description: Путь, переданный в PhysicalFile; не использовать как публичную ссылку.
+        contentType:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/webp
+        fileDownloadName:
+          type: string
+        lastModified:
+          type: string
+          format: date-time
+          nullable: true
+        entityTag:
+          type: object
+          nullable: true
+          additionalProperties: true
+        enableRangeProcessing:
+          type: boolean
+      required:
+      - fileName
+      - contentType
+      - fileDownloadName
+      - lastModified
+      - entityTag
+      - enableRangeProcessing
     PublishedNews:
       type: object
       additionalProperties: false

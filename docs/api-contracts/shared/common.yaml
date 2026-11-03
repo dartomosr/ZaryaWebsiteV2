@@ -613,56 +613,6 @@ components:
             производное.
       required:
       - emergencyKey
-    NewsCard:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          minLength: 1
-        title:
-          type: string
-        summary:
-          type: string
-        coverPartId:
-          type: string
-          nullable: true
-          description: Content-ID соответствующей бинарной части multipart/mixed; null означает отсутствие
-            обложки.
-        publishedAt:
-          type: string
-          format: date-time
-          description: UTC ISO 8601, суффикс Z.
-      required:
-      - id
-      - title
-      - summary
-      - coverPartId
-      - publishedAt
-    NewsPage:
-      type: object
-      additionalProperties: false
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/NewsCard'
-        page:
-          type: integer
-          minimum: 1
-        pageSize:
-          type: integer
-          minimum: 1
-          maximum: 50
-        nextPage:
-          type: integer
-          nullable: true
-          minimum: 1
-      required:
-      - items
-      - page
-      - pageSize
-      - nextPage
     AssistedRecoveryStart:
       type: object
       additionalProperties: false
@@ -680,6 +630,60 @@ components:
       description: 'Подтверждение внешней проверки email. При восстановлении moderator/admin поле proof
         обязательно: проверяется текущий второй фактор инициатора Owner в этом запросе. Цель Owner запрещена.
         Для цели user proof необязателен.'
+    NewsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+        summary:
+          type: string
+        url:
+          $ref: '#/components/schemas/NewsImageResult'
+        publishedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - title
+      - summary
+      - url
+      - publishedAt
+    NewsImageResult:
+      type: object
+      description: Сериализованный PhysicalFileResult, вложенный в поле DTO url; это не публичная URL-строка.
+      properties:
+        fileName:
+          type: string
+          description: Путь, переданный в PhysicalFile; не использовать как публичную ссылку.
+        contentType:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/webp
+        fileDownloadName:
+          type: string
+        lastModified:
+          type: string
+          format: date-time
+          nullable: true
+        entityTag:
+          type: object
+          nullable: true
+          additionalProperties: true
+        enableRangeProcessing:
+          type: boolean
+      required:
+      - fileName
+      - contentType
+      - fileDownloadName
+      - lastModified
+      - entityTag
+      - enableRangeProcessing
   parameters:
     CsrfHeader:
       name: X-CSRF-Token

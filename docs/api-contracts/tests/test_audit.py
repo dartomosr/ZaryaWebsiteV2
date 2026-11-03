@@ -237,8 +237,8 @@ class AuditTests(unittest.TestCase):
             for method,op in item.items():
                 for key in ('security','x-permitted-roles','x-required-auth-states'):
                     self.assertEqual(op.get(key),current['paths'][path][method].get(key))
-        for name in ('NewsPage','NewsCard'):
-            self.assertEqual(b['components']['schemas'][name],current['components']['schemas'][name])
+        self.assertEqual(b['components']['schemas']['PublishedNews'],
+                         current['components']['schemas']['PublishedNews'])
 
 
 if __name__=='__main__': unittest.main()

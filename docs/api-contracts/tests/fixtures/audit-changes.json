@@ -1,6 +1,6 @@
 {
   "beforeVersion": "0.3.0-proposed",
-  "afterVersion": "0.4.0-proposed",
+  "afterVersion": "0.5.0-proposed",
   "changes": [
     {
       "path": "/components/responses/Error400/headers",
@@ -338,6 +338,159 @@
       "after": "\\S"
     },
     {
+      "path": "/components/schemas/NewsCard",
+      "kind": "removed",
+      "before": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "coverPartId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Content-ID соответствующей бинарной части multipart/mixed; null означает отсутствие обложки."
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC ISO 8601, суффикс Z."
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "coverPartId",
+          "publishedAt"
+        ]
+      }
+    },
+    {
+      "path": "/components/schemas/NewsImageResult",
+      "kind": "added",
+      "after": {
+        "type": "object",
+        "description": "Сериализованный PhysicalFileResult, вложенный в поле DTO url; это не публичная URL-строка.",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "description": "Путь, переданный в PhysicalFile; не использовать как публичную ссылку."
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
+          },
+          "fileDownloadName": {
+            "type": "string"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityTag": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          },
+          "enableRangeProcessing": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "fileName",
+          "contentType",
+          "fileDownloadName",
+          "lastModified",
+          "entityTag",
+          "enableRangeProcessing"
+        ]
+      }
+    },
+    {
+      "path": "/components/schemas/NewsPage",
+      "kind": "removed",
+      "before": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewsCard"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "nextPage": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "nextPage"
+        ]
+      }
+    },
+    {
+      "path": "/components/schemas/NewsResponse",
+      "kind": "added",
+      "after": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "url": {
+            "$ref": "#/components/schemas/NewsImageResult"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "url",
+          "publishedAt"
+        ]
+      }
+    },
+    {
       "path": "/components/schemas/OwnerTransferRequest/description",
       "kind": "changed",
       "before": "Цель: email подтверждён, 2FA настроена; передача атомарна, прежние привилегированные сессии инвалидируются.",
@@ -551,7 +704,7 @@
       "path": "/info/version",
       "kind": "changed",
       "before": "0.3.0-proposed",
-      "after": "0.4.0-proposed"
+      "after": "0.5.0-proposed"
     },
     {
       "path": "/paths/~1api~1admin~1users/get/responses/200/headers",
@@ -4858,28 +5011,41 @@
       "path": "/paths/~1api~1news/get/description",
       "kind": "changed",
       "before": "Ответ multipart/mixed: первая часть содержит JSON-метаданные, следующие части содержат бинарные изображения. Content-ID обложки связывает бинарную часть с карточкой. Контракт предварительный, backend не подтверждал.",
-      "after": "multipart/mixed с бинарными изображениями обязателен по требованию backend-разработчика. Сохраняется существующий frontend/MSW. Первая часть metadata, остальные сопоставляются по Content-ID. Детали протокола: guides/MULTIPART_NEWS.md. Остальные HTTP-детали остаются PROPOSED. Сортировка publishedAt DESC, затем id ASC по согласованному стабильному сравнению. page/pageSize отражают запрос; nextPage=page+1 или null, пустой список всегда nextPage=null. Пагинация не является снимком между запросами. Ошибки до начала тела возвращаются JSON; при обрыве multipart клиент отклоняет весь ответ."
+      "after": "Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки. Подробности и ограничения: guides/NEWS_RESPONSE.md."
+    },
+    {
+      "path": "/paths/~1api~1news/get/responses/200/content/application~1json",
+      "kind": "added",
+      "after": {
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/NewsResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/paths/~1api~1news/get/responses/200/content/multipart~1mixed",
+      "kind": "removed",
+      "before": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
     },
     {
       "path": "/paths/~1api~1news/get/responses/200/description",
       "kind": "changed",
       "before": "Успешно. Сырой multipart-поток: первая часть Content-ID <metadata>, application/json с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если обложек нет, передаётся только часть metadata.",
-      "after": "Успешно. Сырой multipart-поток: первая часть Content-ID `<metadata>`, application/json с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если обложек нет, передаётся только часть metadata."
+      "after": "Успешный ответ — JSON-массив элементов NewsResponse; пустая выборка возвращает пустой массив."
     },
     {
-      "path": "/paths/~1api~1news/get/responses/200/headers",
-      "kind": "added",
-      "after": {
-        "Cache-Control": {
-          "description": "Для текущего клиента без conditional GET: не хранить multipart-ответ; 304 не предусмотрен.",
-          "schema": {
-            "type": "string",
-            "enum": [
-              "no-store"
-            ]
-          }
-        }
-      }
+      "path": "/paths/~1api~1news/get/summary",
+      "kind": "changed",
+      "before": "Список опубликованных новостей с бинарными обложками",
+      "after": "Список новостей с данными обложек"
     },
     {
       "path": "/paths/~1api~1news/get/x-stability",

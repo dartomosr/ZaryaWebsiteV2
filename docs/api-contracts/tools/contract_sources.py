@@ -258,7 +258,7 @@ def build_contract(documents):
         'info': {
             'title': ('ZaryaWebsite API - FOUNDATION + CORE + EXTENDED' if has_extended
                       else 'ZaryaWebsite API - FOUNDATION + CORE'),
-            'version': '0.4.0-proposed' if has_extended else '0.2.0-proposed',
+            'version': '0.5.0-proposed' if has_extended else '0.2.0-proposed',
             'description': ('PROPOSED: зоны 1, 2 и 3 не утверждены backend-разработчиком. '
                             'Собрано из локальных исходников зон и общих компонентов.' if has_extended else
                             'PROPOSED: зоны 1 и 2 не утверждены backend-разработчиком. '
@@ -300,5 +300,4 @@ def build_contract(documents):
     if len(identifiers) != len(set(identifiers)):
         raise ValueError('Коллизия operationId между зонами')
     return result
-
 

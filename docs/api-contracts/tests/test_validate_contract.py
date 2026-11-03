@@ -70,7 +70,7 @@ class ContractValidationTests(unittest.TestCase):
             build_contract(self.documents)
 
     def test_component_conflict_is_rejected(self):
-        self.documents['core.yaml']['components']['schemas']['NewsPage'] = {'type': 'string'}
+        self.documents['extended.yaml']['components']['schemas']['NewsResponse'] = {'type': 'string'}
         with self.assertRaisesRegex(ValueError, 'Коллизия components.schemas'):
             build_contract(self.documents)
 
@@ -94,8 +94,20 @@ class ContractValidationTests(unittest.TestCase):
         response['content'] = {'application/json': {'schema': {'type': 'object'}}}
         self.assertTrue(any('отличается от сборки' in error for error in validate(self.documents)))
 
+    def test_news_contract_matches_backend_dto_and_image_formats(self):
+        response = self.documents['core/news.yaml']['paths']['/api/news']['get']['responses']['200']
+        self.assertEqual(response['content']['application/json']['schema'], {
+            'type': 'array', 'items': {
+                '$ref': '../shared/common.yaml#/components/schemas/NewsResponse'}})
+        news_schemas = self.documents['shared/common.yaml']['components']['schemas']
+        news = news_schemas['NewsResponse']
+        self.assertEqual(set(news['required']), {'id', 'title', 'summary', 'url', 'publishedAt'})
+        image_types = news_schemas['NewsImageResult'][
+            'properties']['contentType']['enum']
+        self.assertEqual(set(image_types), {'image/jpeg', 'image/png', 'image/webp'})
+
     def test_schema_and_tag_drift_are_detected(self):
-        self.documents['openapi.yaml']['components']['schemas']['NewsPage']['required'] = []
+        self.documents['openapi.yaml']['components']['schemas']['NewsResponse']['required'] = []
         self.documents['openapi.yaml']['tags'] = []
         self.assertTrue(any('отличается от сборки' in error for error in validate(self.documents)))
 

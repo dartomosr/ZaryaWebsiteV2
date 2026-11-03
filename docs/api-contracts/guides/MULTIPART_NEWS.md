@@ -1,8 +1,8 @@
-# Протокол GET /api/news
+# Устаревший multipart-парсер новостей
 
-[Оглавление](../README.md) · [Исходная операция](../core/news.yaml) · [NewsPage/NewsCard](../shared/common.yaml)
+[Оглавление](../README.md) · [Текущий контракт Backend](NEWS_RESPONSE.md)
 
-Формат `multipart/mixed` с бинарными изображениями обязателен по требованию backend-разработчика. Ни JSON с URL, ни base64 вместо бинарных частей не являются заменой этого контракта. Ниже описан совместимый профиль уже существующего [клиента](../../../Frontend/apps/web/src/api/news.js) и [MSW](../../../Frontend/mocks/news.js). Некоторые ограничения профиля строже общего MIME.
+Этот документ сохранён как описание существующего [клиента](../../../Frontend/apps/web/src/api/news.js) и [MSW](../../../Frontend/mocks/news.js), которые пока ожидают `multipart/mixed`. Он больше **не описывает контракт Backend**: актуальный ответ — JSON DTO, см. [NEWS_RESPONSE.md](NEWS_RESPONSE.md). Клиентскую реализацию эта редакция не меняет.
 
 ## Запрос и метаданные
 

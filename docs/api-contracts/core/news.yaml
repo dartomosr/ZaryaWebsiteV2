@@ -9,37 +9,25 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список опубликованных новостей с бинарными обложками
-      description: 'multipart/mixed с бинарными изображениями обязателен по требованию backend-разработчика.
-        Сохраняется существующий frontend/MSW. Первая часть metadata, остальные сопоставляются по Content-ID.
-        Детали протокола: guides/MULTIPART_NEWS.md. Остальные HTTP-детали остаются PROPOSED. Сортировка
-        publishedAt DESC, затем id ASC по согласованному стабильному сравнению. page/pageSize отражают
-        запрос; nextPage=page+1 или null, пустой список всегда nextPage=null. Пагинация не является снимком
-        между запросами. Ошибки до начала тела возвращаются JSON; при обрыве multipart клиент отклоняет
-        весь ответ.'
+      summary: Список новостей с данными обложек
+      description: 'Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize
+        управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано
+        объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png
+        и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки.
+        Подробности и ограничения: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: ../shared/common.yaml#/components/parameters/Page
       - $ref: ../shared/common.yaml#/components/parameters/PageSize
       responses:
         '200':
-          description: 'Успешно. Сырой multipart-поток: первая часть Content-ID `<metadata>`, application/json
-            с моделью NewsPage; каждая следующая часть содержит байты изображения и Content-ID, совпадающий
-            с coverPartId. Допустимые типы частей изображений: image/jpeg, image/png и image/webp. Если
-            обложек нет, передаётся только часть metadata.'
+          description: Успешный ответ — JSON-массив элементов NewsResponse; пустая выборка возвращает пустой массив.
           content:
-            multipart/mixed:
+            application/json:
               schema:
-                type: string
-                format: binary
-          headers:
-            Cache-Control:
-              description: 'Для текущего клиента без conditional GET: не хранить multipart-ответ; 304
-                не предусмотрен.'
-              schema:
-                type: string
-                enum:
-                - no-store
+                type: array
+                items:
+                  $ref: ../shared/common.yaml#/components/schemas/NewsResponse
         '400':
           $ref: ../shared/common.yaml#/components/responses/Error400
         '429':

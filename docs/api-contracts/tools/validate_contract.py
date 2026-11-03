@@ -113,13 +113,19 @@ def validate(documents, oas_schema=None):
         errors.append('Регистрация: требуется username, displayName, email, password')
     if 'owner' in common['RoleChangeRequest']['properties']['role']['enum']:
         errors.append('Роль owner назначается исключительно через transfer')
-    if set(common['NewsCard']['required']) != {'id', 'title', 'summary', 'coverPartId', 'publishedAt'}:
-        errors.append('NewsCard несовместима с frontend/MSW')
-    if set(common['NewsPage']['required']) != {'items', 'page', 'pageSize', 'nextPage'}:
-        errors.append('NewsPage несовместима с frontend/MSW')
-    news = documents['core.yaml']['paths']['/api/news']['get']['responses']['200']['content']
-    if news != {'multipart/mixed': {'schema': {'type': 'string', 'format': 'binary'}}}:
-        errors.append('GET /api/news должен сохранять бинарный multipart/mixed')
+    news_schemas = documents[COMMON]['components']['schemas']
+    news_response = news_schemas['NewsResponse']
+    if set(news_response['required']) != {'id', 'title', 'summary', 'url', 'publishedAt'}:
+        errors.append('NewsResponse не соответствует DTO Backend')
+    image_result = news_schemas['NewsImageResult']
+    if set(image_result['properties']['contentType']['enum']) != {
+            'image/jpeg', 'image/png', 'image/webp'}:
+        errors.append('NewsImageResult должен допускать JPEG, PNG и WebP')
+    news = documents['core/news.yaml']['paths']['/api/news']['get']['responses']['200']['content']
+    if news != {'application/json': {'schema': {
+            'type': 'array', 'items': {
+                '$ref': '../shared/common.yaml#/components/schemas/NewsResponse'}}}}:
+        errors.append('GET /api/news должен возвращать массив NewsResponse в JSON')
     if documents['core.yaml'].get('x-stability') != 'proposed':
         errors.append('Зона 2 должна оставаться PROPOSED')
     if documents[EXTENDED].get('x-stability') != 'proposed':

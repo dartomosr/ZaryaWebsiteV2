@@ -2,11 +2,11 @@
 
 Контракт описывает единый HTTP API публичного сайта, CMS и модерации. Frontend использует его для API-адаптеров, backend для реализации ASP.NET Core, тестировщик для приёмки. YAML не создаёт работающий сервер.
 
-**Редакция 0.4.0-proposed, 02.11.2026.** Все 119 операций пока `proposed`. **`GET /api/news` обязан возвращать `multipart/mixed` с бинарными изображениями по требованию backend-разработчика**. Остальные детали этого протокола требуют совместного согласования. Клиент и MSW уже разбирают такой ответ; интеграция с реальным API не подтверждена.
+**Редакция 0.5.0-proposed, 03.11.2026.** Все 119 операций пока `proposed`. Контракт `GET /api/news` обновлён по объявленному DTO Backend: JSON-массив, `url` описан как объект `PhysicalFileResult`, `contentType` допускает `image/jpeg`, `image/png` и `image/webp`. Это не строковая публичная ссылка. Фактическая сериализация DTO требует исправления/проверки; существующий frontend/MSW всё ещё ожидает multipart.
 
 ## С чего начать
 
-Frontend-разработчику: [архитектура](guides/ARCHITECTURE.md), руководство нужной области, [HTTP-примеры](guides/EXAMPLES.md). Для списка новостей обязателен [протокол multipart](guides/MULTIPART_NEWS.md).
+Frontend-разработчику: [архитектура](guides/ARCHITECTURE.md), руководство нужной области, [HTTP-примеры](guides/EXAMPLES.md). Формат ответа Backend для списка новостей описан в [руководстве по новостям](guides/NEWS_RESPONSE.md); совместимость текущего клиента требует отдельной задачи.
 
 Backend-разработчику: [источники и открытые решения](guides/ZONES_AND_DECISIONS.md), [безопасность](guides/SECURITY.md), [отчёт аудита](API_AUDIT_REPORT.md), затем Swagger и исходник модуля. В репозитории есть каркас .NET 10 без прикладных контроллеров, EF-моделей и SQL.
 
@@ -21,7 +21,8 @@ Backend-разработчику: [источники и открытые реш
 | [Информационные материалы](guides/INFORMATION.md) | FAQ, PressKit, описание игры, медиа |
 | [Расширенные сценарии](guides/EXTENDED_GUIDE.md) | Мировая Машина, пакеты, ZIP, сравнение редакций |
 | [Безопасность](guides/SECURITY.md) | Серверные проверки и устойчивость |
-| [Multipart](guides/MULTIPART_NEWS.md) | Байты ответа, Content-ID, ошибки и ограничения |
+| [Новости](guides/NEWS_RESPONSE.md) | JSON DTO, сериализованный PhysicalFileResult и MIME обложки |
+| [Старый multipart-клиент](guides/MULTIPART_NEWS.md) | Исторические детали парсера Frontend; не контракт Backend |
 | [HTTP-примеры](guides/EXAMPLES.md) | Последовательности запросов и полные JSON-ответы |
 | [Индекс операций](guides/API_INDEX.md) | Поиск endpoint и редактируемого YAML |
 | [Источники и решения](guides/ZONES_AND_DECISIONS.md) | Требования, предложения и вопросы согласования |
