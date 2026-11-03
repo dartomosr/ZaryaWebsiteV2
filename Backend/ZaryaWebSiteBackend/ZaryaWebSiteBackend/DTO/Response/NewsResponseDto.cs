@@ -1,16 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace ZaryaWebSite.WebApi.DTO.Response;
+﻿namespace ZaryaWebSite.WebApi.DTO.Response;
 
 internal record NewsResponseDto
 {
-    internal required string Id { get; init; }
+    public required string Id { get; init; }
 
-    internal required string Title { get; init; }
+    public required string Title { get; init; }
 
-    internal required string Summary { get; init; }
+    public required string Summary { get; init; }
     
-    internal required PhysicalFileResult Image { get; init; }
+    public required string UrlToImage { get; init; }
 
-    internal required string PublishedAt { get; init; }
+    public required string PublishedAt { get; init; }
 }

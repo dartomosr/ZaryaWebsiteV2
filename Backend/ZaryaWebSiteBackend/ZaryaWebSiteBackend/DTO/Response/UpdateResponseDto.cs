@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace ZaryaWebSite.WebApi.DTO.Response;
 
 internal record UpdateResponseDto
@@ -10,7 +8,7 @@ internal record UpdateResponseDto
 
     public required string Summary { get; init; }
 
-    public required PhysicalFileResult Image { get; init; }
+    public required string UrlToImage { get; init; }
 
     public required string PublishedAt { get; init; }
 }

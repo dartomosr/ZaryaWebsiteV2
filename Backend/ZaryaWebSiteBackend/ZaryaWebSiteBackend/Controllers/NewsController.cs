@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ZaryaWebSite.Application.Images.Get;
 using ZaryaWebSite.Application.News.Get;
 using ZaryaWebSite.Application.News.GetById;
 using ZaryaWebSite.WebApi.DTO.Response;
@@ -17,8 +16,7 @@ public class NewsController(ISender sender) : ControllerBase
 
         var news = await sender.Send(getNewsQuery);
 
-        var tasks = news.Select(CastNewsToResponse);
-        var newsResponses = await Task.WhenAll(tasks);
+        var newsResponses = news.Select(CastNewsToResponse).ToArray();
 
         return Ok(newsResponses);
     }
@@ -29,21 +27,19 @@ public class NewsController(ISender sender) : ControllerBase
         var getNewsByIdQuery = new GetNewsByIdQuery(newsId);
 
         var news = await sender.Send(getNewsByIdQuery);
-        var newsResponse = await CastNewsToResponse(news);
+        var newsResponse = CastNewsToResponse(news);
 
         return Ok(newsResponse);
     }
 
-    private async Task<NewsResponseDto> CastNewsToResponse(Domain.News news)
+    private NewsResponseDto CastNewsToResponse(Domain.News news)
     {
-        var getImageQuery = new GetImageQuery(news.Id);
-        var imagePath = await sender.Send(getImageQuery);
         var newsResponseDto = new NewsResponseDto()
         {
             Id = news.Id.ToString(),
             PublishedAt = news.PublishedAt,
             Summary = news.Summary,
-            Image = PhysicalFile(imagePath, "image/jpeg"),
+            UrlToImage = $"/api/images/{news.Id}",
             Title = news.Title
         };
         return newsResponseDto;
