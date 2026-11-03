@@ -1,40 +1,50 @@
-# GET /api/news: ответ Backend
+# GET /api/news: JSON со ссылками на обложки
 
-[Оглавление](../README.md) · [Исходная операция](../core/news.yaml) · [Контроллер](../../../Backend/ZaryaWebSiteBackend/ZaryaWebSiteBackend/Controllers/NewsController.cs) · [DTO](../../../Backend/ZaryaWebSiteBackend/ZaryaWebSiteBackend/DTO/Response/NewsResponseDto.cs) · [Старый multipart-клиент](MULTIPART_NEWS.md)
+[Оглавление](../README.md) · [Исходная операция](../core/news.yaml) · [Медиа-контракт](../core/media.yaml)
 
-## Запрос
+## Список новостей
 
-`GET /api/news?page=1&pageSize=12`. Контроллер передаёт `page` и `pageSize` в выборку, затем возвращает `Ok(newsResponses)`. Ответ — JSON-массив без объекта пагинации; пустой результат — `[]`. Параметры запроса не повторяются в ответе.
+`GET /api/news?page=1&pageSize=10` принимает `page` от 1 и `pageSize` от 1 до 50. Успешный ответ имеет `Content-Type: application/json` и является обычным JSON-массивом. Пагинация задаётся query-параметрами; объект-обёртка не требуется. Для пустой выборки возвращается `[]`.
 
-## DTO и обложка
+Каждый элемент содержит `id`, `title`, `summary`, `coverUrl` и `publishedAt`. `coverUrl` сериализуется как JSON-строка и содержит URI-reference публичного ресурса изображения. Физические пути сервера и объекты `PhysicalFileResult` в этом DTO не передаются.
 
-Элемент содержит `id`, `title`, `summary`, `url` и `publishedAt`, как в `NewsResponseDto`. `url` — не URL-строка: контроллер присваивает ему результат `PhysicalFile(imagePath, ...)`, поэтому в JSON это объект результата файла. В нём присутствуют `fileName`, `contentType`, `fileDownloadName`, `lastModified`, `entityTag` и `enableRangeProcessing`. `fileName` — путь изображения на сервере, не ссылка для браузера.
+```http
+GET /api/news?page=1&pageSize=10 HTTP/1.1
+Accept: application/json
+```
 
-Контракт допускает `contentType` со значениями `image/jpeg`, `image/png` и `image/webp`:
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
 
-```json
 [
   {
-    "id": "42",
-    "title": "Пример",
-    "summary": "Краткое описание",
-    "url": {
-      "fileName": "images/news/example.webp",
-      "contentType": "image/webp",
-      "fileDownloadName": "",
-      "lastModified": null,
-      "entityTag": null,
-      "enableRangeProcessing": false
-    },
-    "publishedAt": "2026-11-02T19:00:00Z"
+    "id": "news-101",
+    "title": "Новости разработки",
+    "summary": "Рассказываем о новых механиках игры",
+    "coverUrl": "/api/media/101",
+    "publishedAt": "2026-11-03T10:00:00Z"
+  },
+  {
+    "id": "news-102",
+    "title": "Дневник разработчиков",
+    "summary": "Что изменилось за последний месяц",
+    "coverUrl": "/api/media/102",
+    "publishedAt": "2026-11-02T12:00:00Z"
   }
 ]
 ```
 
-Это описание DTO, а не утверждение, что все значения уже формируются корректно: контроллер сейчас передаёт `image/jpeg` конструктору `PhysicalFile` для любого изображения. Для фактического PNG/WebP значение MIME должно определяться по изображению, иначе оно не соответствует этому контракту.
+Идентификаторы и адреса приведены как пример формы данных. Если обложка является обязательной для новости, `coverUrl` обязателен и содержит пригодную для браузера ссылку. Если бизнес-правила допускают новость без обложки, nullable-поведение должно соответствовать отдельному согласованному правилу.
 
-Есть и ограничение сериализации: свойства `NewsResponseDto` объявлены `internal`, а [Program](../../../Backend/ZaryaWebSiteBackend/ZaryaWebSiteBackend/Program.cs) не настраивает сериализатор сверх стандартного `AddControllers()`. Стандартный `System.Text.Json` сериализует публичные свойства, поэтому фактические элементы ответа сейчас могут быть `{}`. OpenAPI описывает объявленную форму DTO; её нельзя считать проверенной wire-формой до исправления видимости/настройки сериализации и интеграционного теста.
+## Загрузка изображения
 
-## Совместимость клиента
+Клиент использует URL как источник изображения, например `<img src={news.coverUrl} alt={news.title} loading="lazy" />`. Браузер загружает файл отдельным GET-запросом. Для стандартного отображения не нужны `fetch`, Blob, Object URL, Base64 или разбор `multipart/mixed`.
 
-Существующий Frontend/MSW ожидает `multipart/mixed`, а не этот JSON-ответ. Его парсер и тесты не изменены в этой задаче; синхронизация клиента с Backend требует отдельной работы. Исторический протокол парсера сохранён в [MULTIPART_NEWS.md](MULTIPART_NEWS.md), но не является контрактом текущего Backend.
+Контракт описывает публичную выдачу по `GET /api/media/{mediaId}`. Ответ 200 содержит бинарное тело с одним из типов `image/jpeg`, `image/png` или `image/webp`. На сервере может применяться `PhysicalFileResult` или эквивалентный HTTP-результат. Сервер определяет формат и доступность файла; его физический путь не раскрывается.
+
+Относительный `coverUrl` разрешается браузером относительно origin страницы. Если API и frontend находятся на разных доменах, backend должен сформировать URL, пригодный для размещения клиента, а инфраструктура должна разрешить такой запрос.
+
+## Границы контракта
+
+Это описание утверждённой формы API-контракта. Оно не подтверждает наличие серверного endpoint, фактическую сериализацию DTO или интеграцию текущего Frontend. Серверная и клиентская реализация остаются отдельной работой.

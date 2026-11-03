@@ -3,6 +3,50 @@ info:
   title: 'ZaryaWebsite CORE: media'
   version: 0.2.0-proposed
 paths:
+  /api/media/{mediaId}:
+    get:
+      tags:
+      - News
+      operationId: getPublicMedia
+      summary: Публичное изображение по идентификатору
+      description: Возвращает байты опубликованного изображения. Физический путь файла клиенту не раскрывается.
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: Изображение
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: ../shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ../shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ../shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ../shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ../shared/common.yaml#/components/responses/Error503
+      x-stability: proposed
   /api/cms/media:
     get:
       tags:

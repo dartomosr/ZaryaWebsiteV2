@@ -375,52 +375,6 @@
       }
     },
     {
-      "path": "/components/schemas/NewsImageResult",
-      "kind": "added",
-      "after": {
-        "type": "object",
-        "description": "Сериализованный PhysicalFileResult, вложенный в поле DTO url; это не публичная URL-строка.",
-        "properties": {
-          "fileName": {
-            "type": "string",
-            "description": "Путь, переданный в PhysicalFile; не использовать как публичную ссылку."
-          },
-          "contentType": {
-            "type": "string",
-            "enum": [
-              "image/jpeg",
-              "image/png",
-              "image/webp"
-            ]
-          },
-          "fileDownloadName": {
-            "type": "string"
-          },
-          "lastModified": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "entityTag": {
-            "type": "object",
-            "nullable": true,
-            "additionalProperties": true
-          },
-          "enableRangeProcessing": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "fileName",
-          "contentType",
-          "fileDownloadName",
-          "lastModified",
-          "entityTag",
-          "enableRangeProcessing"
-        ]
-      }
-    },
-    {
       "path": "/components/schemas/NewsPage",
       "kind": "removed",
       "before": {
@@ -473,8 +427,11 @@
           "summary": {
             "type": "string"
           },
-          "url": {
-            "$ref": "#/components/schemas/NewsImageResult"
+          "coverUrl": {
+            "type": "string",
+            "format": "uri-reference",
+            "minLength": 1,
+            "description": "Публичный URL обложки. Изображение загружается отдельным GET-запросом."
           },
           "publishedAt": {
             "type": "string",
@@ -485,7 +442,7 @@
           "id",
           "title",
           "summary",
-          "url",
+          "coverUrl",
           "publishedAt"
         ]
       }
@@ -4854,6 +4811,75 @@
       "after": "proposed"
     },
     {
+      "path": "/paths/~1api~1media~1{mediaId}",
+      "kind": "added",
+      "after": {
+        "get": {
+          "tags": [
+            "News"
+          ],
+          "operationId": "getPublicMedia",
+          "summary": "Публичное изображение по идентификатору",
+          "description": "Возвращает байты опубликованного изображения. Физический путь файла клиенту не раскрывается.",
+          "x-contract-zone": "core",
+          "security": [],
+          "parameters": [
+            {
+              "name": "mediaId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Изображение",
+              "content": {
+                "image/jpeg": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "image/png": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "image/webp": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/Error400"
+            },
+            "404": {
+              "$ref": "#/components/responses/Error404"
+            },
+            "429": {
+              "$ref": "#/components/responses/Error429"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error500"
+            },
+            "503": {
+              "$ref": "#/components/responses/Error503"
+            }
+          },
+          "x-stability": "proposed"
+        }
+      }
+    },
+    {
       "path": "/paths/~1api~1moderation~1comment-bans/get/responses/200/headers",
       "kind": "added",
       "after": {
@@ -5011,7 +5037,7 @@
       "path": "/paths/~1api~1news/get/description",
       "kind": "changed",
       "before": "Ответ multipart/mixed: первая часть содержит JSON-метаданные, следующие части содержат бинарные изображения. Content-ID обложки связывает бинарную часть с карточкой. Контракт предварительный, backend не подтверждал.",
-      "after": "Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки. Подробности и ограничения: guides/NEWS_RESPONSE.md."
+      "after": "Ответ — JSON-массив без обёртки пагинации. Параметры page и pageSize управляют выборкой, но не повторяются в ответе. coverUrl содержит URI-reference отдельного публичного запроса изображения; бинарное содержимое возвращается маршрутом GET /api/media/{mediaId}. Подробности: guides/NEWS_RESPONSE.md."
     },
     {
       "path": "/paths/~1api~1news/get/responses/200/content/application~1json",
@@ -5045,7 +5071,7 @@
       "path": "/paths/~1api~1news/get/summary",
       "kind": "changed",
       "before": "Список опубликованных новостей с бинарными обложками",
-      "after": "Список новостей с данными обложек"
+      "after": "Список новостей с URL обложек"
     },
     {
       "path": "/paths/~1api~1news/get/x-stability",

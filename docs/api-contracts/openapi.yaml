@@ -1563,12 +1563,10 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список новостей с данными обложек
-      description: 'Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize
-        управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано
-        объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png
-        и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки. Подробности
-        и ограничения: guides/NEWS_RESPONSE.md.'
+      summary: Список новостей с URL обложек
+      description: 'Ответ — JSON-массив без обёртки пагинации. Параметры page и pageSize управляют выборкой,
+        но не повторяются в ответе. coverUrl содержит URI-reference отдельного публичного запроса изображения;
+        бинарное содержимое возвращается маршрутом GET /api/media/{mediaId}. Подробности: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: '#/components/parameters/Page'
@@ -5748,6 +5746,50 @@ paths:
         '428':
           $ref: '#/components/responses/Error428'
       x-stability: proposed
+  /api/media/{mediaId}:
+    get:
+      tags:
+      - News
+      operationId: getPublicMedia
+      summary: Публичное изображение по идентификатору
+      description: Возвращает байты опубликованного изображения. Физический путь файла клиенту не раскрывается.
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: Изображение
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/Error400'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-stability: proposed
   /api/cms/media:
     get:
       tags:
@@ -7473,8 +7515,11 @@ components:
           type: string
         summary:
           type: string
-        url:
-          $ref: '#/components/schemas/NewsImageResult'
+        coverUrl:
+          type: string
+          format: uri-reference
+          minLength: 1
+          description: Публичный URL обложки. Изображение загружается отдельным GET-запросом.
         publishedAt:
           type: string
           format: date-time
@@ -7482,40 +7527,8 @@ components:
       - id
       - title
       - summary
-      - url
+      - coverUrl
       - publishedAt
-    NewsImageResult:
-      type: object
-      description: Сериализованный PhysicalFileResult, вложенный в поле DTO url; это не публичная URL-строка.
-      properties:
-        fileName:
-          type: string
-          description: Путь, переданный в PhysicalFile; не использовать как публичную ссылку.
-        contentType:
-          type: string
-          enum:
-          - image/jpeg
-          - image/png
-          - image/webp
-        fileDownloadName:
-          type: string
-        lastModified:
-          type: string
-          format: date-time
-          nullable: true
-        entityTag:
-          type: object
-          nullable: true
-          additionalProperties: true
-        enableRangeProcessing:
-          type: boolean
-      required:
-      - fileName
-      - contentType
-      - fileDownloadName
-      - lastModified
-      - entityTag
-      - enableRangeProcessing
     PublishedNews:
       type: object
       additionalProperties: false

@@ -9,12 +9,11 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список новостей с данными обложек
-      description: 'Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize
-        управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано
-        объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png
-        и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки.
-        Подробности и ограничения: guides/NEWS_RESPONSE.md.'
+      summary: Список новостей с URL обложек
+      description: 'Ответ — JSON-массив без обёртки пагинации. Параметры page и pageSize
+        управляют выборкой, но не повторяются в ответе. coverUrl содержит URI-reference
+        отдельного публичного запроса изображения; бинарное содержимое возвращается маршрутом
+        GET /api/media/{mediaId}. Подробности: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: ../shared/common.yaml#/components/parameters/Page

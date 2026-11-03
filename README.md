@@ -63,7 +63,7 @@ npm run dev:web:mock
 | [Архитектура frontend](Frontend/ARCHITECTURE_Frontend.md) | Структура приложений, функциональные требования и принципы интерфейсов |
 | [Интеграция backend](Backend/BACKEND_INTEGRATION.md) | Статусы контрактов, API, безопасность, ответственность и переход с MSW |
 | [Общий API-контракт](docs/api-contracts/README.md) | Редакция 0.4: 119 операций, 115 схем, руководства, HTTP-примеры и локальный Swagger UI; статус `PROPOSED` |
-| [Аудит API](docs/api-contracts/API_AUDIT_REPORT.md) | Исправления, результаты проверок и открытые вопросы согласования |
+| [Аудит API](docs/api-contracts/guides/API_AUDIT_REPORT.md) | Исправления, результаты проверок и открытые вопросы согласования |
 | [Инструкции агентов](Frontend/AGENTS_Frontend.md) | Границы изменений и обязательные правила |
 
 Условия использования проекта приведены в [LICENSE.md](LICENSE.md).

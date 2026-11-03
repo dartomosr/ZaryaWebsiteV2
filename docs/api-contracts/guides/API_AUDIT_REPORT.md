@@ -146,7 +146,7 @@ R01–R09 перечислены в реестре с предпочтитель
 
 ```text
 api-contracts/
-  README.md, API_AUDIT_REPORT.md
+  README.md, guides/API_AUDIT_REPORT.md
   foundation.yaml                 редактируемая Foundation
   shared/common.yaml              общие DTO/ошибки/параметры
   core/manifest.yaml              явный список Core-модулей

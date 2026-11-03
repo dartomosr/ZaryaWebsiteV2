@@ -4,8 +4,9 @@ info:
   title: 'ZaryaWebsite API — Зона 2: основной функционал'
   version: 0.2.0-proposed
   description: ПРЕДЛОЖЕНИЕ на согласование с backend. Функциональное ТЗ 0.2 утверждает поведение, но НЕ
-    эти конкретные URL/DTO. Зона 1 не изменяется. Статус PROPOSED. GET /api/news отражает JSON DTO из
-    текущего Backend; совместимость существующего frontend/MSW требует отдельной интеграции.
+    все конкретные URL/DTO. Зона 1 не изменяется. Статус PROPOSED. GET /api/news использует JSON-массив
+    с coverUrl; изображение выдаётся отдельным бинарным запросом. Реализация и интеграция проверяются
+    отдельно.
 servers:
 - url: /
 tags:
@@ -32,12 +33,10 @@ paths:
       - News
       operationId: listPublicNews
       x-contract-zone: core
-      summary: Список новостей с данными обложек
-      description: 'Контракт описывает JSON-массив DTO без обёртки пагинации. Параметры page и pageSize
-        управляют выборкой, но не повторяются в ответе. Поле url объявлено как PhysicalFileResult и описано
-        объектом, а не строковой публичной ссылкой. Допустимые значения contentType: image/jpeg, image/png
-        и image/webp. DTO использует internal-свойства; фактическая сериализация требует проверки. Подробности
-        и ограничения: guides/NEWS_RESPONSE.md.'
+      summary: Список новостей с URL обложек
+      description: 'Ответ — JSON-массив без обёртки пагинации. Параметры page и pageSize управляют выборкой,
+        но не повторяются в ответе. coverUrl содержит URI-reference отдельного публичного запроса изображения;
+        бинарное содержимое возвращается маршрутом GET /api/media/{mediaId}. Подробности: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: ./shared/common.yaml#/components/parameters/Page
@@ -4216,6 +4215,50 @@ paths:
           $ref: ./shared/common.yaml#/components/responses/Error503
         '428':
           $ref: ./shared/common.yaml#/components/responses/Error428
+      x-stability: proposed
+  /api/media/{mediaId}:
+    get:
+      tags:
+      - News
+      operationId: getPublicMedia
+      summary: Публичное изображение по идентификатору
+      description: Возвращает байты опубликованного изображения. Физический путь файла клиенту не раскрывается.
+      x-contract-zone: core
+      security: []
+      parameters:
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: Изображение
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: ./shared/common.yaml#/components/responses/Error400
+        '404':
+          $ref: ./shared/common.yaml#/components/responses/Error404
+        '429':
+          $ref: ./shared/common.yaml#/components/responses/Error429
+        '500':
+          $ref: ./shared/common.yaml#/components/responses/Error500
+        '503':
+          $ref: ./shared/common.yaml#/components/responses/Error503
       x-stability: proposed
   /api/cms/media:
     get:

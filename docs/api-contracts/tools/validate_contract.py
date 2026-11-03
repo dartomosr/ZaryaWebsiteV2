@@ -115,17 +115,25 @@ def validate(documents, oas_schema=None):
         errors.append('Роль owner назначается исключительно через transfer')
     news_schemas = documents[COMMON]['components']['schemas']
     news_response = news_schemas['NewsResponse']
-    if set(news_response['required']) != {'id', 'title', 'summary', 'url', 'publishedAt'}:
-        errors.append('NewsResponse не соответствует DTO Backend')
-    image_result = news_schemas['NewsImageResult']
-    if set(image_result['properties']['contentType']['enum']) != {
-            'image/jpeg', 'image/png', 'image/webp'}:
-        errors.append('NewsImageResult должен допускать JPEG, PNG и WebP')
+    if set(news_response['required']) != {'id', 'title', 'summary', 'coverUrl', 'publishedAt'}:
+        errors.append('NewsResponse должен содержать coverUrl вместе с полями новости')
+    cover_url = news_response['properties']['coverUrl']
+    if cover_url.get('type') != 'string' or cover_url.get('format') != 'uri-reference':
+        errors.append('NewsResponse.coverUrl должен быть строкой формата uri-reference')
     news = documents['core/news.yaml']['paths']['/api/news']['get']['responses']['200']['content']
     if news != {'application/json': {'schema': {
             'type': 'array', 'items': {
                 '$ref': '../shared/common.yaml#/components/schemas/NewsResponse'}}}}:
         errors.append('GET /api/news должен возвращать массив NewsResponse в JSON')
+    media = documents['core/media.yaml']['paths'].get('/api/media/{mediaId}', {}).get('get', {})
+    media_content = media.get('responses', {}).get('200', {}).get('content', {})
+    expected_image_types = {'image/jpeg', 'image/png', 'image/webp'}
+    if media.get('operationId') != 'getPublicMedia' or set(media_content) != expected_image_types:
+        errors.append('GET /api/media/{mediaId} должен выдавать JPEG, PNG и WebP')
+    elif any(value.get('schema', {}).get('type') != 'string'
+             or value.get('schema', {}).get('format') != 'binary'
+             for value in media_content.values()):
+        errors.append('Ответ GET /api/media/{mediaId} должен описывать бинарные данные')
     if documents['core.yaml'].get('x-stability') != 'proposed':
         errors.append('Зона 2 должна оставаться PROPOSED')
     if documents[EXTENDED].get('x-stability') != 'proposed':

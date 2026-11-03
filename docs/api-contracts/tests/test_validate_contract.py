@@ -94,17 +94,19 @@ class ContractValidationTests(unittest.TestCase):
         response['content'] = {'application/json': {'schema': {'type': 'object'}}}
         self.assertTrue(any('отличается от сборки' in error for error in validate(self.documents)))
 
-    def test_news_contract_matches_backend_dto_and_image_formats(self):
+    def test_news_contract_uses_public_cover_url_and_separate_image_route(self):
         response = self.documents['core/news.yaml']['paths']['/api/news']['get']['responses']['200']
         self.assertEqual(response['content']['application/json']['schema'], {
             'type': 'array', 'items': {
                 '$ref': '../shared/common.yaml#/components/schemas/NewsResponse'}})
         news_schemas = self.documents['shared/common.yaml']['components']['schemas']
         news = news_schemas['NewsResponse']
-        self.assertEqual(set(news['required']), {'id', 'title', 'summary', 'url', 'publishedAt'})
-        image_types = news_schemas['NewsImageResult'][
-            'properties']['contentType']['enum']
-        self.assertEqual(set(image_types), {'image/jpeg', 'image/png', 'image/webp'})
+        self.assertEqual(set(news['required']), {'id', 'title', 'summary', 'coverUrl', 'publishedAt'})
+        self.assertEqual(news['properties']['coverUrl']['format'], 'uri-reference')
+        media = self.documents['core/media.yaml']['paths']['/api/media/{mediaId}']['get']
+        self.assertEqual(media['operationId'], 'getPublicMedia')
+        self.assertEqual(set(media['responses']['200']['content']), {
+            'image/jpeg', 'image/png', 'image/webp'})
 
     def test_schema_and_tag_drift_are_detected(self):
         self.documents['openapi.yaml']['components']['schemas']['NewsResponse']['required'] = []
@@ -233,7 +235,7 @@ class ContractValidationTests(unittest.TestCase):
     def test_generated_index_contains_all_operations_and_correct_sources(self):
         index = build_index(self.documents)
         self.assertEqual(sum(line.startswith(('| GET |', '| POST |', '| PUT |', '| PATCH |', '| DELETE |'))
-                             for line in index.splitlines()), 119)
+                             for line in index.splitlines()), 120)
         self.assertIn('| GET | `/api/news` | `listPublicNews` | [core/news.yaml]', index)
         self.assertIn('| POST | `/api/cms/news` |', index)
 
@@ -258,9 +260,9 @@ class ContractValidationTests(unittest.TestCase):
 
     def test_three_zone_totals(self):
         bundle = build_contract(self.documents)
-        self.assertEqual(len(bundle['paths']), 102)
-        self.assertEqual(sum(len(item) for item in bundle['paths'].values()), 119)
-        self.assertEqual(len(bundle['components']['schemas']), 115)
+        self.assertEqual(len(bundle['paths']), 103)
+        self.assertEqual(sum(len(item) for item in bundle['paths'].values()), 120)
+        self.assertEqual(len(bundle['components']['schemas']), 114)
         self.assertEqual(len(self.documents[EXTENDED]['components']['schemas']), 18)
 
     def test_world_machine_only_exposes_text_and_supports_conditional_get(self):

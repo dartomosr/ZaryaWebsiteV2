@@ -641,8 +641,11 @@ components:
           type: string
         summary:
           type: string
-        url:
-          $ref: '#/components/schemas/NewsImageResult'
+        coverUrl:
+          type: string
+          format: uri-reference
+          minLength: 1
+          description: Публичный URL обложки. Изображение загружается отдельным GET-запросом.
         publishedAt:
           type: string
           format: date-time
@@ -650,40 +653,8 @@ components:
       - id
       - title
       - summary
-      - url
+      - coverUrl
       - publishedAt
-    NewsImageResult:
-      type: object
-      description: Сериализованный PhysicalFileResult, вложенный в поле DTO url; это не публичная URL-строка.
-      properties:
-        fileName:
-          type: string
-          description: Путь, переданный в PhysicalFile; не использовать как публичную ссылку.
-        contentType:
-          type: string
-          enum:
-          - image/jpeg
-          - image/png
-          - image/webp
-        fileDownloadName:
-          type: string
-        lastModified:
-          type: string
-          format: date-time
-          nullable: true
-        entityTag:
-          type: object
-          nullable: true
-          additionalProperties: true
-        enableRangeProcessing:
-          type: boolean
-      required:
-      - fileName
-      - contentType
-      - fileDownloadName
-      - lastModified
-      - entityTag
-      - enableRangeProcessing
   parameters:
     CsrfHeader:
       name: X-CSRF-Token

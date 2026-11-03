@@ -175,6 +175,7 @@
 | DELETE | `/api/cms/media/{mediaId}` | `deleteCmsMedia` | [core/media.yaml](../core/media.yaml) |
 | GET | `/api/cms/media/{mediaId}` | `getCmsMedia` | [core/media.yaml](../core/media.yaml) |
 | GET | `/api/cms/media/{mediaId}/references` | `listMediaReferences` | [core/media.yaml](../core/media.yaml) |
+| GET | `/api/media/{mediaId}` | `getPublicMedia` | [core/media.yaml](../core/media.yaml) |
 
 ## extended
 

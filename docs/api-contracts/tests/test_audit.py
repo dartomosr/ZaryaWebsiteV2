@@ -231,7 +231,7 @@ class AuditTests(unittest.TestCase):
         old=json.loads((ROOT/'tests/fixtures/extended-baseline.json').read_text(encoding='utf8'))
         self.assertEqual(digest(b),old['specification_sha256'])
         current=self.bundle
-        self.assertEqual(set(b['paths']),set(current['paths']))
+        self.assertTrue(set(b['paths']).issubset(current['paths']))
         for path,item in b['paths'].items():
             self.assertEqual(set(item),set(current['paths'][path]))
             for method,op in item.items():
