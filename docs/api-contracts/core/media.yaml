@@ -3,17 +3,17 @@ info:
   title: 'ZaryaWebsite CORE: media'
   version: 0.2.0-proposed
 paths:
-  /api/media/{mediaId}:
+  /api/images/{id}:
     get:
       tags:
       - News
-      operationId: getPublicMedia
+      operationId: getPublicImage
       summary: Публичное изображение по идентификатору
       description: Возвращает байты опубликованного изображения. Физический путь файла клиенту не раскрывается.
       x-contract-zone: core
       security: []
       parameters:
-      - name: mediaId
+      - name: id
         in: path
         required: true
         schema:

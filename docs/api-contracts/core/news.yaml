@@ -13,7 +13,7 @@ paths:
       description: 'Ответ — JSON-массив без обёртки пагинации. Параметры page и pageSize
         управляют выборкой, но не повторяются в ответе. coverUrl содержит URI-reference
         отдельного публичного запроса изображения; бинарное содержимое возвращается маршрутом
-        GET /api/media/{mediaId}. Подробности: guides/NEWS_RESPONSE.md.'
+        GET /api/images/{id}. Подробности: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: ../shared/common.yaml#/components/parameters/Page

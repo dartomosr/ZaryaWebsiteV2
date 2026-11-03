@@ -125,15 +125,15 @@ def validate(documents, oas_schema=None):
             'type': 'array', 'items': {
                 '$ref': '../shared/common.yaml#/components/schemas/NewsResponse'}}}}:
         errors.append('GET /api/news должен возвращать массив NewsResponse в JSON')
-    media = documents['core/media.yaml']['paths'].get('/api/media/{mediaId}', {}).get('get', {})
+    media = documents['core/media.yaml']['paths'].get('/api/images/{id}', {}).get('get', {})
     media_content = media.get('responses', {}).get('200', {}).get('content', {})
     expected_image_types = {'image/jpeg', 'image/png', 'image/webp'}
-    if media.get('operationId') != 'getPublicMedia' or set(media_content) != expected_image_types:
-        errors.append('GET /api/media/{mediaId} должен выдавать JPEG, PNG и WebP')
+    if media.get('operationId') != 'getPublicImage' or set(media_content) != expected_image_types:
+        errors.append('GET /api/images/{id} должен выдавать JPEG, PNG и WebP')
     elif any(value.get('schema', {}).get('type') != 'string'
              or value.get('schema', {}).get('format') != 'binary'
              for value in media_content.values()):
-        errors.append('Ответ GET /api/media/{mediaId} должен описывать бинарные данные')
+        errors.append('Ответ GET /api/images/{id} должен описывать бинарные данные')
     if documents['core.yaml'].get('x-stability') != 'proposed':
         errors.append('Зона 2 должна оставаться PROPOSED')
     if documents[EXTENDED].get('x-stability') != 'proposed':

@@ -103,8 +103,10 @@ class ContractValidationTests(unittest.TestCase):
         news = news_schemas['NewsResponse']
         self.assertEqual(set(news['required']), {'id', 'title', 'summary', 'coverUrl', 'publishedAt'})
         self.assertEqual(news['properties']['coverUrl']['format'], 'uri-reference')
-        media = self.documents['core/media.yaml']['paths']['/api/media/{mediaId}']['get']
-        self.assertEqual(media['operationId'], 'getPublicMedia')
+        media_paths = self.documents['core/media.yaml']['paths']
+        self.assertNotIn('/api/media/{mediaId}', media_paths)
+        media = media_paths['/api/images/{id}']['get']
+        self.assertEqual(media['operationId'], 'getPublicImage')
         self.assertEqual(set(media['responses']['200']['content']), {
             'image/jpeg', 'image/png', 'image/webp'})
 

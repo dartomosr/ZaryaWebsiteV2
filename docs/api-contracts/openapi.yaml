@@ -1566,7 +1566,7 @@ paths:
       summary: Список новостей с URL обложек
       description: 'Ответ — JSON-массив без обёртки пагинации. Параметры page и pageSize управляют выборкой,
         но не повторяются в ответе. coverUrl содержит URI-reference отдельного публичного запроса изображения;
-        бинарное содержимое возвращается маршрутом GET /api/media/{mediaId}. Подробности: guides/NEWS_RESPONSE.md.'
+        бинарное содержимое возвращается маршрутом GET /api/images/{id}. Подробности: guides/NEWS_RESPONSE.md.'
       security: []
       parameters:
       - $ref: '#/components/parameters/Page'
@@ -5746,17 +5746,17 @@ paths:
         '428':
           $ref: '#/components/responses/Error428'
       x-stability: proposed
-  /api/media/{mediaId}:
+  /api/images/{id}:
     get:
       tags:
       - News
-      operationId: getPublicMedia
+      operationId: getPublicImage
       summary: Публичное изображение по идентификатору
       description: Возвращает байты опубликованного изображения. Физический путь файла клиенту не раскрывается.
       x-contract-zone: core
       security: []
       parameters:
-      - name: mediaId
+      - name: id
         in: path
         required: true
         schema:
