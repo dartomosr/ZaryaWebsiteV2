@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTO\Request\**" />
+    <Content Remove="DTO\Request\**" />
+    <EmbeddedResource Remove="DTO\Request\**" />
+    <None Remove="DTO\Request\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
   </ItemGroup>
@@ -15,10 +22,6 @@
     <ProjectReference Include="..\ZaryaWebSite.Application\ZaryaWebSite.Application.csproj" />
     <ProjectReference Include="..\ZaryaWebSite.ImageProvider\ZaryaWebSite.ImageProvider.csproj" />
     <ProjectReference Include="..\ZaryaWebSite.StorageProvider\ZaryaWebSite.StorageProvider.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DTO\Request\" />
   </ItemGroup>
 
 </Project>

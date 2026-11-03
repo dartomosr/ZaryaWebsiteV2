@@ -24,7 +24,13 @@ public class Program
             });
         });
 
-        builder.Services.AddScoped<IStorageProvider, StorageProvider.JsonPlateProvider>();
+        builder.Services.AddScoped<IStorageProvider>(services =>
+        {
+            var configuration = services.GetRequiredService<IConfiguration>();
+            var newsFilePath = Path.GetFullPath(configuration["NewsStorage:Path"]!, AppContext.BaseDirectory);
+            var updatesFilePath = Path.GetFullPath(configuration["UpdatesStorage:Path"]!, AppContext.BaseDirectory);
+            return new StorageProvider.JsonProvider(newsFilePath, updatesFilePath);
+        });
         builder.Services.AddScoped<IImageProvider, ImageProvider.ImageProvider>();
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetNewsHandler).Assembly));
 

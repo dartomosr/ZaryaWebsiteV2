@@ -13,6 +13,8 @@
   <ItemGroup>
     <Content Include="..\..\..\Storage\news.json" Link="Storage\news.json"
              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\..\Storage\updates.json" Link="Storage\updates.json"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

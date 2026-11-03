@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ZaryaWebSite.Application.Images.Get;
 using ZaryaWebSite.Application.News.Get;
+using ZaryaWebSite.Application.News.GetById;
 using ZaryaWebSite.WebApi.DTO.Response;
 
 namespace ZaryaWebSite.WebApi.Controllers;
@@ -22,6 +23,17 @@ public class NewsController(ISender sender) : ControllerBase
         return Ok(newsResponses);
     }
 
+    [HttpGet("{newsId}")]
+    public async Task<IActionResult> GetNewsById(int newsId)
+    {
+        var getNewsByIdQuery = new GetNewsByIdQuery(newsId);
+
+        var news = await sender.Send(getNewsByIdQuery);
+        var newsResponse = await CastNewsToResponse(news);
+
+        return Ok(newsResponse);
+    }
+
     private async Task<NewsResponseDto> CastNewsToResponse(Domain.News news)
     {
         var getImageQuery = new GetImageQuery(news.Id);
@@ -31,7 +43,7 @@ public class NewsController(ISender sender) : ControllerBase
             Id = news.Id.ToString(),
             PublishedAt = news.PublishedAt,
             Summary = news.Summary,
-            Url = PhysicalFile(imagePath, "image/jpeg"),
+            Image = PhysicalFile(imagePath, "image/jpeg"),
             Title = news.Title
         };
         return newsResponseDto;
