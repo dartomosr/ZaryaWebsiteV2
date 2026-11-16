@@ -71,7 +71,7 @@ export default function NewsPage() {
   }
 
   useEffect(() => {
-    // load обновляет состояние после await.
+    // Состояние обновляется после await внутри load.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
 

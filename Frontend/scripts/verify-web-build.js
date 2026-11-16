@@ -2,7 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-// Проверяем готовые ресурсы, включая ошибочный production build --mode mock.
+// Запрещаем ресурсы MSW даже при сборке с --mode mock.
 const root = fileURLToPath(new URL('../apps/web/dist/', import.meta.url));
 const forbidden = /mockServiceWorker|virtual:msw|\[MSW\]|mock-news-|Вымышленный материал|Тестовые данные|next-page-error/;
 /** @param {string} directory */

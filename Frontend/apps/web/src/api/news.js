@@ -36,7 +36,7 @@ export async function getNews({ page = 1, pageSize = 12, signal } = {}) {
     });
     const items = await readNewsResponse(response, pageSize);
 
-    // Относительные ссылки относятся к origin API, даже если сайт размещён отдельно.
+    // Относительные обложки разрешаются от origin API.
     const apiOrigin = url.origin + '/';
 
     return items.map(item => ({

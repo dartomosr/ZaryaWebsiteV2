@@ -1,4 +1,4 @@
-// DTO списка соответствует NewsResponse в docs/api-contracts/shared/common.yaml.
+// DTO соответствует NewsResponse из OpenAPI.
 /**
  * @typedef {Object} NewsSummaryDto
  * @property {string} id

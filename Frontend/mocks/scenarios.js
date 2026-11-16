@@ -2,7 +2,7 @@ import { HttpNetworkFrame } from 'msw/experimental';
 
 export const scenarios = ['default', 'empty', 'slow', 'error', 'network-error', 'next-page-error'];
 
-/** Неизвестные запросы нашего API не должны уходить в реальную сеть.
+/** Блокирует неизвестные запросы API.
  * @param {string} baseUrl
  * @returns {import('msw').UnhandledFrameHandle}
  */
