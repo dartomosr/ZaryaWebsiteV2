@@ -5,7 +5,7 @@ import {
 } from '../../../entities/news/index.js';
 
 export default function NewsPage() {
-  const { items, loading, error, hasMore, loadMore } = useNewsFeed(12);
+  const { items, loading, error, hasMore, loadMore } = useNewsFeed();
   let buttonText = items.length > 0 ? 'Показать ещё' : 'Загрузить новости';
   if (error) {
     buttonText = 'Повторить попытку';
@@ -15,6 +15,7 @@ export default function NewsPage() {
     <main
       id="content"
       className="container page-content"
+      tabIndex={-1}
     >
       <header className="page-heading">
         <p className="eyebrow">ЗАРЯ / Журнал</p>

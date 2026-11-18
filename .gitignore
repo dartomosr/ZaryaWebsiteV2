@@ -22,6 +22,7 @@ AGENTS.md
 
 # NuGet packages (keep package lock files tracked)
 **/packages/
+!/Frontend/packages/
 *.nupkg
 *.snupkg
 

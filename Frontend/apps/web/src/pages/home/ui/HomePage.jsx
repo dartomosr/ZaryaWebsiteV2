@@ -1,14 +1,18 @@
+import { Link } from 'react-router';
 import {
   LOAD_ERROR,
   NewsCard,
-  useNewsFeed,
+  useLatestNews,
 } from '../../../entities/news/index.js';
 
 export default function HomePage() {
-  const { items, loading, error, loadMore } = useNewsFeed(3);
+  const { items, loading, error, retry } = useLatestNews();
 
   return (
-    <main id="content">
+    <main
+      id="content"
+      tabIndex={-1}
+    >
       <section className="hero">
         <div className="container hero__layout">
           <div className="hero__copy">
@@ -20,12 +24,12 @@ export default function HomePage() {
             <p className="lead">
               Новости проекта и материалы об игре в одном месте.
             </p>
-            <a
+            <Link
               className="button"
-              href="/news"
+              to="/news"
             >
               Читать новости <span aria-hidden="true">↗</span>
-            </a>
+            </Link>
           </div>
           <div
             className="hero-map"
@@ -65,12 +69,12 @@ export default function HomePage() {
             <p className="eyebrow">Журнал проекта</p>
             <h2 id="latest-title">Последние новости</h2>
           </div>
-          <a
+          <Link
             className="text-link"
-            href="/news"
+            to="/news"
           >
             Все новости <span aria-hidden="true">↗</span>
-          </a>
+          </Link>
         </div>
         <div className="news-grid news-grid--preview">
           {items.map((item) => (
@@ -96,7 +100,7 @@ export default function HomePage() {
             <p role="alert">{LOAD_ERROR}</p>
             <button
               className="button button--outline"
-              onClick={loadMore}
+              onClick={retry}
             >
               Повторить попытку
             </button>

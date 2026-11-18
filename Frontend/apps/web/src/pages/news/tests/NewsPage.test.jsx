@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import { http, HttpResponse } from 'msw/http';
 import { delay } from 'msw/utils/delay';
 import NewsPage from '../ui/NewsPage.jsx';
 import { LOAD_ERROR } from '../../../entities/news/index.js';
+import { renderWithProviders } from '../../../shared/tests/renderWithProviders.jsx';
 import { server } from '../../../../../../mocks/server.js';
 import { news, newsHandlers } from '../../../../../../mocks/news.js';
 
@@ -16,7 +17,7 @@ function useScenario(name) {
 
 describe('Новости через API и MSW', () => {
   test('показывает загрузку, подгружает страницы и скрывает кнопку в конце', async () => {
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Загрузка');
     expect(screen.getByRole('button')).toBeDisabled();
@@ -36,7 +37,7 @@ describe('Новости через API и MSW', () => {
 
   test('показывает пустой список', async () => {
     useScenario('empty');
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
 
     await screen.findByText('Опубликованных новостей пока нет.');
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -46,7 +47,7 @@ describe('Новости через API и MSW', () => {
     'ошибка %s допускает повторную загрузку',
     async (name) => {
       useScenario(name);
-      render(<NewsPage />);
+      renderWithProviders(<NewsPage />);
 
       expect(await screen.findByRole('alert')).toHaveTextContent(LOAD_ERROR);
       useScenario('default');
@@ -60,7 +61,7 @@ describe('Новости через API и MSW', () => {
 
   test('сохраняет карточки и повторяет ту же страницу после ошибки', async () => {
     useScenario('next-page-error');
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
 
     await screen.findByText('Тестовая новость 001');
     fireEvent.click(screen.getByRole('button', { name: 'Показать ещё' }));
@@ -73,20 +74,20 @@ describe('Новости через API и MSW', () => {
   });
 
   test('во время следующего запроса сохраняет карточки и блокирует повторные клики', async () => {
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
     await screen.findByText('Тестовая новость 001');
 
     useScenario('slow');
     fireEvent.click(screen.getByRole('button', { name: 'Показать ещё' }));
 
-    expect(screen.getByRole('button')).toBeDisabled();
+    await waitFor(() => expect(screen.getByRole('button')).toBeDisabled());
     expect(screen.getAllByRole('article')).toHaveLength(12);
     await screen.findByText('Тестовая новость 013', {}, { timeout: 3000 });
   });
 
   test('не отображает неподходящий ответ как успешную загрузку', async () => {
     server.use(http.get(base + 'news', () => HttpResponse.json({ items: [] })));
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
 
     await screen.findByRole('alert');
   });
@@ -108,7 +109,7 @@ describe('Новости через API и MSW', () => {
       }),
     );
 
-    const view = render(<NewsPage />);
+    const view = renderWithProviders(<NewsPage />);
     await waitFor(() => expect(started).toBe(true));
 
     view.unmount();
@@ -117,7 +118,7 @@ describe('Новости через API и MSW', () => {
 
   test('не теряет данные из-за повторного эффекта StrictMode', async () => {
     const { StrictMode } = await import('react');
-    render(
+    renderWithProviders(
       <StrictMode>
         <NewsPage />
       </StrictMode>,
@@ -137,7 +138,7 @@ describe('Новости через API и MSW', () => {
         return HttpResponse.json(page === 1 ? news.slice(0, 12) : []);
       }),
     );
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
 
     await screen.findByText('Тестовая новость 001');
     expect(pages).toEqual([1]);
@@ -159,7 +160,7 @@ describe('Новости через API и MSW', () => {
         return HttpResponse.json(pageItems);
       }),
     );
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
     await screen.findByText('Тестовая новость 001');
     fireEvent.click(screen.getByRole('button', { name: 'Показать ещё' }));
     await screen.findByText('Тестовая новость 013');
@@ -168,7 +169,7 @@ describe('Новости через API и MSW', () => {
   });
 
   test('повторные клики отправляют только один запрос следующей страницы', async () => {
-    render(<NewsPage />);
+    renderWithProviders(<NewsPage />);
     await screen.findByText('Тестовая новость 001');
     let requests = 0;
 
@@ -197,7 +198,7 @@ describe('Новости через API и MSW', () => {
     );
 
     try {
-      const view = render(<NewsPage />);
+      const view = renderWithProviders(<NewsPage />);
       await screen.findByText('Тестовая новость 001');
       const image = view.container.querySelector('img');
 

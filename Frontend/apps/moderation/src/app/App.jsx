@@ -1,6 +1,6 @@
-import AccessUnavailablePage from '../pages/AccessUnavailablePage.jsx';
+import { AccessUnavailablePage } from '@zarya/ui';
 
 // Не подключать защищённые экраны до готовности API сессии.
 export default function App() {
-  return <AccessUnavailablePage />;
+  return <AccessUnavailablePage appName="Модерация" />;
 }

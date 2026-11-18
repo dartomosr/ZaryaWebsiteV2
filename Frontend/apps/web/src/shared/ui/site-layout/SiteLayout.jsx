@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link, NavLink } from 'react-router';
 
-/** @param {{ children: import('react').ReactNode, pathname: string }} props */
-export function SiteLayout({ children, pathname }) {
+/** @param {{ children: import('react').ReactNode }} props */
+export function SiteLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -14,9 +15,10 @@ export function SiteLayout({ children, pathname }) {
       </a>
       <header className="site-header">
         <div className="container site-header__inner">
-          <a
+          <Link
             className="brand"
-            href="/"
+            to="/"
+            onClick={() => setMenuOpen(false)}
             aria-label="ЗАРЯ: Марш Революции, главная"
           >
             <span
@@ -28,7 +30,7 @@ export function SiteLayout({ children, pathname }) {
             <span>
               ЗАРЯ<small>Марш Революции</small>
             </span>
-          </a>
+          </Link>
           <button
             className="menu-toggle button button--outline"
             aria-expanded={menuOpen}
@@ -42,18 +44,20 @@ export function SiteLayout({ children, pathname }) {
             className={menuOpen ? 'navigation navigation--open' : 'navigation'}
             aria-label="Основная навигация"
           >
-            <a
-              href="/"
-              aria-current={pathname === '/' ? 'page' : undefined}
+            <NavLink
+              to="/"
+              end
+              onClick={() => setMenuOpen(false)}
             >
               Главная
-            </a>
-            <a
-              href="/news"
-              aria-current={pathname === '/news' ? 'page' : undefined}
+            </NavLink>
+            <NavLink
+              to="/news"
+              end
+              onClick={() => setMenuOpen(false)}
             >
               Новости
-            </a>
+            </NavLink>
           </nav>
         </div>
       </header>

@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "engines": {
     "node": ">=24.0.0 <25",
@@ -17,9 +18,9 @@
     "lint": "eslint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "typecheck": "npm run typecheck --workspaces",
-    "test:unit": "npm run test:unit --workspaces",
-    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspace apps",
+    "test:unit": "npm run test:unit --workspace apps",
+    "build": "npm run build --workspace apps",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:unit && npm run build",
     "test:e2e": "playwright test",
     "dev:web:mock": "npm run dev:mock --workspace @zarya/web"

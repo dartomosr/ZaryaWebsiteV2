@@ -11,6 +11,7 @@
     "test:unit": "vitest run"
   },
   "dependencies": {
+    "@zarya/ui": "0.1.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   }
