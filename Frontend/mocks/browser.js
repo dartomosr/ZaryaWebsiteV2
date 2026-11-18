@@ -1,7 +1,7 @@
 import { network } from 'virtual:msw';
 import { newsHandlers } from './news.js';
 import { scenarios, unhandledApi } from './scenarios.js';
-import { apiBaseUrl } from '../apps/web/src/api/news.js';
+import { apiBaseUrl } from '../apps/web/src/shared/config/index.js';
 
 export async function enableMocking() {
   const scenario = import.meta.env.VITE_MOCK_SCENARIO || 'default';

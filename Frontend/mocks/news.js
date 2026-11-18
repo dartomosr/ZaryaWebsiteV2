@@ -10,7 +10,7 @@ const testPixel = new Uint8Array([
   174, 66, 96, 130,
 ]);
 
-/** @type {import('../apps/web/src/api/news.contract.js').NewsSummaryDto[]} */
+/** @type {import('../apps/web/src/entities/news/api/news.contract.js').NewsSummaryDto[]} */
 export const news = Array.from({ length: 26 }, (_, index) => ({
   id: `mock-news-${String(index + 1).padStart(3, '0')}`,
   title: `Тестовая новость ${String(index + 1).padStart(3, '0')}`,

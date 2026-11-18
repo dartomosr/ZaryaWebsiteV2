@@ -15,5 +15,5 @@ export default defineConfig({
     strictPort: true,
     proxy: { '/api': { target: 'http://localhost:5257', changeOrigin: true } },
   },
-  test: { environment: 'jsdom', setupFiles: ['./src/test/setup.js'], clearMocks: true },
+  test: { environment: 'jsdom', setupFiles: ['./src/app/tests/setup.js'], clearMocks: true },
 });
