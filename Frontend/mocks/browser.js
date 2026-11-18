@@ -5,7 +5,12 @@ import { apiBaseUrl } from '../apps/web/src/shared/config/index.js';
 
 export async function enableMocking() {
   const scenario = import.meta.env.VITE_MOCK_SCENARIO || 'default';
-  if (!scenarios.includes(scenario)) throw new Error(`Неизвестный MSW-сценарий: ${scenario}`);
-  network.configure({ handlers: newsHandlers(apiBaseUrl(), scenario), onUnhandledFrame: unhandledApi(apiBaseUrl()) });
+  if (!scenarios.includes(scenario)) {
+    throw new Error(`Неизвестный MSW-сценарий: ${scenario}`);
+  }
+  network.configure({
+    handlers: newsHandlers(apiBaseUrl(), scenario),
+    onUnhandledFrame: unhandledApi(apiBaseUrl()),
+  });
   await network.enable();
 }

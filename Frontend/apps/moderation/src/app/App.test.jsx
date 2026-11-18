@@ -5,8 +5,12 @@ test('не открывает защищённые действия без се�
   const request = vi.spyOn(globalThis, 'fetch');
   try {
     render(<App />);
-    expect(screen.getByRole('heading', {level: 1})).toHaveTextContent('Доступ пока недоступен');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Доступ пока недоступен',
+    );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(request).not.toHaveBeenCalled();
-  } finally { request.mockRestore(); }
+  } finally {
+    request.mockRestore();
+  }
 });

@@ -1,12 +1,14 @@
 import { apiBaseUrl } from '../../../shared/config/index.js';
 
-export const LOAD_ERROR = 'Не удалось выполнить операцию. Повторите попытку позже';
+export const LOAD_ERROR =
+  'Не удалось выполнить операцию. Повторите попытку позже';
 
 /** @typedef {import('./news.contract.js').NewsSummaryDto} NewsSummaryDto */
 
 const NEWS_FIELDS = ['id', 'title', 'summary', 'coverUrl', 'publishedAt'];
 
-const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i;
+const DATE_TIME_PATTERN =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i;
 
 /**
  * @param {{page?: number, pageSize?: number, signal?: AbortSignal}} [options]
@@ -14,7 +16,8 @@ const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+
  */
 export async function getNews({ page = 1, pageSize = 12, signal } = {}) {
   const validPage = Number.isInteger(page) && page >= 1;
-  const validPageSize = Number.isInteger(pageSize) && pageSize >= 1 && pageSize <= 50;
+  const validPageSize =
+    Number.isInteger(pageSize) && pageSize >= 1 && pageSize <= 50;
 
   if (!validPage || !validPageSize) {
     throw new Error(LOAD_ERROR);
@@ -34,7 +37,7 @@ export async function getNews({ page = 1, pageSize = 12, signal } = {}) {
     // Относительные обложки разрешаются от origin API.
     const apiOrigin = url.origin + '/';
 
-    return items.map(item => ({
+    return items.map((item) => ({
       ...item,
       coverUrl: new URL(item.coverUrl, apiOrigin).href,
     }));
@@ -90,7 +93,7 @@ function isNews(value) {
 
   const item = /** @type {Record<string, unknown>} */ (value);
 
-  if (Object.keys(item).some(key => !NEWS_FIELDS.includes(key))) {
+  if (Object.keys(item).some((key) => !NEWS_FIELDS.includes(key))) {
     return false;
   }
 
@@ -106,7 +109,10 @@ function isNews(value) {
     return false;
   }
 
-  if (typeof item.publishedAt !== 'string' || !DATE_TIME_PATTERN.test(item.publishedAt)) {
+  if (
+    typeof item.publishedAt !== 'string' ||
+    !DATE_TIME_PATTERN.test(item.publishedAt)
+  ) {
     return false;
   }
 

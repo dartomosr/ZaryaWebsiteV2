@@ -4,5 +4,9 @@ export default defineConfig({
   plugins: [react()],
   server: { host: '127.0.0.1', port: 5174, strictPort: true },
   preview: { host: '127.0.0.1', port: 6174, strictPort: true },
-  test: { environment: 'jsdom', setupFiles: ['./src/test/setup.js'], clearMocks: true },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.js'],
+    clearMocks: true,
+  },
 });

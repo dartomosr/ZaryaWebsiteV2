@@ -42,16 +42,21 @@ describe('Новости через API и MSW', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  test.each(['error', 'network-error'])('ошибка %s допускает повторную загрузку', async name => {
-    useScenario(name);
-    render(<NewsPage />);
+  test.each(['error', 'network-error'])(
+    'ошибка %s допускает повторную загрузку',
+    async (name) => {
+      useScenario(name);
+      render(<NewsPage />);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(LOAD_ERROR);
-    useScenario('default');
-    fireEvent.click(screen.getByRole('button', { name: 'Повторить попытку' }));
-    await screen.findByText('Тестовая новость 001');
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
+      expect(await screen.findByRole('alert')).toHaveTextContent(LOAD_ERROR);
+      useScenario('default');
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Повторить попытку' }),
+      );
+      await screen.findByText('Тестовая новость 001');
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    },
+  );
 
   test('сохраняет карточки и повторяет ту же страницу после ошибки', async () => {
     useScenario('next-page-error');
@@ -90,16 +95,18 @@ describe('Новости через API и MSW', () => {
     let aborted = false;
     let started = false;
 
-    server.use(http.get(base + 'news', async ({ request }) => {
-      request.signal.addEventListener('abort', () => {
-        aborted = true;
-      });
-      started = true;
+    server.use(
+      http.get(base + 'news', async ({ request }) => {
+        request.signal.addEventListener('abort', () => {
+          aborted = true;
+        });
+        started = true;
 
-      await delay(100);
+        await delay(100);
 
-      return HttpResponse.json([]);
-    }));
+        return HttpResponse.json([]);
+      }),
+    );
 
     const view = render(<NewsPage />);
     await waitFor(() => expect(started).toBe(true));
@@ -123,28 +130,35 @@ describe('Новости через API и MSW', () => {
   test('после полной страницы запрашивает пустую только по клику и скрывает кнопку', async () => {
     const pages = /** @type {number[]} */ ([]);
 
-    server.use(http.get(base + 'news', ({ request }) => {
-      const page = Number(new URL(request.url).searchParams.get('page'));
-      pages.push(page);
-      return HttpResponse.json(page === 1 ? news.slice(0, 12) : []);
-    }));
+    server.use(
+      http.get(base + 'news', ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get('page'));
+        pages.push(page);
+        return HttpResponse.json(page === 1 ? news.slice(0, 12) : []);
+      }),
+    );
     render(<NewsPage />);
 
     await screen.findByText('Тестовая новость 001');
     expect(pages).toEqual([1]);
     fireEvent.click(screen.getByRole('button', { name: 'Показать ещё' }));
-    await waitFor(() => expect(screen.queryByRole('button')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole('button')).not.toBeInTheDocument(),
+    );
     expect(pages).toEqual([1, 2]);
     expect(screen.getAllByRole('article')).toHaveLength(12);
   });
 
   test('не добавляет повторные id внутри страницы и между страницами', async () => {
-    server.use(http.get(base + 'news', ({ request }) => {
-      const page = Number(new URL(request.url).searchParams.get('page'));
-      const pageItems = page === 1 ? news.slice(0, 12) : [news[0], news[12], news[12]];
+    server.use(
+      http.get(base + 'news', ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get('page'));
+        const pageItems =
+          page === 1 ? news.slice(0, 12) : [news[0], news[12], news[12]];
 
-      return HttpResponse.json(pageItems);
-    }));
+        return HttpResponse.json(pageItems);
+      }),
+    );
     render(<NewsPage />);
     await screen.findByText('Тестовая новость 001');
     fireEvent.click(screen.getByRole('button', { name: 'Показать ещё' }));
@@ -158,11 +172,13 @@ describe('Новости через API и MSW', () => {
     await screen.findByText('Тестовая новость 001');
     let requests = 0;
 
-    server.use(http.get(base + 'news', async () => {
-      requests += 1;
-      await delay(50);
-      return HttpResponse.json(news.slice(12, 24));
-    }));
+    server.use(
+      http.get(base + 'news', async () => {
+        requests += 1;
+        await delay(50);
+        return HttpResponse.json(news.slice(12, 24));
+      }),
+    );
 
     const button = screen.getByRole('button', { name: 'Показать ещё' });
     fireEvent.click(button);
@@ -174,7 +190,11 @@ describe('Новости через API и MSW', () => {
 
   test('передаёт coverUrl в lazy img при другом origin API и скрывает сломанную обложку', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'https://api.example.test/api/');
-    server.use(http.get('https://api.example.test/api/news', () => HttpResponse.json([news[0]])));
+    server.use(
+      http.get('https://api.example.test/api/news', () =>
+        HttpResponse.json([news[0]]),
+      ),
+    );
 
     try {
       const view = render(<NewsPage />);
@@ -185,7 +205,10 @@ describe('Новости через API и MSW', () => {
         throw new Error('Обложка не найдена');
       }
 
-      expect(image).toHaveAttribute('src', 'https://api.example.test/api/images/mock-news-1');
+      expect(image).toHaveAttribute(
+        'src',
+        'https://api.example.test/api/images/mock-news-1',
+      );
       expect(image).toHaveAttribute('loading', 'lazy');
 
       fireEvent.error(image);

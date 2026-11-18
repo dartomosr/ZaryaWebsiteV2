@@ -37,7 +37,7 @@
 }
 
 .news-card time {
-  font-size: .75rem;
+  font-size: 0.75rem;
   color: var(--accent);
 }
 
@@ -48,6 +48,6 @@
 }
 
 .news-card p {
-  font-size: .9rem;
+  font-size: 0.9rem;
   color: var(--muted);
 }

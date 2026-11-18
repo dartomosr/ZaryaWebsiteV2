@@ -11,8 +11,13 @@ test('главная показывает только три последние
   await screen.findByText('Тестовая новость 003');
   expect(screen.getAllByRole('article')).toHaveLength(3);
   expect(screen.queryByText('Тестовая новость 004')).not.toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Показать ещё' })).not.toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /Все новости/ })).toHaveAttribute('href', '/news');
+  expect(
+    screen.queryByRole('button', { name: 'Показать ещё' }),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Все новости/ })).toHaveAttribute(
+    'href',
+    '/news',
+  );
 });
 
 test('пустой ответ не скрывает главную', async () => {

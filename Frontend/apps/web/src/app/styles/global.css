@@ -65,8 +65,8 @@ h2 {
 .eyebrow {
   color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: .16em;
-  font-size: .75rem;
+  letter-spacing: 0.16em;
+  font-size: 0.75rem;
   font-weight: 650;
   margin-bottom: 18px;
 }
@@ -88,7 +88,7 @@ h2 {
   color: #201a12;
   font-weight: 650;
   cursor: pointer;
-  transition: background .15s;
+  transition: background 0.15s;
 }
 
 .button:hover {
@@ -105,7 +105,7 @@ h2 {
 }
 
 .button:disabled {
-  opacity: .5;
+  opacity: 0.5;
   cursor: wait;
 }
 
@@ -151,15 +151,15 @@ h2 {
   gap: 14px;
   font-size: 1.25rem;
   font-weight: 750;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
 }
 
 .brand small {
   display: block;
   color: var(--muted);
-  font-size: .65rem;
+  font-size: 0.65rem;
   font-weight: 400;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
 }
 
 .brand__symbol {
@@ -177,7 +177,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 40px;
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
 .navigation a {
@@ -218,8 +218,8 @@ h2 {
   display: block;
   font-size: clamp(5rem, 10vw, 9.5rem);
   font-weight: 850;
-  letter-spacing: -.075em;
-  line-height: .95;
+  letter-spacing: -0.075em;
+  line-height: 0.95;
 }
 
 .hero__subtitle {
@@ -227,7 +227,7 @@ h2 {
   margin-top: 20px;
   font-size: clamp(1.3rem, 2.5vw, 2rem);
   font-weight: 400;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
 }
 
 .hero .lead {
@@ -239,7 +239,9 @@ h2 {
   height: 390px;
   overflow: hidden;
   border: 1px solid #6d55765e;
-  background-image: linear-gradient(#705b7b22 1px, transparent 1px), linear-gradient(90deg, #705b7b22 1px, transparent 1px);
+  background-image:
+    linear-gradient(#705b7b22 1px, transparent 1px),
+    linear-gradient(90deg, #705b7b22 1px, transparent 1px);
   background-size: 39px 39px;
 }
 
@@ -252,7 +254,16 @@ h2 {
   left: 12%;
   background: #8560a41f;
   border: 1px solid #8b6a9e;
-  clip-path: polygon(8% 26%, 32% 4%, 63% 15%, 72% 36%, 96% 52%, 75% 83%, 44% 96%, 12% 73%);
+  clip-path: polygon(
+    8% 26%,
+    32% 4%,
+    63% 15%,
+    72% 36%,
+    96% 52%,
+    75% 83%,
+    44% 96%,
+    12% 73%
+  );
 }
 
 .hero-map__orbit {
@@ -303,8 +314,8 @@ h2 {
   position: absolute;
   bottom: 20px;
   left: 20px;
-  font-size: .6rem;
-  letter-spacing: .16em;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
   color: var(--muted);
 }
 
@@ -343,7 +354,7 @@ h2 {
 .page-heading h1 {
   font-size: clamp(2.7rem, 7vw, 5rem);
   font-weight: 550;
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
   margin-bottom: 20px;
 }
 
@@ -384,7 +395,7 @@ h2 {
   gap: 20px;
   padding-block: 30px;
   color: var(--muted);
-  font-size: .8rem;
+  font-size: 0.8rem;
 }
 
 .mock-notice {
@@ -392,18 +403,16 @@ h2 {
   text-align: center;
   background: #342642;
   color: #e5d0f0;
-  font-size: .8rem;
+  font-size: 0.8rem;
 }
 
 @media (min-width: 768px) {
-
   .news-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1440px) {
-
   .news-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -414,7 +423,6 @@ h2 {
 }
 
 @media (max-width: 1023px) {
-
   .site-header__inner {
     min-height: 82px;
     flex-wrap: wrap;
@@ -448,7 +456,6 @@ h2 {
 }
 
 @media (max-width: 767px) {
-
   .container {
     width: calc(100% - 40px);
   }
@@ -506,7 +513,6 @@ h2 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   * {
     transition: none !important;
   }

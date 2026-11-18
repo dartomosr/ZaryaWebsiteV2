@@ -38,11 +38,13 @@ test('получает JSON-массив с обложками и парамет
   let requestedUrl;
   let accept;
 
-  server.use(http.get(base + 'news', ({ request }) => {
-    requestedUrl = request.url;
-    accept = request.headers.get('accept');
-    return HttpResponse.json(news.slice(12, 24));
-  }));
+  server.use(
+    http.get(base + 'news', ({ request }) => {
+      requestedUrl = request.url;
+      accept = request.headers.get('accept');
+      return HttpResponse.json(news.slice(12, 24));
+    }),
+  );
 
   const result = await getNews({ page: 2 });
 
@@ -59,32 +61,34 @@ test.each([
   '/api/images/123',
   'api/images/123',
   'https://cdn.example.test/cover.png',
-])(
-  'разрешает coverUrl %s относительно origin API', async coverUrl => {
-    vi.stubEnv('VITE_API_BASE_URL', 'https://api.example.test/api/');
-    server.use(http.get('https://api.example.test/api/news', () => {
+])('разрешает coverUrl %s относительно origin API', async (coverUrl) => {
+  vi.stubEnv('VITE_API_BASE_URL', 'https://api.example.test/api/');
+  server.use(
+    http.get('https://api.example.test/api/news', () => {
       return HttpResponse.json([{ ...news[0], coverUrl }]);
-    }));
+    }),
+  );
 
-    try {
-      const result = await getNews();
-      const expectedUrl = coverUrl.startsWith('https:')
-        ? coverUrl
-        : 'https://api.example.test/api/images/123';
+  try {
+    const result = await getNews();
+    const expectedUrl = coverUrl.startsWith('https:')
+      ? coverUrl
+      : 'https://api.example.test/api/images/123';
 
-      expect(result[0].coverUrl).toBe(expectedUrl);
-    } finally {
-      vi.unstubAllEnvs();
-    }
-  },
-);
+    expect(result[0].coverUrl).toBe(expectedUrl);
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});
 
 test('принимает дату с часовым смещением по контракту date-time', async () => {
   const publishedAt = '2026-11-03T13:00:00+03:00';
 
-  server.use(http.get(base + 'news', () => {
-    return HttpResponse.json([{ ...news[0], publishedAt }]);
-  }));
+  server.use(
+    http.get(base + 'news', () => {
+      return HttpResponse.json([{ ...news[0], publishedAt }]);
+    }),
+  );
 
   const result = await getNews();
 
@@ -103,7 +107,7 @@ test.each([
   [{ ...news[0], extra: true }],
   [{ id: '1', title: '', summary: '', publishedAt: news[0].publishedAt }],
   news,
-])('отклоняет ответ, не соответствующий контракту: %j', async data => {
+])('отклоняет ответ, не соответствующий контракту: %j', async (data) => {
   server.use(http.get(base + 'news', () => HttpResponse.json(data)));
 
   await expect(getNews()).rejects.toThrow(LOAD_ERROR);
@@ -117,11 +121,13 @@ test('mock выдаёт обложку отдельным GET-запросом',
   expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(0);
 });
 test('неправильный JSON превращается в ошибку загрузки', async () => {
-  server.use(http.get(base + 'news', () => {
-    return new HttpResponse('not json', {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }));
+  server.use(
+    http.get(base + 'news', () => {
+      return new HttpResponse('not json', {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }),
+  );
 
   await expect(getNews()).rejects.toThrow(LOAD_ERROR);
 });
