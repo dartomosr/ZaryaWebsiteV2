@@ -1,8 +1,9 @@
 .news-card {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  background: #1b1920;
+  border: 1px solid var(--zarya-line);
+  color: var(--zarya-paper);
+  background: #1e1d1b;
   overflow-wrap: anywhere;
 }
 
@@ -10,12 +11,13 @@
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: linear-gradient(135deg, #302538, #222029);
-  border-bottom: 1px solid var(--line);
+  background: linear-gradient(140deg, #453425, #292725);
+  border-bottom: 1px solid var(--zarya-line);
 }
 
-.news-card__cover img {
-  position: relative;
+.news-card__cover img:not([hidden]) {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -27,9 +29,8 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  color: #c1a2d136;
-  font-weight: 850;
-  font-size: 5rem;
+  color: #ffad1338;
+  font: 400 5rem / 1 var(--zarya-font-display);
 }
 
 .news-card__body {
@@ -37,17 +38,17 @@
 }
 
 .news-card time {
-  font-size: 0.75rem;
-  color: var(--accent);
+  font-size: 0.8125rem;
+  color: var(--zarya-amber);
 }
 
-.news-card h3 {
+.news-card__title {
   margin-block: 14px 12px;
-  font-size: 1.25rem;
-  font-weight: 550;
+  font-size: clamp(1.2rem, 1.75vw, 1.65rem);
+  font-weight: 750;
 }
 
 .news-card p {
-  font-size: 0.9rem;
-  color: var(--muted);
+  font-size: 1rem;
+  color: var(--zarya-muted);
 }

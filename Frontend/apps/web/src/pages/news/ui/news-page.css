@@ -1,0 +1,97 @@
+.news-page {
+  --accent: var(--zarya-amber);
+
+  min-height: 70svh;
+  color: var(--zarya-paper);
+  background: var(--zarya-ink);
+}
+
+.news-page__masthead {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(2.75rem, 6vw, 6rem);
+  border-bottom: 1px solid var(--zarya-line);
+  background: linear-gradient(115deg, #1b1b1a, #29241c);
+}
+
+.news-page__masthead::before,
+.news-page__masthead::after {
+  position: absolute;
+  z-index: -1;
+  content: '';
+}
+
+.news-page__masthead::before {
+  inset: 0 0 0 48%;
+  background:
+    linear-gradient(90deg, transparent, #ffaa0f16),
+    repeating-linear-gradient(122deg, #ffaa0f14 0 1px, transparent 1px 18px);
+  clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.news-page__masthead::after {
+  top: 50%;
+  right: max(4vw, (100% - 1260px) / 2);
+  width: clamp(8rem, 21vw, 18rem);
+  aspect-ratio: 1;
+  background: var(--zarya-amber);
+  mask: url('../../../shared/assets/brand/zarya-black.png') center / contain
+    no-repeat;
+  transform: translateY(-50%);
+  opacity: 0.2;
+}
+
+.news-page__masthead h1 {
+  font: 400 clamp(3.25rem, 8vw, 7rem) / 1 var(--zarya-font-display);
+}
+
+.news-page__masthead p {
+  max-width: 42ch;
+  margin-top: 1rem;
+  color: var(--zarya-muted);
+  font-size: clamp(1rem, 1.4vw, 1.1875rem);
+}
+
+.news-page__feed {
+  padding-block: clamp(1.75rem, 5vw, 4.5rem) clamp(3rem, 7vw, 6rem);
+}
+
+.news-page__feed > .state-message:first-child {
+  margin-top: 0;
+}
+
+.news-page__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+  margin-top: clamp(1.5rem, 4vw, 3rem);
+}
+
+.news-page__actions::before,
+.news-page__actions::after {
+  flex: 1;
+  height: 1px;
+  background: var(--zarya-line);
+  content: '';
+}
+
+@media (min-width: 600px) {
+  .news-page__grid {
+    --news-grid-columns: 2;
+  }
+}
+
+@media (min-width: 960px) {
+  .news-page__grid {
+    --news-grid-columns: 3;
+  }
+}
+
+@media (max-width: 599px) {
+  .news-page__masthead::after {
+    right: -1rem;
+    opacity: 0.1;
+  }
+}

@@ -35,6 +35,45 @@ test('неизвестный маршрут показывает страниц�
   );
 });
 
+test.each([
+  ['/updates', 'Обновления'],
+  ['/materials', 'Материалы'],
+  ['/login', 'Вход'],
+])('маршрут %s открывает заглушку раздела', (path, title) => {
+  renderWithProviders(<App />, path);
+
+  expect(
+    screen.getByRole('heading', { level: 1, name: title }),
+  ).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: title })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+});
+
+test('при смене раздела ссылки шапки сохраняются в DOM, а меню закрывается', () => {
+  const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+  try {
+    renderWithProviders(<App />, '/materials');
+    const homeLink = screen.getByRole('link', { name: 'Главная' });
+    const materialsLink = screen.getByRole('link', { name: 'Материалы' });
+    const menuToggle = screen.getByText('Меню', { selector: 'button' });
+
+    fireEvent.click(menuToggle);
+    expect(menuToggle).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(screen.getByRole('link', { name: 'На главную' }));
+
+    expect(screen.getByRole('link', { name: 'Главная' })).toBe(homeLink);
+    expect(homeLink).toHaveAttribute('aria-current', 'page');
+    expect(materialsLink).not.toHaveAttribute('aria-current');
+    expect(menuToggle).toHaveAttribute('aria-expanded', 'false');
+  } finally {
+    scrollTo.mockRestore();
+  }
+});
+
 test('при возврате в новости сохраняет ранее загруженные страницы', async () => {
   const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
 

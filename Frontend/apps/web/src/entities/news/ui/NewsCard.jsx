@@ -1,7 +1,14 @@
 import './news-card.css';
 
-/** @param {{ item: import('../api/news.contract.js').NewsSummaryDto }} props */
-export function NewsCard({ item }) {
+/**
+ * @param {{
+ *   item: import('../api/news.contract.js').NewsSummaryDto,
+ *   headingLevel?: 2 | 3,
+ * }} props
+ */
+export function NewsCard({ item, headingLevel = 3 }) {
+  const Heading = headingLevel === 2 ? 'h2' : 'h3';
+
   return (
     <article className="news-card">
       <div className="news-card__cover">
@@ -26,7 +33,7 @@ export function NewsCard({ item }) {
             timeZone: 'UTC',
           })}
         </time>
-        <h3>{item.title}</h3>
+        <Heading className="news-card__title">{item.title}</Heading>
         <p>{item.summary}</p>
       </div>
     </article>

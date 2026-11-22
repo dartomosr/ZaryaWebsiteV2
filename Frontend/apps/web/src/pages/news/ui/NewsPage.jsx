@@ -3,6 +3,7 @@ import {
   NewsCard,
   useNewsFeed,
 } from '../../../entities/news/index.js';
+import './news-page.css';
 
 export default function NewsPage() {
   const { items, loading, error, hasMore, loadMore } = useNewsFeed();
@@ -14,28 +15,33 @@ export default function NewsPage() {
   return (
     <main
       id="content"
-      className="container page-content"
+      className="news-page"
       tabIndex={-1}
     >
-      <header className="page-heading">
-        <p className="eyebrow">ЗАРЯ / Журнал</p>
-        <h1>Новости</h1>
-        <p className="lead">
-          Последние публикации проекта «ЗАРЯ: Марш Революции».
-        </p>
+      <header className="news-page__masthead">
+        <div className="container">
+          <h1>Новости</h1>
+          <p>Публикации проекта «ЗАРЯ: Марш Революции».</p>
+        </div>
       </header>
       <section
+        className="container news-page__feed"
         aria-label="Опубликованные новости"
-        aria-busy={loading}
       >
-        <div className="news-grid">
-          {items.map((item) => (
-            <NewsCard
-              key={item.id}
-              item={item}
-            />
-          ))}
-        </div>
+        {items.length > 0 && (
+          <div
+            className="news-grid news-page__grid"
+            aria-busy={loading}
+          >
+            {items.map((item) => (
+              <NewsCard
+                key={item.id}
+                item={item}
+                headingLevel={2}
+              />
+            ))}
+          </div>
+        )}
         {loading && (
           <p
             className="state-message"
@@ -56,9 +62,9 @@ export default function NewsPage() {
           </p>
         )}
         {hasMore && (
-          <div className="load-more">
+          <div className="news-page__actions">
             <button
-              className="button button--outline"
+              className="button zarya-button"
               disabled={loading}
               onClick={loadMore}
             >

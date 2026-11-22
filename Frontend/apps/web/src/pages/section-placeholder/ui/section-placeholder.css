@@ -1,0 +1,22 @@
+.section-placeholder {
+  min-height: 68svh;
+  padding-block: clamp(3rem, 8vw, 7rem);
+  color: var(--zarya-paper);
+  background: var(--zarya-ink);
+}
+
+.section-placeholder__panel {
+  padding: clamp(1.5rem, 6vw, 5rem);
+  border-inline-start: 4px solid var(--zarya-amber);
+  background: linear-gradient(115deg, #29241c, #1d1d1c 68%);
+}
+
+.section-placeholder__panel h1 {
+  font: 400 clamp(2rem, 7vw, 5rem) / 1.05 var(--zarya-font-display);
+  overflow-wrap: anywhere;
+}
+
+.section-placeholder__panel p {
+  margin-block: 1rem 2rem;
+  color: var(--zarya-muted);
+}

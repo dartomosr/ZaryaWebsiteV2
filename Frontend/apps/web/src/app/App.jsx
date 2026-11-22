@@ -3,6 +3,8 @@ import { Route, Routes, useLocation, useNavigationType } from 'react-router';
 import { HomePage } from '../pages/home/index.js';
 import { NewsPage } from '../pages/news/index.js';
 import { NotFoundPage } from '../pages/not-found/index.js';
+import { SectionPlaceholderPage } from '../pages/section-placeholder/index.js';
+import { placeholderSections } from '../shared/config/index.js';
 import { SiteLayout } from '../shared/ui/site-layout/index.js';
 
 export default function App() {
@@ -27,7 +29,7 @@ export default function App() {
       {import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCKS === 'true' && (
         <p className="mock-notice">Тестовые данные</p>
       )}
-      <SiteLayout key={pathname}>
+      <SiteLayout>
         <Routes>
           <Route
             path="/"
@@ -37,6 +39,18 @@ export default function App() {
             path="/news"
             element={<NewsPage />}
           />
+          {placeholderSections.map(({ path, title, message }) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <SectionPlaceholderPage
+                  title={title}
+                  message={message}
+                />
+              }
+            />
+          ))}
           <Route
             path="*"
             element={<NotFoundPage />}

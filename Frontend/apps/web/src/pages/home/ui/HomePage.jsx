@@ -4,6 +4,8 @@ import {
   NewsCard,
   useLatestNews,
 } from '../../../entities/news/index.js';
+import heroArt from '../assets/zarya-hero-flag.png';
+import './home-page.css';
 
 export default function HomePage() {
   const { items, loading, error, retry } = useLatestNews();
@@ -11,72 +13,42 @@ export default function HomePage() {
   return (
     <main
       id="content"
+      className="home-page"
       tabIndex={-1}
     >
-      <section className="hero">
-        <div className="container hero__layout">
-          <div className="hero__copy">
-            <p className="eyebrow">Официальный сайт игры</p>
-            <h1 aria-label="ЗАРЯ: Марш Революции">
-              <span className="hero__title">ЗАРЯ</span>
-              <span className="hero__subtitle">Марш Революции</span>
-            </h1>
-            <p className="lead">
-              Новости проекта и материалы об игре в одном месте.
-            </p>
-            <Link
-              className="button"
-              to="/news"
-            >
-              Читать новости <span aria-hidden="true">↗</span>
-            </Link>
-          </div>
-          <div
-            className="hero-map"
-            aria-hidden="true"
-          >
-            <div className="hero-map__orbit" />
-            <div className="hero-map__orbit hero-map__orbit--inner" />
-            <span className="hero-map__mark">З</span>
-            <span className="hero-map__cross hero-map__cross--one">+</span>
-            <span className="hero-map__cross hero-map__cross--two">+</span>
-            <span className="hero-map__caption">ЗАРЯ / МАРШ РЕВОЛЮЦИИ</span>
-          </div>
-        </div>
-      </section>
+      <div className="home-hero">
+        <img
+          className="home-hero__art"
+          src={heroArt}
+          width="1024"
+          height="572"
+          alt=""
+          fetchPriority="high"
+        />
+        <h1
+          className="home-hero__heading"
+          aria-label="ЗАРЯ: Марш Революции"
+        >
+          <span className="home-hero__title">ЗАРЯ</span>
+          <span className="home-hero__subtitle">Марш Революции</span>
+        </h1>
+      </div>
 
       <section
-        className="container home-section"
-        aria-labelledby="about-title"
-      >
-        <p className="eyebrow">О проекте</p>
-        <div className="section-heading">
-          <h2 id="about-title">ЗАРЯ: Марш Революции</h2>
-          <p>
-            Сайт находится в разработке. Следить за публикациями проекта можно в
-            разделе новостей.
-          </p>
-        </div>
-      </section>
-
-      <section
-        className="container home-section"
+        className="container home-news"
         aria-labelledby="latest-title"
         aria-busy={loading}
       >
-        <div className="section-heading section-heading--news">
-          <div>
-            <p className="eyebrow">Журнал проекта</p>
-            <h2 id="latest-title">Последние новости</h2>
-          </div>
+        <div className="home-news__heading">
+          <h2 id="latest-title">Последние новости</h2>
           <Link
-            className="text-link"
+            className="home-news__link"
             to="/news"
           >
-            Все новости <span aria-hidden="true">↗</span>
+            Все новости
           </Link>
         </div>
-        <div className="news-grid news-grid--preview">
+        <div className="news-grid">
           {items.map((item) => (
             <NewsCard
               key={item.id}
@@ -106,6 +78,28 @@ export default function HomePage() {
             </button>
           </div>
         )}
+      </section>
+
+      <section
+        className="home-about"
+        aria-labelledby="about-title"
+      >
+        <div className="container home-about__inner">
+          <div>
+            <h2 id="about-title">О проекте</h2>
+            <p>
+              Это официальный сайт игры «ЗАРЯ: Марш Революции». Сайт находится в
+              разработке. Следить за публикациями проекта можно в разделе
+              новостей.
+            </p>
+          </div>
+          <Link
+            className="button zarya-button"
+            to="/news"
+          >
+            Читать новости
+          </Link>
+        </div>
       </section>
     </main>
   );

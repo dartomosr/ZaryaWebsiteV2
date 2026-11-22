@@ -1,9 +1,26 @@
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { useRef, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router';
+import logo from '../../assets/brand/zarya-black.png';
+import { placeholderSections } from '../../config/index.js';
+import './site-layout.css';
+
+const navigation = [
+  { path: '/', title: 'Главная' },
+  { path: '/news', title: 'Новости' },
+  ...placeholderSections,
+];
 
 /** @param {{ children: import('react').ReactNode }} props */
 export function SiteLayout({ children }) {
+  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPathname, setMenuPathname] = useState(pathname);
+  const menuToggle = useRef(/** @type {HTMLButtonElement | null} */ (null));
+
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname);
+    setMenuOpen(false);
+  }
 
   return (
     <>
@@ -13,26 +30,33 @@ export function SiteLayout({ children }) {
       >
         Перейти к содержимому
       </a>
-      <header className="site-header">
-        <div className="container site-header__inner">
+      <header
+        className="site-header"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape' && menuOpen) {
+            setMenuOpen(false);
+            menuToggle.current?.focus();
+          }
+        }}
+      >
+        <div className="site-header__inner">
           <Link
             className="brand"
             to="/"
             onClick={() => setMenuOpen(false)}
             aria-label="ЗАРЯ: Марш Революции, главная"
           >
-            <span
-              className="brand__symbol"
-              aria-hidden="true"
-            >
-              З
-            </span>
-            <span>
-              ЗАРЯ<small>Марш Революции</small>
-            </span>
+            <img
+              src={logo}
+              width="2379"
+              height="2347"
+              alt=""
+            />
           </Link>
           <button
-            className="menu-toggle button button--outline"
+            ref={menuToggle}
+            className="menu-toggle"
+            type="button"
             aria-expanded={menuOpen}
             aria-controls="main-navigation"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -44,20 +68,17 @@ export function SiteLayout({ children }) {
             className={menuOpen ? 'navigation navigation--open' : 'navigation'}
             aria-label="Основная навигация"
           >
-            <NavLink
-              to="/"
-              end
-              onClick={() => setMenuOpen(false)}
-            >
-              Главная
-            </NavLink>
-            <NavLink
-              to="/news"
-              end
-              onClick={() => setMenuOpen(false)}
-            >
-              Новости
-            </NavLink>
+            {navigation.map(({ path, title }) => (
+              <NavLink
+                key={path}
+                className="navigation__link"
+                to={path}
+                end
+                onClick={() => setMenuOpen(false)}
+              >
+                {title}
+              </NavLink>
+            ))}
           </nav>
         </div>
       </header>
