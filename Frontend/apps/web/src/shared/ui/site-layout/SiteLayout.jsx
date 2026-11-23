@@ -55,7 +55,7 @@ export function SiteLayout({ children }) {
           </Link>
           <button
             ref={menuToggle}
-            className="menu-toggle"
+            className="button button--outline menu-toggle"
             type="button"
             aria-expanded={menuOpen}
             aria-controls="main-navigation"

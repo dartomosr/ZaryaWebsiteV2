@@ -42,18 +42,14 @@
   padding-inline-end: clamp(1rem, 2vw, 2.25rem);
 }
 
-.navigation__link,
-.menu-toggle {
-  font: 900 clamp(1rem, 1.7vw, 1.85rem) / 1 var(--zarya-font-display);
-  text-transform: uppercase;
-}
-
 .navigation__link {
   position: relative;
   isolation: isolate;
   display: flex;
   align-items: center;
   padding-inline: clamp(0.875rem, 1.35vw, 1.625rem);
+  font: 900 clamp(1rem, 1.7vw, 1.85rem) / 1 var(--zarya-font-display);
+  text-transform: uppercase;
   white-space: nowrap;
   transition: color 150ms ease;
 }
@@ -108,7 +104,7 @@
   outline-color: var(--zarya-ink);
 }
 
-.menu-toggle {
+.site-header .menu-toggle {
   display: none;
 }
 
@@ -147,16 +143,13 @@
     clip-path: polygon(0 0, 100% 0, calc(100% - 1.125rem) 100%, 0 100%);
   }
 
-  .menu-toggle {
-    display: block;
+  .site-header .menu-toggle {
+    --accent: var(--zarya-amber);
+
+    display: inline-flex;
     align-self: center;
-    min-height: 2.75rem;
     margin-inline-end: 1.25rem;
-    padding-inline: 0.75rem;
-    border: 1px solid var(--zarya-amber);
-    color: var(--zarya-amber);
-    background: transparent;
-    cursor: pointer;
+    padding-inline: 0.875rem;
   }
 
   .navigation {
