@@ -53,7 +53,8 @@
 }
 
 .home-hero__title {
-  font: 400 clamp(5.25rem, 10.8vw, 12rem) / 0.88 var(--zarya-font-display);
+  font: 900 clamp(5.25rem, 10.8vw, 12rem) / 0.88 var(--zarya-font-display);
+  text-transform: uppercase;
 }
 
 .home-hero__subtitle {
@@ -69,7 +70,8 @@
 }
 
 .home-page h2 {
-  font: 400 clamp(1.8rem, 4.2vw, 3.75rem) / 1.05 var(--zarya-font-display);
+  font: 900 clamp(1.8rem, 4.2vw, 3.75rem) / 1.05 var(--zarya-font-display);
+  text-transform: uppercase;
 }
 
 .home-news__heading {

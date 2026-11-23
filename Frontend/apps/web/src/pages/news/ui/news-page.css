@@ -43,7 +43,8 @@
 }
 
 .news-page__masthead h1 {
-  font: 400 clamp(3.25rem, 8vw, 7rem) / 1 var(--zarya-font-display);
+  font: 900 clamp(3.25rem, 8vw, 7rem) / 1 var(--zarya-font-display);
+  text-transform: uppercase;
 }
 
 .news-page__masthead p {

@@ -1,6 +1,7 @@
 @font-face {
-  font-family: Molot;
-  src: url('../../shared/assets/fonts/molot.otf') format('opentype');
+  font-family: 'Zarya Poster';
+  src: url('../../shared/assets/fonts/ZaryaPoster-Black.woff2') format('woff2');
+  font-weight: 900;
   font-display: swap;
 }
 
@@ -24,7 +25,7 @@
   --zarya-paper: #fffaf2;
   --zarya-muted: #c6bfb2;
   --zarya-line: #403b32;
-  --zarya-font-display: Molot, Impact, 'Arial Black', sans-serif;
+  --zarya-font-display: 'Zarya Poster', Impact, 'Arial Black', sans-serif;
   --zarya-font-text: Rubik, 'Segoe UI', sans-serif;
   --site-header-height: clamp(4.25rem, 5.9vw, 6.25rem);
 }

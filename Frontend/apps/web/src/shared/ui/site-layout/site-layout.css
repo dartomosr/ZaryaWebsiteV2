@@ -44,7 +44,8 @@
 
 .navigation__link,
 .menu-toggle {
-  font: 400 clamp(1rem, 1.7vw, 1.85rem) / 1 var(--zarya-font-display);
+  font: 900 clamp(1rem, 1.7vw, 1.85rem) / 1 var(--zarya-font-display);
+  text-transform: uppercase;
 }
 
 .navigation__link {

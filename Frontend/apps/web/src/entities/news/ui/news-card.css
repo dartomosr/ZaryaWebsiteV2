@@ -30,7 +30,7 @@
   top: 50%;
   transform: translate(-50%, -50%);
   color: #ffad1338;
-  font: 400 5rem / 1 var(--zarya-font-display);
+  font: 900 5rem / 1 var(--zarya-font-display);
 }
 
 .news-card__body {
