@@ -12,12 +12,14 @@
 }
 
 .section-placeholder__panel h1 {
-  font: 900 clamp(2rem, 7vw, 5rem) / 1.05 var(--zarya-font-display);
+  font: 900 clamp(1.5rem, 5.9vw, 5rem) / 1.05 var(--zarya-font-display);
   overflow-wrap: anywhere;
   text-transform: uppercase;
 }
 
 .section-placeholder__panel p {
+  max-width: 52ch;
+  font-size: clamp(1rem, 1rem + 0.25vw, 1.25rem);
   margin-block: 1rem 2rem;
   color: var(--zarya-muted);
 }

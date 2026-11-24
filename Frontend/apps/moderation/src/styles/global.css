@@ -1,8 +1,9 @@
+@import '@zarya/ui/typography.css';
+
 * {
   box-sizing: border-box;
 }
 :root {
-  font-family: system-ui, sans-serif;
   color: #f5f2ed;
   background: #121118;
   color-scheme: dark;

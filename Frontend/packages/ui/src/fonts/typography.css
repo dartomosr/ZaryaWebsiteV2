@@ -1,0 +1,46 @@
+@font-face {
+  font-family: 'Zarya Poster';
+  src: url('./ZaryaPoster-Black.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zarya Text';
+  src: url('./ZaryaText-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zarya Text';
+  src: url('./ZaryaText-Semibold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zarya Text';
+  src: url('./ZaryaText-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zarya Text';
+  src: url('./ZaryaText-Italic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --zarya-font-text: 'Zarya Text', sans-serif;
+  --zarya-font-display: 'Zarya Poster', var(--zarya-font-text);
+  font-family: var(--zarya-font-text);
+  font-synthesis: none;
+}

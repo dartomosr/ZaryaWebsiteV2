@@ -34,18 +34,22 @@
 }
 
 .news-card__body {
-  padding: 24px;
+  padding: clamp(1rem, 2vw, 1.5rem);
 }
 
 .news-card time {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.035em;
   color: var(--zarya-amber);
 }
 
 .news-card__title {
-  margin-block: 14px 12px;
+  margin-block: 0.55rem 0.75rem;
   font-size: clamp(1.2rem, 1.75vw, 1.65rem);
-  font-weight: 750;
+  line-height: 1.24;
+  text-wrap: pretty;
+  font-weight: 700;
 }
 
 .news-card p {

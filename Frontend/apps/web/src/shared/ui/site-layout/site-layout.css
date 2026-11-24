@@ -48,7 +48,7 @@
   display: flex;
   align-items: center;
   padding-inline: clamp(0.875rem, 1.35vw, 1.625rem);
-  font: 900 clamp(1rem, 1.7vw, 1.85rem) / 1 var(--zarya-font-display);
+  font: 900 clamp(1rem, 1.5vw, 1.625rem) / 1.15 var(--zarya-font-display);
   text-transform: uppercase;
   white-space: nowrap;
   transition: color 150ms ease;
@@ -125,7 +125,7 @@
 
 .site-footer__inner > :first-child {
   color: var(--zarya-paper);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 @media (max-width: 1023px) {

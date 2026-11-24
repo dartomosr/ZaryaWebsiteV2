@@ -5,8 +5,9 @@
 }
 
 .access-unavailable h1 {
-  font-size: clamp(2rem, 5vw, 3.6rem);
-  line-height: 1.15;
+  font: 700 clamp(2rem, 5vw, 3.6rem) / 1.15 var(--zarya-font-text);
+  text-wrap: balance;
+  margin-block: 0.5em;
 }
 
 .access-unavailable p {
@@ -15,7 +16,9 @@
 
 .access-unavailable__label {
   color: #ffc267;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: 0.055em;
 }
 
 .access-unavailable__notice {

@@ -49,6 +49,8 @@
 
 .news-page__masthead p {
   max-width: 42ch;
+  font-style: italic;
+  text-wrap: pretty;
   margin-top: 1rem;
   color: var(--zarya-muted);
   font-size: clamp(1rem, 1.4vw, 1.1875rem);
