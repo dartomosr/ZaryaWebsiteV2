@@ -5,6 +5,7 @@ import {
   useLatestNews,
 } from '../../../entities/news/index.js';
 import heroArt from '../assets/zarya-hero-flag.png';
+import WorldMachineTerminal from './WorldMachineTerminal.jsx';
 import './home-page.css';
 
 export default function HomePage() {
@@ -33,6 +34,8 @@ export default function HomePage() {
           <span className="home-hero__subtitle">Марш Революции</span>
         </h1>
       </div>
+
+      <WorldMachineTerminal />
 
       <section
         className="container home-news"

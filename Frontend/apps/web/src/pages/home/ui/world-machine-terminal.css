@@ -1,0 +1,233 @@
+.world-machine-terminal {
+  --terminal-fade-depth: 1.125rem;
+
+  position: relative;
+  display: grid;
+  width: min(100% - 2.5rem, 40rem);
+  margin: clamp(-5rem, -5.5vw, -2.75rem) auto 0;
+  padding: 0 clamp(0.625rem, 1.6vw, 1.5rem);
+  border: 1px solid #706050;
+  border-radius: 0.625rem;
+  background: linear-gradient(165deg, #51463a, #29241f 38%, #211e1a 75%);
+  box-shadow:
+    inset 0 2px #ae95714d,
+    inset 0 0 1rem #ffb65100;
+  mask-image: linear-gradient(
+    #000 calc(100% - var(--terminal-fade-depth)),
+    transparent
+  );
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible) {
+  border-color: #b28752;
+  box-shadow:
+    inset 0 2px #ffca7059,
+    inset 0 0 1rem #ffb65129;
+}
+
+.world-machine-terminal:focus-visible {
+  outline-offset: -2px;
+}
+
+.world-machine-terminal__engraving {
+  padding-block: 0.5rem 0.375rem;
+  color: #d1bba0;
+  font: 900 0.75rem / 1 var(--zarya-font-display);
+  letter-spacing: 0.12em;
+  text-shadow: 0 -1px #1a1611;
+}
+
+.world-machine-terminal__screen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem 1.25rem;
+  padding-block: 0.625rem calc(var(--terminal-fade-depth) + 0.5rem);
+  padding-inline: clamp(0.75rem, 2vw, 1.25rem);
+  border: 1px solid #55432e;
+  border-radius: 0.25rem;
+  color: #ffbd58;
+  background:
+    repeating-linear-gradient(to bottom, #ebb86d0a 0 1px, transparent 1px 4px),
+    linear-gradient(155deg, #322519, #171410 78%);
+  box-shadow:
+    inset 0 0 0 3px #16130f,
+    inset 0 0 1rem #ffb65100,
+    inset 0 0 1.25rem #080602b3;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    color 0.18s;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible)
+  .world-machine-terminal__screen {
+  border-color: #a77538;
+  box-shadow:
+    inset 0 0 0 3px #22180d,
+    inset 0 0 1rem #ffb65138,
+    inset 0 0 1.25rem #080602b3;
+  color: #ffda87;
+}
+
+.world-machine-terminal__readout {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.world-machine-terminal__title {
+  font: 900 clamp(1.125rem, 3vw, 1.625rem) / 1.15 var(--zarya-font-display);
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  text-shadow: 0 0 0.625rem #ffae4952;
+  transition: text-shadow 0.18s;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible)
+  .world-machine-terminal__title {
+  text-shadow: 0 0 0.875rem #ffae4980;
+}
+
+.world-machine-terminal__description {
+  color: #ddba8c;
+  font: 400 0.875rem / 1.25 var(--zarya-font-text);
+}
+
+.world-machine-terminal__status {
+  display: grid;
+  color: #c5a474;
+  font:
+    400 0.6875rem / 1.35 ui-monospace,
+    Consolas,
+    monospace;
+  text-shadow: 0 0 0.375rem #ffae494d;
+}
+
+.world-machine-terminal__status > span {
+  grid-area: 1 / 1;
+}
+
+.world-machine-terminal__status-ready {
+  visibility: hidden;
+  color: #ffd17d;
+  text-shadow: 0 0 0.5rem #ffae498c;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible)
+  .world-machine-terminal__status-idle {
+  visibility: hidden;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible)
+  .world-machine-terminal__status-ready {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .world-machine-terminal:is(:hover, :focus-visible)
+    .world-machine-terminal__status-ready {
+    animation: world-machine-status-flicker 220ms ease-out;
+  }
+}
+
+@keyframes world-machine-status-flicker {
+  0% {
+    opacity: 0.45;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  65% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.world-machine-terminal__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-inline-start: auto;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.125rem;
+  color: #20160a;
+  background: #e9a546;
+  font: 700 0.875rem / 1.25 var(--zarya-font-text);
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible)
+  .world-machine-terminal__action {
+  background: #ffca70;
+  box-shadow: 0 0 0.875rem #ffb65152;
+}
+
+.world-machine-terminal__arrow {
+  transition: transform 0.18s;
+}
+
+.world-machine-terminal:is(:hover, :focus-visible)
+  .world-machine-terminal__arrow {
+  transform: translateX(0.25rem);
+}
+
+html:has(.world-machine-dialog[open]) {
+  overflow: hidden;
+}
+
+.world-machine-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: clamp(1.25rem, 5vw, 4rem);
+  border: 0;
+  color: var(--zarya-paper);
+  background: radial-gradient(ellipse at top, #302418, var(--zarya-ink) 65%);
+}
+
+.world-machine-dialog__inner {
+  width: min(100%, 64rem);
+  margin-inline: auto;
+}
+
+.world-machine-dialog__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--zarya-line);
+}
+
+.world-machine-dialog__header h2 {
+  color: var(--zarya-amber);
+  font: 900 clamp(1.25rem, 3.5vw, 2.5rem) / 1.1 var(--zarya-font-display);
+  text-transform: uppercase;
+}
+
+.world-machine-dialog__content {
+  padding-block: clamp(2rem, 7vw, 5rem);
+}
+
+.world-machine-dialog__content p {
+  margin-top: 0.75rem;
+  color: var(--zarya-muted);
+}
