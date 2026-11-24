@@ -12,7 +12,7 @@ export default function WorldMachineTerminal() {
         className="world-machine-terminal"
         type="button"
         aria-haspopup="dialog"
-        aria-labelledby="world-machine-action world-machine-terminal-title"
+        aria-labelledby="world-machine-action"
         aria-describedby="world-machine-description"
         onClick={() => dialogRef.current?.showModal()}
       >
@@ -24,12 +24,6 @@ export default function WorldMachineTerminal() {
         </span>
         <span className="world-machine-terminal__screen">
           <span className="world-machine-terminal__readout">
-            <span
-              id="world-machine-terminal-title"
-              className="world-machine-terminal__title"
-            >
-              Мировая Машина
-            </span>
             <span
               id="world-machine-description"
               className="world-machine-terminal__description"

@@ -16,7 +16,7 @@
   position: relative;
   isolation: isolate;
   min-height: max(28rem, calc(100svh - var(--site-header-height)));
-  padding: clamp(4rem, 10.2vw, 12rem) max(5vw, (100% - 1520px) / 2);
+  padding-block: clamp(4rem, 10.2vw, 12rem);
   background: #393230;
 }
 
@@ -44,10 +44,15 @@
 
 .home-hero__heading {
   display: grid;
-  width: fit-content;
-  justify-items: center;
+  justify-items: start;
   gap: clamp(0.75rem, 1.35vw, 1.5rem);
-  text-shadow: 0 4px 18px #14131880;
+}
+
+.home-hero__heading,
+.home-hero__description {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 4px 18px rgba(0, 0, 0, 0.75);
 }
 
 .home-hero__title,
@@ -62,8 +67,17 @@
 }
 
 .home-hero__subtitle {
-  font: 600 clamp(0.9375rem, 1.6vw, 1.625rem) / 1.2 var(--zarya-font-text);
+  font: 600 clamp(1rem, 1.75vw, 1.75rem) / 1.2 var(--zarya-font-text);
   letter-spacing: 0.14em;
+}
+
+.home-hero__description {
+  max-inline-size: 30rem;
+  margin-block-start: 0.8125rem;
+  color: #f7f3eb;
+  font-size: clamp(1.125rem, 1.4vw, 1.1875rem);
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .home-news,
@@ -133,7 +147,7 @@
   .home-hero {
     --hero-title-shade: linear-gradient(180deg, #14151fa6, transparent 62%);
 
-    padding-top: clamp(2.5rem, 12svh, 7rem);
+    padding-block-start: clamp(2.5rem, 12svh, 7rem);
   }
 
   .home-hero__art {

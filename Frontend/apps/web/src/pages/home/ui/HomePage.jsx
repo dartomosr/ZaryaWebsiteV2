@@ -26,13 +26,19 @@ export default function HomePage() {
           alt=""
           fetchPriority="high"
         />
-        <h1
-          className="home-hero__heading"
-          aria-label="ЗАРЯ: Марш Революции"
-        >
-          <span className="home-hero__title">ЗАРЯ</span>
-          <span className="home-hero__subtitle">Марш Революции</span>
-        </h1>
+        <div className="container">
+          <h1
+            className="home-hero__heading"
+            aria-label="ЗАРЯ: Марш Революции"
+          >
+            <span className="home-hero__title">ЗАРЯ</span>
+            <span className="home-hero__subtitle">Марш Революции</span>
+          </h1>
+          <p className="home-hero__description">
+            Пошаговая сюжетная стратегия в альтернативном мире. Возьмите на себя
+            роль лидера отряда и проведите его через сложные события революции
+          </p>
+        </div>
       </div>
 
       <WorldMachineTerminal />
